@@ -6,6 +6,7 @@
 - **Framework**: Express.js v5.1.0
 - **Database**: MongoDB with Mongoose ODM v8.14.0
 - **Package Manager**: bun v10.13.1
+- **openAPI Generation**: @asteasolutions/zod-to-openapi, each module (in api folder) will have a doc.ts like user.doc.ts
 
 ## Development Tools
 
@@ -20,6 +21,7 @@
 - **dotenv**: Environment variable management
 - **zod**: Runtime type validation
 - **cors**: Cross-origin resource sharing
+
 
 ## Common Commands
 

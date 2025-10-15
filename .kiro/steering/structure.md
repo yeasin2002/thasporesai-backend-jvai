@@ -6,7 +6,9 @@
 providus_org/
 ├── src/                    # Source code
 │   ├── db/                 # Database connection and models
-│   ├── routers/            # API route handlers
+│   ├── API/                # API route handlers
+│       ├── user/                # User API route handlers
+│       ├── auth/                # Auth API route handlers
 │   └── index.ts            # Application entry point
 ├── .kiro/                  # Kiro AI assistant configuration
 ├── .husky/                 # Git hooks configuration
