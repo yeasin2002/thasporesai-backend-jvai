@@ -1,0 +1,60 @@
+# Technology Stack
+
+## Core Technologies
+
+- **Runtime**: Node.js with TypeScript (ESNext target)
+- **Framework**: Express.js v5.1.0
+- **Database**: MongoDB with Mongoose ODM v8.14.0
+- **Package Manager**: bun v10.13.1
+
+## Development Tools
+
+- **Build System**: tsdown (TypeScript bundler)
+- **Type Checking**: TypeScript v5.8.2 with strict mode
+- **Linting**: oxlint v1.12.0 (Rust-based linter)
+- **Git Hooks**: Husky v9.1.7 with lint-staged
+- **Hot Reload**: tsx for development
+
+## Key Dependencies
+
+- **dotenv**: Environment variable management
+- **zod**: Runtime type validation
+- **cors**: Cross-origin resource sharing
+
+## Common Commands
+
+### Development
+
+```bash
+bun dev          # Start development server with hot reload
+bun dev:b        # Start with Bun hot reload (alternative)
+```
+
+### Building & Production
+
+```bash
+bun build        # Build with tsdown
+bun start        # Start production server
+bun compile      # Create standalone executable with Bun
+```
+
+### Code Quality
+
+```bash
+bun check        # Run oxlint
+bun check-types  # TypeScript type checking
+```
+
+### Database
+
+```bash
+bun db:push      # Apply schema changes (mentioned in README)
+bun db:studio    # Open database UI (mentioned in README)
+```
+
+## Configuration Notes
+
+- Uses ES modules (`"type": "module"`)
+- Path aliases: `@/*` maps to `./src/*`
+- Bundler module resolution
+- Composite TypeScript project setup
