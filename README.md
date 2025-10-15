@@ -1,90 +1,169 @@
-# providus_org
+# JobSphere Backend
 
-This project was created with [Better-T-Stack](https://github.com/AmanVarshney01/create-better-t-stack), a modern TypeScript stack that combines Express, and more.
+Backend API for JobSphere - a mobile marketplace connecting customers with local freelance contractors (electricians, plumbers, cleaners, carpenters, etc.).
 
-## Features
+## Tech Stack
 
-- **TypeScript** - For type safety and improved developer experience
-- **Express** - Fast, unopinionated web framework
-- **Node.js** - Runtime environment
-- **Mongoose** - TypeScript-first ORM
-- **MongoDB** - Database engine
-- **Zod** - Runtime type validation and schema generation
-- **OpenAPI** - Automatic API documentation generation
-- **Swagger UI** - Interactive API documentation
-- **Husky** - Git hooks for code quality
+- **Runtime**: Node.js with TypeScript
+- **Framework**: Express.js v5.1.0
+- **Database**: MongoDB with Mongoose ODM
+- **Package Manager**: Bun
+- **Authentication**: JWT with refresh token rotation
+- **Real-Time**: Socket.IO for WebSocket chat
+- **Payments**: Stripe with escrow system
+- **Notifications**: Firebase Cloud Messaging (FCM)
+- **File Upload**: Local storage (future AWS S3 migration)
+
+## Key Features
+
+- JWT authentication with access/refresh tokens
+- Role-based access (Customer, Contractor, Admin)
+- Real-time chat between users
+- Push notifications for mobile app
+- Stripe payment processing with escrow
+- File upload system
+- OTP-based password recovery
 
 ## Getting Started
 
-First, install the dependencies:
+### Prerequisites
+
+- Node.js 18+
+- Bun package manager
+- MongoDB instance
+- Stripe account (for payments)
+- Firebase project (for notifications)
+
+### Installation
 
 ```bash
-pnpm install
+bun install
 ```
-## Database Setup
 
-This project uses MongoDB with Mongoose.
+### Environment Setup
 
-1. Make sure you have MongoDB set up.
-2. Update your `apps/server/.env` file with your MongoDB connection URI.
+Create a `.env` file in the root directory:
 
-3. Apply the schema to your database:
+```env
+# Server
+PORT=4000
+NODE_ENV=development
+
+# Database
+MONGODB_URI=mongodb://localhost:27017/jobsphere
+
+# JWT
+JWT_ACCESS_SECRET=your_access_secret
+JWT_REFRESH_SECRET=your_refresh_secret
+JWT_ACCESS_EXPIRY=15m
+JWT_REFRESH_EXPIRY=7d
+
+# Email (for OTP)
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_USER=your_email@gmail.com
+SMTP_PASS=your_app_password
+
+# WebSocket
+SOCKET_PORT=3001
+
+# File Upload
+UPLOAD_DIR=./upload
+MAX_FILE_SIZE=10485760
+
+# Stripe
+STRIPE_SECRET_KEY=sk_test_...
+STRIPE_PUBLISHABLE_KEY=pk_test_...
+STRIPE_WEBHOOK_SECRET=whsec_...
+STRIPE_COMMISSION_PERCENT=10
+
+# Firebase (FCM)
+FCM_SERVER_KEY=...
+FCM_PROJECT_ID=...
+```
+
+### Development
+
 ```bash
-pnpm db:push
+bun dev          # Start with hot reload
+bun dev:b        # Start with Bun hot reload
 ```
 
-
-Then, run the development server:
+### Production
 
 ```bash
-pnpm dev
+bun build        # Build the project
+bun start        # Start production server
 ```
 
-The API is running at [http://localhost:4000](http://localhost:4000).
+### Code Quality
 
-## API Documentation
-
-This project includes automatic OpenAPI documentation generation with Swagger UI.
-
-- **Swagger UI**: [http://localhost:4000/api-docs](http://localhost:4000/api-docs)
-- **OpenAPI JSON**: [http://localhost:4000/api-docs.json](http://localhost:4000/api-docs.json)
-
-### API Validation
-
-All API endpoints include request validation using Zod schemas:
-
-- **Request body validation** - Validates JSON payloads
-- **Parameter validation** - Validates URL parameters
-- **Type safety** - Full TypeScript integration
-- **Error responses** - Detailed validation error messages
-
-### User API Endpoints
-
-- `GET /api/user` - Get all users
-- `POST /api/user` - Create a new user
-- `PUT /api/user/:id` - Update a user by ID
-- `DELETE /api/user/:id` - Delete a user by ID
-
-
-
-
-
-
+```bash
+bun check        # Run oxlint
+bun check-types  # TypeScript type checking
+```
 
 ## Project Structure
 
 ```
-providus_org/
-├── apps/
-│   └── server/      # Backend API (Express)
+jobsphere-backend/
+├── src/
+│   ├── db/              # Database connection and models
+│   ├── routers/         # API route handlers
+│   │   ├── auth.ts      # Authentication routes
+│   │   ├── user.ts      # User management
+│   │   ├── job.ts       # Job postings
+│   │   ├── payment.ts   # Payment processing
+│   │   └── chat.ts      # Chat endpoints
+│   ├── middleware/      # Auth, validation, error handling
+│   ├── services/        # Business logic
+│   ├── utils/           # Helper functions
+│   └── index.ts         # Application entry point
+├── upload/              # File upload directory
+└── .kiro/steering/      # Project documentation
 ```
 
-## Available Scripts
+## User Roles
 
-- `pnpm dev`: Start all applications in development mode
-- `pnpm build`: Build all applications
-- `pnpm dev:web`: Start only the web application
-- `pnpm dev:server`: Start only the server
-- `pnpm check-types`: Check TypeScript types across all apps
-- `pnpm db:push`: Push schema changes to database
-- `pnpm db:studio`: Open database studio UI
+- **Customer**: Posts jobs, hires contractors, makes payments
+- **Contractor**: Offers services, accepts jobs, receives payments
+- **Admin**: Monitors platform, manages disputes, oversees transactions
+
+## API Endpoints
+
+### Authentication
+
+- `POST /api/auth/register` - User registration
+- `POST /api/auth/login` - User login
+- `POST /api/auth/forgot-password` - Request OTP
+- `POST /api/auth/reset-password` - Reset with OTP
+- `POST /api/auth/refresh` - Refresh access token
+- `POST /api/auth/logout` - Logout user
+
+### Payments
+
+- `POST /api/payments/create-intent` - Create payment
+- `POST /api/payments/confirm` - Confirm payment
+- `POST /api/payouts/withdraw` - Contractor withdrawal
+- `POST /api/webhooks/stripe` - Stripe webhooks
+
+### File Upload
+
+- `POST /api/upload` - Upload file
+- `GET /api/files/:filename` - Get file
+
+## Payment Flow
+
+1. Customer posts job with budget
+2. Contractor accepts job
+3. Customer pays via Stripe (held in escrow)
+4. Job completed → Payment auto-released to contractor
+5. Contractor withdraws to bank account
+
+## Contributing
+
+This project uses Husky for pre-commit hooks to ensure code quality. All commits are automatically linted and type-checked.
+
+## License
+
+Private - All rights reserved
