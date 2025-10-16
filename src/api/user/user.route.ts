@@ -1,16 +1,11 @@
 import { validateBody, validateParams } from "@/middleware/validation";
 import express, { Router } from "express";
 import {
-  createUser,
-  deleteUser,
-  getallUser,
-  updateUser,
-} from "./user.controller";
-import {
   CreateUserSchema,
   UpdateUserSchema,
   UserIdSchema,
 } from "./user.schema";
+import { createUser, deleteUser, getallUser, updateUser } from "./user.service";
 
 export const user: Router = express.Router();
 

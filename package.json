@@ -11,7 +11,8 @@
     "compile": "bun build --compile --minify --sourcemap --bytecode ./src/app.ts --outfile server",
     "prepare": "husky",
     "check": "oxlint",
-    "ruler:apply": "pnpm dlx @intellectronica/ruler@latest apply --local-only"
+    "ruler:apply": "pnpm dlx @intellectronica/ruler@latest apply --local-only",
+    "generate:module": "node script/generate-module.js"
   },
   "dependencies": {
     "@asteasolutions/zod-to-openapi": "^8.1.0",
