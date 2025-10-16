@@ -103,6 +103,21 @@ bun check        # Run oxlint
 bun check-types  # TypeScript type checking
 ```
 
+### Module Generator
+
+Quickly scaffold new API modules with boilerplate code:
+
+```bash
+bun run generate:module
+```
+
+This will prompt for a module name and create:
+- `[module].route.ts` - Express router with CRUD endpoints
+- `[module].service.ts` - Business logic handlers
+- `[module].schema.ts` - Zod validation schemas with OpenAPI docs
+
+See `script/README.md` for detailed usage.
+
 ## Project Structure
 
 ```
