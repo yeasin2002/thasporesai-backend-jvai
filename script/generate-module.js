@@ -60,16 +60,17 @@ ${camelName}
 const generateService = (moduleName) => {
   const pascalName = toPascalCase(moduleName);
   return `import type { Create${pascalName}, Update${pascalName} } from "@/api/${moduleName}/${moduleName}.schema";
-import { db } from "@/db";
 import type { RequestHandler } from "express";
 
 export const getAll${pascalName}: RequestHandler = async (req, res) => {
   try {
-    const ${moduleName}s = await db.${moduleName}.find();
+    // TODO: Implement database query
+    // const ${moduleName}s = await db.${moduleName}.find();
+    
     res.status(200).json({
       status: 200,
       message: "${pascalName}s fetched successfully",
-      data: ${moduleName}s,
+      data: [],
     });
   } catch (error) {
     console.log(error);
@@ -86,12 +87,13 @@ export const create${pascalName}: RequestHandler<{}, any, Create${pascalName}> =
   res
 ) => {
   try {
-    const ${moduleName} = await db.${moduleName}.create(req.body);
+    // TODO: Implement database creation
+    // const ${moduleName} = await db.${moduleName}.create(req.body);
 
     res.status(201).json({
       status: 201,
       message: "${pascalName} created successfully",
-      data: ${moduleName},
+      data: req.body,
     });
   } catch (error) {
     console.log(error);
@@ -111,23 +113,16 @@ export const update${pascalName}: RequestHandler<
   try {
     const { id } = req.params;
 
-    const ${moduleName} = await db.${moduleName}.findByIdAndUpdate(id, req.body, {
-      new: true,
-      runValidators: true,
-    });
-
-    if (!${moduleName}) {
-      return res.status(404).json({
-        status: 404,
-        message: "${pascalName} not found",
-        data: null,
-      });
-    }
+    // TODO: Implement database update
+    // const ${moduleName} = await db.${moduleName}.findByIdAndUpdate(id, req.body, {
+    //   new: true,
+    //   runValidators: true,
+    // });
 
     res.status(200).json({
       status: 200,
       message: "${pascalName} updated successfully",
-      data: ${moduleName},
+      data: { id, ...req.body },
     });
   } catch (error) {
     console.log(error);
@@ -143,20 +138,13 @@ export const delete${pascalName}: RequestHandler<{ id: string }> = async (req, r
   try {
     const { id } = req.params;
 
-    const ${moduleName} = await db.${moduleName}.findByIdAndDelete(id);
-
-    if (!${moduleName}) {
-      return res.status(404).json({
-        status: 404,
-        message: "${pascalName} not found",
-        data: null,
-      });
-    }
+    // TODO: Implement database deletion
+    // const ${moduleName} = await db.${moduleName}.findByIdAndDelete(id);
 
     res.status(200).json({
       status: 200,
       message: "${pascalName} deleted successfully",
-      data: ${moduleName},
+      data: { id },
     });
   } catch (error) {
     console.log(error);
