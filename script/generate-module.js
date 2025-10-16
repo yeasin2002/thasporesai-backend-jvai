@@ -43,7 +43,7 @@ export const ${camelName}: Router = express.Router();
 };
 
 // Generate service template
-const generateService = (moduleName) => {
+const generateService = (_moduleName) => {
   return `import type { RequestHandler } from "express";
 
 // TODO: Add your request handlers here
@@ -68,7 +68,7 @@ const generateService = (moduleName) => {
 };
 
 // Generate schema template
-const generateSchema = (moduleName) => {
+const generateSchema = (_moduleName) => {
   return `import { extendZodWithOpenApi } from "@asteasolutions/zod-to-openapi";
 import { z } from "zod";
 

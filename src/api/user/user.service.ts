@@ -37,7 +37,7 @@ export const createUser: RequestHandler<{}, any, CreateUser> = async (
 
     const user = await db.user.create(req.body);
     const userResponse = user.toObject();
-    const { password, ...userWithoutPassword } = userResponse;
+    const { password: _password, ...userWithoutPassword } = userResponse;
 
     res.status(201).json({
       status: 201,
