@@ -6,10 +6,20 @@
 providus_org/
 ├── src/                    # Source code
 │   ├── db/                 # Database connection and models
+│   ├── lib/                # Database connection and models
+│   ├── helper/             # Database connection and models
+│   ├── middleware/         # Database connection and models
+│   ├── schema/             # Database connection and models/
 │   ├── API/                # API route handlers
 │       ├── user/                # User API route handlers
+│           ├── user.controller.ts/      # Express  User API route controller. define all user related routes here. 
+│           ├── user.service.ts/         # User API route service. define all user related business logic here in functional way. 
+│           ├── user.schema.ts/         # User API route documentation. define all user related zod validation schema  and OpenAPI doc with @asteasolutions/zod-to-openapi
 │       ├── auth/                # Auth API route handlers
-│   └── index.ts            # Application entry point
+│           ├── auth.controller.ts/      # Express Auth API route controller. define all auth related routes here. 
+│           ├── auth.service.ts/         # Auth API route service. define all auth related business logic here in functional way. 
+│           ├── auth.schema.ts/         # Auth API route documentation. define all auth related zod validation schema  and OpenAPI doc with @asteasolutions/zod-to-openapi
+│   └── app.ts            # Application entry point
 ├── .kiro/                  # Kiro AI assistant configuration
 ├── .husky/                 # Git hooks configuration
 ├── .ruler/                 # Code quality rules
@@ -20,7 +30,7 @@ providus_org/
 
 ## Source Code Organization
 
-### `/src/index.ts`
+### `/src/app.ts`
 
 - Main application entry point
 - Express app configuration
@@ -33,11 +43,11 @@ providus_org/
 - Mongoose models and schemas (to be added)
 - Database utilities and helpers
 
-### `/src/routers/`
+### `/src/api/**/*`
 
-- API route definitions
-- Currently contains placeholder `appRouter` export
-- Should contain modular route handlers organized by feature/resource
+- API route controllers just define routes here
+- API route services in functional way
+- API route documentation with zod validation schema and OpenAPI doc with @asteasolutions/zod-to-openapi
 
 ## Configuration Files
 

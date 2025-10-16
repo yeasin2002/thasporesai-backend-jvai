@@ -111,6 +111,7 @@ authMiddleware.requireRole('admin')    // Admin only
 6. **HTTPS Only**: Enforce secure connections in production
 7. **Token Rotation**: Rotate refresh tokens on each use
 8. **Token Blacklisting**: Maintain invalidated token list
+9. **Send token as response**: Send access token and refresh token as response in json format, this backend will be use in flutter app
 
 ## Database Schema Considerations
 

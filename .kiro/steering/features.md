@@ -6,14 +6,14 @@
 
 - Real-time messaging between Customers and Contractors
 - No voice/video call functionality
-- Socket.IO or native WebSocket implementation
+- Native WebSocket implementation
 - Features:
   - One-to-one chat rooms
-  - Message history persistence
+  - Message history persistence with database
   - Online/offline status
   - Typing indicators
   - Message read receipts
-  - File sharing in chat (images, documents)
+  - File sharing in chat (images, documents) and store them in database (after uploading to  storage)
 
 ### Push Notifications
 
@@ -26,7 +26,7 @@
   - Payment received/released
   - Job completed
   - Review submitted
-- Integration with Firebase Cloud Messaging (FCM) or similar service
+- Integration with Pusher or similar service
 - Store notification preferences per user
 
 ## File Upload System
@@ -172,9 +172,7 @@ FCM_PROJECT_ID=...
 
 ```json
 {
-  "socket.io": "^4.x",
   "stripe": "^14.x",
   "multer": "^1.4.x",
-  "firebase-admin": "^12.x"
 }
 ```

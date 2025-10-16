@@ -14,13 +14,19 @@
 - **Type Checking**: TypeScript v5.8.2 with strict mode
 - **Linting**: oxlint v1.12.0 (Rust-based linter)
 - **Git Hooks**: Husky v9.1.7 with lint-staged
-- **Hot Reload**: tsx for development
+- **Hot Reload**: tsx and bun  for development
 
 ## Key Dependencies
 
 - **dotenv**: Environment variable management
-- **zod**: Runtime type validation
 - **cors**: Cross-origin resource sharing
+- **@scalar/express-api-reference**: Express API Reference
+- **jsonwebtoken**: JSON Web Token (JWT) for authentication
+- **bcryptjs**: Password hashing
+- **mongoose**: MongoDB Object Data Modeling (ODM)
+- **morgan**: HTTP request logger
+- **swagger-ui-express**: Swagger UI for API documentation
+- **zod**: Runtime type validation
 
 
 ## Common Commands
