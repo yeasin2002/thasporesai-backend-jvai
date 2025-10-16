@@ -15,6 +15,9 @@
   - Message read receipts
   - File sharing in chat (images, documents) and store them in database (after uploading to  storage)
 
+###  Email Sending with nodemailer 
+-  Send Email for OTP verification
+
 ### Push Notifications
 
 - Mobile push notifications for Flutter app

@@ -27,6 +27,7 @@
 - **morgan**: HTTP request logger
 - **swagger-ui-express**: Swagger UI for API documentation
 - **zod**: Runtime type validation
+- **nodemailer** : Email sending
 
 
 ## Common Commands

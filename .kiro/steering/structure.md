@@ -20,6 +20,7 @@ providus_org/
 │           ├── auth.service.ts/         # Auth API route service. define all auth related business logic here in functional way. 
 │           ├── auth.schema.ts/         # Auth API route documentation. define all auth related zod validation schema  and OpenAPI doc with @asteasolutions/zod-to-openapi
 │   └── app.ts            # Application entry point
+├── api-client/               # API client code like test-api.http  for each API route
 ├── .kiro/                  # Kiro AI assistant configuration
 ├── .husky/                 # Git hooks configuration
 ├── .ruler/                 # Code quality rules
