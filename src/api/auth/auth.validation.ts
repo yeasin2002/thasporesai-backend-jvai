@@ -4,10 +4,10 @@ import { z } from "zod";
 // Extend Zod with OpenAPI
 extendZodWithOpenApi(z);
 
-// TODO: Define your schemas here
+// TODO: Define your validation schemas here
 // Example:
-// export const ExampleSchema = z.object({
+// export const ExampleValidation = z.object({
 //   name: z.string().min(1).openapi({ description: "Name" }),
 // }).openapi("Example");
 //
-// export type Example = z.infer<typeof ExampleSchema>;
+// export type Example = z.infer<typeof ExampleValidation>;

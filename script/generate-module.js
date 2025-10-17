@@ -67,21 +67,59 @@ const generateService = (_moduleName) => {
 `;
 };
 
+
 // Generate schema template
-const generateSchema = (_moduleName) => {
+const generateValidation = (_moduleName) => {
   return `import { extendZodWithOpenApi } from "@asteasolutions/zod-to-openapi";
 import { z } from "zod";
 
 // Extend Zod with OpenAPI
 extendZodWithOpenApi(z);
 
-// TODO: Define your schemas here
+// TODO: Define your validation schemas here
 // Example:
-// export const ExampleSchema = z.object({
+// export const ExampleValidation = z.object({
 //   name: z.string().min(1).openapi({ description: "Name" }),
 // }).openapi("Example");
 //
-// export type Example = z.infer<typeof ExampleSchema>;
+// export type Example = z.infer<typeof ExampleValidation>;
+`;
+};
+
+const generateOpenAPI = (moduleName) => {
+  return `
+import { registry } from "@/lib/openapi";
+
+// TODO: Add your openAPI specification here
+// registry.register("${moduleName}", ${moduleName}Schema);
+
+// registry.registerPath({
+//   method: "get",
+//   path: "/api/${moduleName}",
+//   description: "",
+//   summary: "",
+//   tags: ["${moduleName}"],
+//   responses: {
+//     200: {
+//       description: "${moduleName} retrieved successfully",
+//       content: {
+//         "application/json": {
+//           schema: ${moduleName}ResponseSchema,
+//         },
+//       },
+//     },
+//     500: {
+//       description: "Internal server error",
+//       content: {
+//         "application/json": {
+//           schema: ErrorResponseSchema,
+//         },
+//       },
+//     },
+//   },
+// });
+
+
 `;
 };
 
@@ -120,8 +158,12 @@ async function main() {
         content: generateService(cleanModuleName),
       },
       {
-        name: `${cleanModuleName}.schema.ts`,
-        content: generateSchema(cleanModuleName),
+        name: `${cleanModuleName}.validation.ts`,
+        content: generateValidation(cleanModuleName),
+      },
+      {
+        name: `${cleanModuleName}.openapi.ts`,
+        content: generateOpenAPI(cleanModuleName),
       },
     ];
 
@@ -133,7 +175,7 @@ async function main() {
 
     console.log(`\n🎉 Module "${cleanModuleName}" created successfully!`);
     console.log(`\n📋 Next steps:`);
-    console.log(`   1. Define schemas in ${cleanModuleName}.schema.ts`);
+    console.log(`   1. Define schemas in ${cleanModuleName}.validation.ts`);
     console.log(`   2. Add handlers in ${cleanModuleName}.service.ts`);
     console.log(`   3. Define routes in ${cleanModuleName}.route.ts`);
     console.log(

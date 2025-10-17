@@ -50,5 +50,7 @@ app.use(errorHandler);
 const port = process.env.PORT || 4000;
 app.listen(port, async () => {
   await connectDB();
-  console.log(`Server is running on port ${port}`);
+  console.log(`🚀 Server is running on port ${port}`);
+  console.log("✍️ Swagger doc: http://localhost:4000/api-docs");
+  console.log("📋 Scaler doc: http://localhost:4000/scaler");
 });
