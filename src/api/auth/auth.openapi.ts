@@ -2,7 +2,7 @@
 import { registry } from "@/lib/openapi";
 
 // TODO: Add your openAPI specification here
-// registry.register("auth", authSchema);
+// registry.register("auth", authSchema);   
 
 // registry.registerPath({
 //   method: "get",
