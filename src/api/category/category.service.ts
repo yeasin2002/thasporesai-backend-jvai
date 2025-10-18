@@ -23,7 +23,7 @@ export const getAllCategories: RequestHandler<
     const skip = (pageNum - 1) * limitNum;
 
     // Build search query
-    const query: any = {};
+    const query: { [key: string]: any } = {};
     if (search) {
       query.$or = [
         { name: { $regex: search, $options: "i" } },
@@ -41,7 +41,7 @@ export const getAllCategories: RequestHandler<
 
     const totalPages = Math.ceil(total / limitNum);
 
-    sendSuccess(
+    return sendSuccess(
       res,
       200,
       search

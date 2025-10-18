@@ -8,6 +8,8 @@ import "./api/auth/auth.openapi"; // Import to register OpenAPI specs
 import { auth } from "./api/auth/auth.route";
 import "./api/category/category.openapi"; // Import to register OpenAPI specs
 import { category } from "./api/category/category.route";
+import "./api/job/job.openapi"; // Import to register OpenAPI specs
+import { job } from "./api/job/job.route";
 import "./api/user/user.openapi"; // Import to register OpenAPI specs
 import { user } from "./api/user/user.route";
 import { connectDB } from "./lib";
@@ -46,6 +48,7 @@ app.use(
 
 app.use("/api/auth", auth);
 app.use("/api/category", category);
+app.use("/api/job", job);
 app.use("/api/user", user);
 
 app.use(notFoundHandler);
