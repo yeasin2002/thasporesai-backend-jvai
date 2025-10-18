@@ -1,9 +1,22 @@
+import { logWarn } from "@/lib/logger";
 import type { NextFunction, Request, Response } from "express";
 
 export function notFoundHandler(
-	_req: Request,
-	res: Response,
-	_next: NextFunction,
+  req: Request,
+  res: Response,
+  _next: NextFunction
 ) {
-	res.status(404).json({ data: null, error: "Not Found" });
+  // Log 404 errors
+  logWarn("Route Not Found", {
+    route: req.originalUrl,
+    method: req.method,
+    ip: req.ip,
+    userAgent: req.get("user-agent"),
+  });
+
+  res.status(404).json({
+    status: 404,
+    message: "Route not found",
+    data: null,
+  });
 }

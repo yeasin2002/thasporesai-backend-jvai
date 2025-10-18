@@ -1,22 +1,22 @@
-// import logger from "@/lib/winston-logger";
 import { sendError } from "@/helpers/response-handler";
+import { logError } from "@/lib/logger";
 import type { ErrorRequestHandler } from "express";
 
-export const errorHandler: ErrorRequestHandler = (err, _req, res, _next) => {
+export const errorHandler: ErrorRequestHandler = (err, req, res, _next) => {
   const status = err.status || err.statusCode || 500;
   const message = err.message || "Internal Server Error";
 
   // Log full error with stack and request info
-  //   logger.error("unhandled_error", {
-  //     message,
-  //     status,
-  //     stack: err.stack,
-  //     route: req.originalUrl,
-  //     method: req.method,
-  //     body: req.body,
-  //     params: req.params,
-  //     query: req.query,
-  //   });
+  logError("Unhandled Error", err, {
+    status,
+    route: req.originalUrl,
+    method: req.method,
+    body: req.body,
+    params: req.params,
+    query: req.query,
+    ip: req.ip,
+    userAgent: req.get("user-agent"),
+  });
 
   // Return safe error to client
   return sendError(
@@ -24,9 +24,4 @@ export const errorHandler: ErrorRequestHandler = (err, _req, res, _next) => {
     status,
     status === 500 ? "Internal Server Error" : message
   );
-  // res.status(status).json({
-  // 	error: {
-  // 		message: status === 500 ? "Internal Server Error" : message,
-  // 	},
-  // });
 };

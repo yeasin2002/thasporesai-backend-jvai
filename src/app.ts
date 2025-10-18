@@ -4,15 +4,16 @@ import "dotenv/config";
 import express from "express";
 import morgan from "morgan";
 import swaggerUi from "swagger-ui-express";
-import "./api/auth/auth.openapi"; // Import to register OpenAPI specs
+import "./api/auth/auth.openapi";
 import { auth } from "./api/auth/auth.route";
-import "./api/category/category.openapi"; // Import to register OpenAPI specs
+import "./api/category/category.openapi";
 import { category } from "./api/category/category.route";
-import "./api/job/job.openapi"; // Import to register OpenAPI specs
+import "./api/job/job.openapi";
 import { job } from "./api/job/job.route";
-import "./api/user/user.openapi"; // Import to register OpenAPI specs
+import "./api/user/user.openapi";
 import { user } from "./api/user/user.route";
 import { connectDB } from "./lib";
+import { logInfo, morganStream } from "./lib/logger";
 import { generateOpenAPIDocument } from "./lib/openapi";
 import { errorHandler, notFoundHandler } from "./middleware/common";
 
@@ -24,7 +25,14 @@ app.use(
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   })
 );
-app.use(morgan("dev"));
+
+// HTTP request logging with Morgan + Winston
+app.use(
+  morgan(":method :url :status :res[content-length] - :response-time ms", {
+    stream: morganStream,
+  })
+);
+
 app.use(express.json());
 
 // Serve uploaded files statically
@@ -57,6 +65,11 @@ app.use(errorHandler);
 const port = process.env.PORT || 4000;
 app.listen(port, async () => {
 	await connectDB();
+
+	logInfo(`Server started on port ${port}`, {
+    port,
+    environment: process.env.NODE_ENV || "development",
+  });
 
 	console.log(`🚀 Server is running on port ${port}`);
 	console.log("✍️ Swagger doc: http://localhost:4000/api-docs");
