@@ -9,6 +9,7 @@ import { auth } from "./api/auth/auth.route";
 import "./api/user/user.openapi"; // Import to register OpenAPI specs
 import { user } from "./api/user/user.route";
 import { connectDB } from "./lib";
+import { generateOTP } from "./lib/jwt";
 import { generateOpenAPIDocument } from "./lib/openapi";
 import { errorHandler, notFoundHandler } from "./middleware/common";
 
@@ -54,6 +55,7 @@ app.use(errorHandler);
 const port = process.env.PORT || 4000;
 app.listen(port, async () => {
   await connectDB();
+
   console.log(`🚀 Server is running on port ${port}`);
   console.log("✍️ Swagger doc: http://localhost:4000/api-docs");
   console.log("📋 Scaler doc: http://localhost:4000/scaler");

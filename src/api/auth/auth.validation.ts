@@ -63,8 +63,8 @@ export const ResetPasswordSchema = z
       .openapi({ description: "User's email address" }),
     otp: z
       .string()
-      .length(6, "OTP must be 6 digits")
-      .openapi({ description: "6-digit OTP code" }),
+      .length(4, "OTP must be 4 digits")
+      .openapi({ description: "4-digit OTP code" }),
     newPassword: z
       .string()
       .min(6, "Password must be at least 6 characters")

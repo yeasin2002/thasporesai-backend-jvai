@@ -183,7 +183,6 @@ export const forgotPassword: RequestHandler<{}, any, ForgotPassword> = async (
     // Find user
     const user = await db.user.findOne({ email });
     if (!user) {
-      // Don't reveal if user exists or not for security
       return res.status(200).json({
         status: 200,
         message: "If the email exists, an OTP has been sent",
@@ -313,6 +312,7 @@ export const refresh: RequestHandler<{}, any, RefreshToken> = async (
     let decoded: ReturnType<typeof verifyRefreshToken>;
     try {
       decoded = verifyRefreshToken(refreshToken);
+      // oxlint-disable-next-line no-unused-vars
     } catch (error) {
       return res.status(401).json({
         status: 401,
