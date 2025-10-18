@@ -1,21 +1,21 @@
 import { db } from "@/db";
 import {
-  comparePassword,
-  generateOTP,
-  hashPassword,
-  hashToken,
-  signAccessToken,
-  signRefreshToken,
-  verifyRefreshToken,
+	comparePassword,
+	generateOTP,
+	hashPassword,
+	hashToken,
+	signAccessToken,
+	signRefreshToken,
+	verifyRefreshToken,
 } from "@/lib/jwt";
 import type { RequestHandler } from "express";
 import type {
-  ForgotPassword,
-  Login,
-  RefreshToken,
-  Register,
-  ResetPassword,
-  VerifyOTP,
+	ForgotPassword,
+	Login,
+	RefreshToken,
+	Register,
+	ResetPassword,
+	VerifyOTP,
 } from "./auth.validation";
 
 // Register Handler
@@ -174,10 +174,11 @@ export const login: RequestHandler<{}, any, Login> = async (req, res) => {
 };
 
 // Forgot Password Handler
-export const forgotPassword: RequestHandler<unknown, unknown, ForgotPassword> = async (
-	req,
-	res,
-) => {
+export const forgotPassword: RequestHandler<
+	unknown,
+	unknown,
+	ForgotPassword
+> = async (req, res) => {
 	try {
 		const { email } = req.body;
 
@@ -381,7 +382,7 @@ export const refresh: RequestHandler<{}, any, RefreshToken> = async (
 		try {
 			decoded = verifyRefreshToken(refreshToken);
 			// oxlint-disable-next-line no-unused-vars
-		} catch (error) {
+		} catch (_error) {
 			return res.status(401).json({
 				status: 401,
 				message: "Invalid or expired refresh token",

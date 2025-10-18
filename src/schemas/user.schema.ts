@@ -1,4 +1,4 @@
-import { Document, Schema } from "mongoose";
+import { type Document, Schema } from "mongoose";
 
 // Define the User interface for TypeScript typing
 export interface User {

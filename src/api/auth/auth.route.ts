@@ -1,7 +1,7 @@
 import "./auth.openapi";
 
 import { validateBody } from "@/middleware/validation";
-import express, { Router } from "express";
+import express, { type Router } from "express";
 import {
 	forgotPassword,
 	login,
