@@ -3,11 +3,10 @@
 @baseUrl = http://localhost:4000
 @contentType = application/json
 
-
-
+    
 ### Variables (update after each request)
-@accessToken =eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OGYzMjVmOTI1NzRkNTY4OTgwZTA0YzUiLCJlbWFpbCI6Im1ka2F3c2FyaXNsYW0yMDAyQGdtYWlsLmNvbSIsInJvbGUiOiJjdXN0b21lciIsImlhdCI6MTc2MDc2ODE3MiwiZXhwIjoxNzYwNzY5MDcyfQ.9n8MhD-LJxviFG0WpZ9PvOi84IDKPFbUu6XDNAgy5Iw
-@refreshToken =eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OGYzMjVmOTI1NzRkNTY4OTgwZTA0YzUiLCJlbWFpbCI6Im1ka2F3c2FyaXNsYW0yMDAyQGdtYWlsLmNvbSIsInJvbGUiOiJjdXN0b21lciIsImp0aSI6IjgwMmFhYzhmZWE3MTVhMDFmZGFiNTZmMjQ0NDAxZWUzIiwiaWF0IjoxNzYwNzY4MTcyLCJleHAiOjE3NjMzNjAxNzJ9.pjmtk7IIPel2jpfg2DJq0UbTnMYEjlK1lhpv_gPX--c
+@accessToken =eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OGYzMjVmOTI1NzRkNTY4OTgwZTA0YzUiLCJlbWFpbCI6Im1ka2F3c2FyaXNsYW0yMDAyQGdtYWlsLmNvbSIsInJvbGUiOiJjdXN0b21lciIsImlhdCI6MTc2MDgwMDA3NCwiZXhwIjoxNzYwODAwOTc0fQ.Cpe1i8GlSzvoS8m2z8A_cIN6m1wje6sYgrKINt5rtI0
+@refreshToken =eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OGYzMjVmOTI1NzRkNTY4OTgwZTA0YzUiLCJlbWFpbCI6Im1ka2F3c2FyaXNsYW0yMDAyQGdtYWlsLmNvbSIsInJvbGUiOiJjdXN0b21lciIsImp0aSI6ImM5M2ExZTY3N2UyY2ZmYTZhMDY2YmE0Nzk4MjA3MGE1IiwiaWF0IjoxNzYwODAwMDc0LCJleHAiOjE3NjMzOTIwNzR9.FkaCRdeQxDopuTD-vtxhAPpmJpM-g8HJBzL8GeiKLV0
 
 ###############################################
 # 1. Register New User (Customer)
@@ -45,7 +44,7 @@ Content-Type: {{contentType}}
 
 {
   "email": "mdkawsarislam2002@gmail.com",
-  "password": "mdkawsarislam2002@gmail.com"
+  "password": "mdkawsarislam2002"
 }
 
 ###############################################

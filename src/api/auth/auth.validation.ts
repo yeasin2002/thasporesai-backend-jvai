@@ -56,35 +56,35 @@ export const ForgotPasswordSchema = z
 
 // Verify OTP Schema
 export const VerifyOTPSchema = z
-	.object({
-		email: z
-			.string()
-			.email("Invalid email format")
-			.openapi({ description: "User's email address" }),
-		otp: z
-			.string()
-			.length(6, "OTP must be 6 digits")
-			.openapi({ description: "6-digit OTP code" }),
-	})
-	.openapi("VerifyOTP");
+  .object({
+    email: z
+      .string()
+      .email("Invalid email format")
+      .openapi({ description: "User's email address" }),
+    otp: z
+      .string()
+      .length(4, "OTP must be 4 digits")
+      .openapi({ description: "4-digit OTP code" }),
+  })
+  .openapi("VerifyOTP");
 
 // Reset Password Schema
 export const ResetPasswordSchema = z
-	.object({
-		email: z
-			.string()
-			.email("Invalid email format")
-			.openapi({ description: "User's email address" }),
-		otp: z
-			.string()
-			.length(6, "OTP must be 6 digits")
-			.openapi({ description: "6-digit OTP code" }),
-		newPassword: z
-			.string()
-			.min(6, "Password must be at least 6 characters")
-			.openapi({ description: "New password" }),
-	})
-	.openapi("ResetPassword");
+  .object({
+    email: z
+      .string()
+      .email("Invalid email format")
+      .openapi({ description: "User's email address" }),
+    otp: z
+      .string()
+      .length(4, "OTP must be 4 digits")
+      .openapi({ description: "4-digit OTP code" }),
+    newPassword: z
+      .string()
+      .min(6, "Password must be at least 6 characters")
+      .openapi({ description: "New password" }),
+  })
+  .openapi("ResetPassword");
 
 // Refresh Token Schema
 export const RefreshTokenSchema = z

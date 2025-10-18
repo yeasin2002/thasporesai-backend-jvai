@@ -39,6 +39,10 @@ export const CreateCategorySchema = z
       .string()
       .min(10, "Description must be at least 10 characters")
       .openapi({ description: "Category description" }),
+    icon: z
+      .string()
+      .min(1, "Icon is required")
+      .openapi({ description: "Category icon URL (uploaded image path)" }),
   })
   .openapi("CreateCategory");
 
@@ -50,6 +54,10 @@ export const UpdateCategorySchema = z
       .string()
       .min(10, "Description must be at least 10 characters")
       .optional(),
+    icon: z
+      .string()
+      .min(1, "Icon is required")
+      .openapi({ description: "Category icon URL (uploaded image path)" }),
   })
   .openapi("UpdateCategory");
 

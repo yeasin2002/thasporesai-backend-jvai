@@ -99,7 +99,7 @@ registry.registerPath({
   request: {
     body: {
       content: {
-        "application/json": {
+        "multipart/form-data": {
           schema: CreateCategorySchema,
         },
       },
@@ -161,7 +161,7 @@ registry.registerPath({
     params: CategoryIdSchema,
     body: {
       content: {
-        "application/json": {
+        "multipart/form-data": {
           schema: UpdateCategorySchema,
         },
       },
