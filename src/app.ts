@@ -4,6 +4,7 @@ import "dotenv/config";
 import express from "express";
 import morgan from "morgan";
 import swaggerUi from "swagger-ui-express";
+// import "./api/user/user.openapi"; // Import to register OpenAPI specs
 import { user } from "./api/user/user.route";
 import { connectDB } from "./lib";
 import { generateOpenAPIDocument } from "./lib/openapi";

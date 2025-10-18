@@ -10,17 +10,25 @@ providus_org/
 │   ├── helper/             # Database connection and models
 │   ├── middleware/         # Database connection and models
 │   ├── schema/             # Database connection and models/
-│   ├── API/                # API route handlers
+│   ├── api/                # API route handlers
 │       ├── user/                # User API route handlers
-│           ├── user.controller.ts/      # Express  User API route controller. define all user related routes here. 
-│           ├── user.service.ts/         # User API route service. define all user related business logic here in functional way. 
-│           ├── user.schema.ts/         # User API route documentation. define all user related zod validation schema  and OpenAPI doc with @asteasolutions/zod-to-openapi
+│           ├── user.route.ts        # Express User API routes. Define all user related routes here. 
+│           ├── user.service.ts      # User API route service. Define all user related business logic here in functional way. 
+│           ├── user.schema.ts       # User API route validation. Define all user related zod validation schemas for body, query, params etc. 
+│           ├── user.openapi.ts      # User API route OpenAPI. Register all user related OpenAPI specs with @asteasolutions/zod-to-openapi. 
 │       ├── auth/                # Auth API route handlers
-│           ├── auth.controller.ts/      # Express Auth API route controller. define all auth related routes here. 
-│           ├── auth.service.ts/         # Auth API route service. define all auth related business logic here in functional way. 
-│           ├── auth.schema.ts/         # Auth API route documentation. define all auth related zod validation schema  and OpenAPI doc with @asteasolutions/zod-to-openapi
+│           ├── auth.route.ts        # Express Auth API routes. Define all auth related routes here. 
+│           ├── auth.service.ts      # Auth API route service. Define all auth related business logic here in functional way. 
+│           ├── auth.schema.ts       # Auth API route validation. Define all auth related zod validation schemas for body, query, params etc. 
+│           ├── auth.openapi.ts      # Auth API route OpenAPI. Register all auth related OpenAPI specs with @asteasolutions/zod-to-openapi. 
+│       └── [other modules]/     # Other API modules following same pattern
+│
 │   └── app.ts            # Application entry point
 ├── api-client/               # API client code like test-api.http  for each API route
+    ├── user-api.http/                # User API client code
+    ├── auth-api.http/                # Auth API client code
+    ├── [module]-api.http/                # [module] API client code
+    
 ├── .kiro/                  # Kiro AI assistant configuration
 ├── .husky/                 # Git hooks configuration
 ├── .ruler/                 # Code quality rules
@@ -44,11 +52,34 @@ providus_org/
 - Mongoose models and schemas (to be added)
 - Database utilities and helpers
 
-### `/src/api/**/*`
+### `/src/api/**/*` - Module Structure
 
-- API route controllers just define routes here
-- API route services in functional way
-- API route documentation with zod validation schema and OpenAPI doc with @asteasolutions/zod-to-openapi
+Each API module follows this pattern:
+
+#### `[module].route.ts`
+- Express router with route definitions
+- Imports validation middleware
+- Imports service handlers
+- Exports router instance
+
+#### `[module].service.ts`
+- Business logic as RequestHandler functions
+- Database operations
+- Error handling
+- Response formatting
+
+#### `[module].schema.ts`
+- Zod validation schemas with OpenAPI extensions
+- TypeScript type exports
+- Schemas for: create, update, params, responses
+
+#### `[module].openapi.ts`
+- Registers schemas with OpenAPI registry
+- Registers route paths with full documentation
+- Must be imported in `app.ts` to execute registration
+- Example: `import "./api/user/user.openapi";`
+
+**Important**: OpenAPI files must be imported in `app.ts` BEFORE calling `generateOpenAPIDocument()` to ensure all routes are registered.
 
 ## Configuration Files
 

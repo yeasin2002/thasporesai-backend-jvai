@@ -1,3 +1,5 @@
+import "./user.openapi";
+
 import { validateBody, validateParams } from "@/middleware/validation";
 import express, { Router } from "express";
 import {

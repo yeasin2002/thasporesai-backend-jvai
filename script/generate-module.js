@@ -29,9 +29,12 @@ const toCamelCase = (str) => {
 };
 
 // Generate controller template
-const generateController = (moduleName) => {
+const generateRoute = (moduleName) => {
   const camelName = toCamelCase(moduleName);
-  return `import express, { Router } from "express";
+  return `
+  import "./${moduleName}.openapi";
+
+  import express, { Router } from "express";
 
 export const ${camelName}: Router = express.Router();
 
@@ -44,29 +47,29 @@ export const ${camelName}: Router = express.Router();
 
 // Generate service template
 const generateService = (_moduleName) => {
-  return `import type { RequestHandler } from "express";
+return `
+import type { RequestHandler } from "express";
 
 // TODO: Add your request handlers here
 // Example:
-// export const handler: RequestHandler = async (req, res) => {
-//   try {
-//     res.status(200).json({
-//       status: 200,
-//       message: "Success",
-//       data: null,
-//     });
-//   } catch (error) {
-//     console.log(error);
-//     res.status(500).json({
-//       status: 500,
-//       message: "Internal Server Error",
-//       data: null,
-//     });
-//   }
-// };
+ export const handler: RequestHandler = async (req, res) => {
+   try {
+     res.status(200).json({
+       status: 200,
+       message: "Success",
+       data: null,
+     });
+   } catch (error) {
+     console.log(error);
+     res.status(500).json({
+       status: 500,
+       message: "Internal Server Error",
+       data: null,
+     });
+   }
+ };
 `;
 };
-
 
 // Generate schema template
 const generateValidation = (_moduleName) => {
@@ -90,9 +93,26 @@ const generateOpenAPI = (moduleName) => {
   return `
 import { registry } from "@/lib/openapi";
 
-// TODO: Add your openAPI specification here
 // registry.register("${moduleName}", ${moduleName}Schema);
+registry.registerPath({
+  method: "post",
+  path: "/api/${moduleName}",
+  description: "",
+  summary: "",
+  tags: ["${moduleName}"],
+  responses: {
+    200: {
+      description: "${moduleName} retrieved successfully",
+      // content: {"application/json": {schema: ${moduleName}ResponseSchema,},},
+    },
+  },
+});
 
+
+
+
+// TODO: Add your openAPI specification here
+//  Full Example 
 // registry.registerPath({
 //   method: "get",
 //   path: "/api/${moduleName}",
@@ -151,7 +171,7 @@ async function main() {
     const files = [
       {
         name: `${cleanModuleName}.route.ts`,
-        content: generateController(cleanModuleName),
+        content: generateRoute(cleanModuleName),
       },
       {
         name: `${cleanModuleName}.service.ts`,
