@@ -1,4 +1,4 @@
-import { type Document, model, Schema } from "mongoose";
+import { Schema, model, type Document } from "mongoose";
 
 export interface Category {
   name: string;
@@ -6,20 +6,25 @@ export interface Category {
   description: string;
 }
 
-const CategorySchema = new Schema<CategoryDocument>({
-  name: {
-    type: String,
-    required: true,
+export interface CategoryDocument extends Category, Document {}
+
+const CategorySchema = new Schema<CategoryDocument>(
+  {
+    name: {
+      type: String,
+      required: true,
+      unique: true,
+    },
+    icon: {
+      type: String,
+      required: true,
+    },
+    description: {
+      type: String,
+      required: true,
+    },
   },
-  icon: {
-    type: String,
-    required: true,
-  },
-  description: {
-    type: String,
-    required: true,
-  },
-});
+  { timestamps: true }
+);
 
 export const Category = model<CategoryDocument>("Category", CategorySchema);
-export interface CategoryDocument extends Category, Document {}
