@@ -3,21 +3,21 @@ import { db } from "@/db";
 import type { RequestHandler } from "express";
 
 export const getallUser: RequestHandler = async (_req, res) => {
-  try {
-    const users = await db.user.find().select("-password");
-    res.status(200).json({
-      status: 200,
-      message: "Users fetched successfully",
-      data: users,
-    });
-  } catch (error) {
-    console.log(error);
-    res.status(500).json({
-      status: 500,
-      message: "Internal Server Error",
-      data: null,
-    });
-  }
+	try {
+		const users = await db.user.find().select("-password");
+		res.status(200).json({
+			status: 200,
+			message: "Users fetched successfully",
+			data: users,
+		});
+	} catch (error) {
+		console.log(error);
+		res.status(500).json({
+			status: 500,
+			message: "Internal Server Error",
+			data: null,
+		});
+	}
 };
 
 export const createUser: RequestHandler<{}, any, CreateUser> = async (

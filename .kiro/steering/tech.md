@@ -12,7 +12,7 @@
 
 - **Build System**: tsdown (TypeScript bundler)
 - **Type Checking**: TypeScript v5.8.2 with strict mode
-- **Linting**: oxlint v1.12.0 (Rust-based linter)
+- **Linting**: oxlint v1.12.0 (Rust-based linter) & biome v1.12.0 (Rust-based formatter)
 - **Git Hooks**: Husky v9.1.7 with lint-staged
 - **Hot Reload**: tsx and bun  for development
 
@@ -52,6 +52,8 @@ bun compile      # Create standalone executable with Bun
 ```bash
 bun check        # Run oxlint
 bun check-types  # TypeScript type checking
+bun biome        # Run biome
+bun biome format # Format code
 ```
 
 ### Database
