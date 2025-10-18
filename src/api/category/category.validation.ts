@@ -1,0 +1,127 @@
+import { extendZodWithOpenApi } from "@asteasolutions/zod-to-openapi";
+import { z } from "zod";
+
+// Extend Zod with OpenAPI
+extendZodWithOpenApi(z);
+
+// Base Category Schema
+export const CategorySchema = z
+  .object({
+    _id: z.string().openapi({ description: "Category ID" }),
+    name: z
+      .string()
+      .min(2, "Name must be at least 2 characters")
+      .openapi({ description: "Category name" }),
+    icon: z
+      .string()
+      .min(1, "Icon is required")
+      .openapi({ description: "Category icon (emoji or icon name)" }),
+    description: z
+      .string()
+      .min(10, "Description must be at least 10 characters")
+      .openapi({ description: "Category description" }),
+    createdAt: z.string().optional().openapi({ description: "Creation date" }),
+    updatedAt: z
+      .string()
+      .optional()
+      .openapi({ description: "Last update date" }),
+  })
+  .openapi("Category");
+
+// Create Category Schema
+export const CreateCategorySchema = CategorySchema.omit({
+  _id: true,
+  createdAt: true,
+  updatedAt: true,
+}).openapi("CreateCategory");
+
+// Update Category Schema
+export const UpdateCategorySchema = z
+  .object({
+    name: z.string().min(2, "Name must be at least 2 characters").optional(),
+    icon: z.string().min(1, "Icon is required").optional(),
+    description: z
+      .string()
+      .min(10, "Description must be at least 10 characters")
+      .optional(),
+  })
+  .openapi("UpdateCategory");
+
+// Category ID Param Schema
+export const CategoryIdSchema = z
+  .object({
+    id: z
+      .string()
+      .min(1, "Category ID is required")
+      .openapi({ description: "Category ID" }),
+  })
+  .openapi("CategoryIdParam");
+
+// Search Query Schema
+export const SearchCategorySchema = z
+  .object({
+    search: z
+      .string()
+      .optional()
+      .openapi({ description: "Search term for category name or description" }),
+    page: z
+      .string()
+      .regex(/^\d+$/, "Page must be a number")
+      .optional()
+      .openapi({ description: "Page number for pagination" }),
+    limit: z
+      .string()
+      .regex(/^\d+$/, "Limit must be a number")
+      .optional()
+      .openapi({ description: "Number of items per page" }),
+  })
+  .openapi("SearchCategory");
+
+// Response Schemas
+export const CategoryResponseSchema = z
+  .object({
+    status: z.number(),
+    message: z.string(),
+    data: CategorySchema.nullable(),
+  })
+  .openapi("CategoryResponse");
+
+export const CategoriesResponseSchema = z
+  .object({
+    status: z.number(),
+    message: z.string(),
+    data: z.object({
+      categories: z.array(CategorySchema),
+      total: z.number().openapi({ description: "Total number of categories" }),
+      page: z.number().openapi({ description: "Current page" }),
+      limit: z.number().openapi({ description: "Items per page" }),
+      totalPages: z.number().openapi({ description: "Total pages" }),
+    }),
+  })
+  .openapi("CategoriesResponse");
+
+export const SuccessResponseSchema = z
+  .object({
+    status: z.number(),
+    message: z.string(),
+    data: z.null(),
+  })
+  .openapi("SuccessResponse");
+
+export const ErrorResponseSchema = z
+  .object({
+    status: z.number(),
+    message: z.string(),
+    data: z.null().optional(),
+  })
+  .openapi("ErrorResponse");
+
+// Type exports
+export type Category = z.infer<typeof CategorySchema>;
+export type CreateCategory = z.infer<typeof CreateCategorySchema>;
+export type UpdateCategory = z.infer<typeof UpdateCategorySchema>;
+export type SearchCategory = z.infer<typeof SearchCategorySchema>;
+export type CategoryResponse = z.infer<typeof CategoryResponseSchema>;
+export type CategoriesResponse = z.infer<typeof CategoriesResponseSchema>;
+export type SuccessResponse = z.infer<typeof SuccessResponseSchema>;
+export type ErrorResponse = z.infer<typeof ErrorResponseSchema>;
