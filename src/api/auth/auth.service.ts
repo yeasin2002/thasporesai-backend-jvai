@@ -67,8 +67,8 @@ export const register: RequestHandler<{}, any, Register> = async (req, res) => {
     const userResponse = user.toObject();
     const {
       password: _password,
-      refreshTokens,
-      otp,
+      refreshTokens: _refreshTokens,
+      otp: _otp,
       ...userWithoutSensitiveData
     } = userResponse;
 
@@ -148,8 +148,8 @@ export const login: RequestHandler<{}, any, Login> = async (req, res) => {
     const userResponse = user.toObject();
     const {
       password: _password,
-      refreshTokens,
-      otp,
+      refreshTokens: _refreshTokens,
+      otp: _otp,
       ...userWithoutSensitiveData
     } = userResponse;
 
