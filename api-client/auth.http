@@ -1,0 +1,183 @@
+### JobSphere Authentication API Tests
+### Base URL
+@baseUrl = http://localhost:4000
+@contentType = application/json
+
+### Variables (update after each request)
+@accessToken = your-access-token-here
+@refreshToken = your-refresh-token-here
+
+###############################################
+# 1. Register New User (Customer)
+###############################################
+POST {{baseUrl}}/api/auth/register
+Content-Type: {{contentType}}
+
+{
+  "name": "John Doe",
+  "email": "john@example.com",
+  "password": "password123",
+  "role": "customer",
+  "phone": "+1234567890"
+}
+
+###############################################
+# 2. Register New User (Contractor)
+###############################################
+POST {{baseUrl}}/api/auth/register
+Content-Type: {{contentType}}
+
+{
+  "name": "Jane Smith",
+  "email": "jane@example.com",
+  "password": "password123",
+  "role": "contractor",
+  "phone": "+0987654321"
+}
+
+###############################################
+# 3. Login
+###############################################
+POST {{baseUrl}}/api/auth/login
+Content-Type: {{contentType}}
+
+{
+  "email": "john@example.com",
+  "password": "password123"
+}
+
+###############################################
+# 4. Forgot Password (Request OTP)
+###############################################
+POST {{baseUrl}}/api/auth/forgot-password
+Content-Type: {{contentType}}
+
+{
+  "email": "john@example.com"
+}
+
+###############################################
+# 5. Reset Password (Use OTP from console)
+###############################################
+POST {{baseUrl}}/api/auth/reset-password
+Content-Type: {{contentType}}
+
+{
+  "email": "john@example.com",
+  "otp": "123456",
+  "newPassword": "newpassword123"
+}
+
+###############################################
+# 6. Refresh Access Token
+###############################################
+POST {{baseUrl}}/api/auth/refresh
+Content-Type: {{contentType}}
+
+{
+  "refreshToken": "{{refreshToken}}"
+}
+
+###############################################
+# 7. Get Current User (Protected Route)
+###############################################
+GET {{baseUrl}}/api/auth/me
+Authorization: Bearer {{accessToken}}
+
+###############################################
+# Error Cases
+###############################################
+
+### Register with existing email
+POST {{baseUrl}}/api/auth/register
+Content-Type: {{contentType}}
+
+{
+  "name": "Duplicate User",
+  "email": "john@example.com",
+  "password": "password123",
+  "role": "customer"
+}
+
+### Login with wrong password
+POST {{baseUrl}}/api/auth/login
+Content-Type: {{contentType}}
+
+{
+  "email": "john@example.com",
+  "password": "wrongpassword"
+}
+
+### Login with non-existent email
+POST {{baseUrl}}/api/auth/login
+Content-Type: {{contentType}}
+
+{
+  "email": "notfound@example.com",
+  "password": "password123"
+}
+
+### Reset password with invalid OTP
+POST {{baseUrl}}/api/auth/reset-password
+Content-Type: {{contentType}}
+
+{
+  "email": "john@example.com",
+  "otp": "000000",
+  "newPassword": "newpassword123"
+}
+
+### Refresh with invalid token
+POST {{baseUrl}}/api/auth/refresh
+Content-Type: {{contentType}}
+
+{
+  "refreshToken": "invalid-token"
+}
+
+### Access protected route without token
+GET {{baseUrl}}/api/auth/me
+
+###############################################
+# Validation Error Cases
+###############################################
+
+### Register with invalid email
+POST {{baseUrl}}/api/auth/register
+Content-Type: {{contentType}}
+
+{
+  "name": "Test User",
+  "email": "invalid-email",
+  "password": "password123",
+  "role": "customer"
+}
+
+### Register with short password
+POST {{baseUrl}}/api/auth/register
+Content-Type: {{contentType}}
+
+{
+  "name": "Test User",
+  "email": "test@example.com",
+  "password": "123",
+  "role": "customer"
+}
+
+### Login with missing fields
+POST {{baseUrl}}/api/auth/login
+Content-Type: {{contentType}}
+
+{
+  "email": "john@example.com"
+}
+
+### Reset password with invalid OTP length
+POST {{baseUrl}}/api/auth/reset-password
+Content-Type: {{contentType}}
+
+{
+  "email": "john@example.com",
+  "otp": "123",
+  "newPassword": "newpassword123"
+}

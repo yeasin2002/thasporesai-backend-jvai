@@ -75,12 +75,12 @@ JobSphere uses JWT (JSON Web Tokens) with access and refresh token rotation for 
   5. Invalidate old refresh token
   6. Return new tokens
 
-### Logout
-- **Endpoint**: `POST /api/auth/logout`
-- **Required Fields**: refreshToken
+### me
+- **Endpoint**: `POST /api/auth/me`
+- **Required Fields**:  accessToken
 - **Process**:
-  1. Invalidate refresh token in database
-  2. Return success message
+  1. Verify access token validity
+  2. Return user data
 
 ## Authorization Middleware
 
