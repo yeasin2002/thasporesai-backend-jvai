@@ -7,12 +7,14 @@ JobSphere uses JWT (JSON Web Tokens) with access and refresh token rotation for 
 ## Token System
 
 ### Access Token
+
 - Short-lived token (15-30 minutes recommended)
 - Used for API authentication
 - Stored in memory on client side
 - Contains user ID, role, and basic claims
 
 ### Refresh Token
+
 - Long-lived token (7-30 days)
 - Used to obtain new access tokens
 - Stored securely (httpOnly cookie or secure storage)
@@ -22,6 +24,7 @@ JobSphere uses JWT (JSON Web Tokens) with access and refresh token rotation for 
 ## Authentication Flows
 
 ### Registration
+
 - **Endpoint**: `POST /api/auth/register`
 - **Roles**: Customer, Contractor
 - **Required Fields**: email, password, name, role, phone
@@ -34,6 +37,7 @@ JobSphere uses JWT (JSON Web Tokens) with access and refresh token rotation for 
   6. Return success message
 
 ### Login
+
 - **Endpoint**: `POST /api/auth/login`
 - **Required Fields**: email, password
 - **Process**:
@@ -45,6 +49,7 @@ JobSphere uses JWT (JSON Web Tokens) with access and refresh token rotation for 
   6. Return both tokens with user data
 
 ### Forgot Password
+
 - **Endpoint**: `POST /api/auth/forgot-password`
 - **Required Fields**: email
 - **Process**:
@@ -55,6 +60,7 @@ JobSphere uses JWT (JSON Web Tokens) with access and refresh token rotation for 
   5. Return success message
 
 ### Reset Password
+
 - **Endpoint**: `POST /api/auth/reset-password`
 - **Required Fields**: email, otp, newPassword
 - **Process**:
@@ -65,6 +71,7 @@ JobSphere uses JWT (JSON Web Tokens) with access and refresh token rotation for 
   5. Return success message
 
 ### Refresh Token
+
 - **Endpoint**: `POST /api/auth/refresh`
 - **Required Fields**: refreshToken
 - **Process**:
@@ -76,8 +83,9 @@ JobSphere uses JWT (JSON Web Tokens) with access and refresh token rotation for 
   6. Return new tokens
 
 ### me
+
 - **Endpoint**: `POST /api/auth/me`
-- **Required Fields**:  accessToken
+- **Required Fields**: accessToken
 - **Process**:
   1. Verify access token validity
   2. Return user data
@@ -88,10 +96,10 @@ JobSphere uses JWT (JSON Web Tokens) with access and refresh token rotation for 
 
 ```typescript
 // Protect routes by role
-authMiddleware.requireAuth()           // Any authenticated user
-authMiddleware.requireRole('customer') // Customer only
-authMiddleware.requireRole('contractor') // Contractor only
-authMiddleware.requireRole('admin')    // Admin only
+authMiddleware.requireAuth(); // Any authenticated user
+authMiddleware.requireRole("customer"); // Customer only
+authMiddleware.requireRole("contractor"); // Contractor only
+authMiddleware.requireRole("admin"); // Admin only
 ```
 
 ### Route Protection Examples
@@ -116,12 +124,14 @@ authMiddleware.requireRole('admin')    // Admin only
 ## Database Schema Considerations
 
 ### User Model
+
 - Store hashed passwords only
 - Include role field (customer, contractor, admin)
 - Track account status (active, suspended, deleted)
 - Store refresh token references
 
 ### OTP Model
+
 - Store OTP with user reference
 - Include expiration timestamp
 - Mark as used after successful reset

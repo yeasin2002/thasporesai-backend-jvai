@@ -1,11 +1,14 @@
 import "./user.openapi";
 
-import { validateBody, validateParams } from "@/middleware/validation";
+import {
+  validateBody,
+  validateParams,
+} from "@/middleware/validation.middleware";
 import express, { type Router } from "express";
 import {
-	CreateUserSchema,
-	UpdateUserSchema,
-	UserIdSchema,
+  CreateUserSchema,
+  UpdateUserSchema,
+  UserIdSchema,
 } from "./user.schema";
 import { createUser, deleteUser, getallUser, updateUser } from "./user.service";
 

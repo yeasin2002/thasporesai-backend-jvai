@@ -1,4 +1,5 @@
 import { db } from "@/db";
+import { sendError, sendSuccess } from "@/helpers";
 import { deleteFile, getFileUrl } from "@/lib/multer";
 import type { RequestHandler } from "express";
 import type {
@@ -31,33 +32,32 @@ export const getAllCategories: RequestHandler<
     }
 
     // Get categories with pagination
-    const [categories, total] = await Promise.all([
-      db.category.find(query).skip(skip).limit(limitNum).sort({ name: 1 }),
-      db.category.countDocuments(query),
-    ]);
+    const categories = await db.category
+      .find(query)
+      .skip(skip)
+      .limit(limitNum)
+      .sort({ name: 1 });
+    const total = await db.category.countDocuments(query);
 
     const totalPages = Math.ceil(total / limitNum);
 
-    res.status(200).json({
-      status: 200,
-      message: search
+    sendSuccess(
+      res,
+      200,
+      search
         ? `Found ${categories.length} categories matching "${search}"`
         : "Categories retrieved successfully",
-      data: {
+      {
         categories,
         total,
         page: pageNum,
         limit: limitNum,
         totalPages,
-      },
-    });
+      }
+    );
   } catch (error) {
     console.error("Get categories error:", error);
-    res.status(500).json({
-      status: 500,
-      message: "Internal Server Error",
-      data: null,
-    });
+    sendError(res, 500, "Internal Server Error");
   }
 };
 
@@ -69,25 +69,13 @@ export const getCategoryById: RequestHandler = async (req, res) => {
     const category = await db.category.findById(id);
 
     if (!category) {
-      return res.status(404).json({
-        status: 404,
-        message: "Category not found",
-        data: null,
-      });
+      return sendError(res, 404, "Category not found");
     }
 
-    res.status(200).json({
-      status: 200,
-      message: "Category retrieved successfully",
-      data: category,
-    });
+    sendSuccess(res, 200, "Category retrieved successfully", category);
   } catch (error) {
     console.error("Get category error:", error);
-    res.status(500).json({
-      status: 500,
-      message: "Internal Server Error",
-      data: null,
-    });
+    sendError(res, 500, "Internal Server Error");
   }
 };
 
@@ -103,11 +91,7 @@ export const createCategory: RequestHandler<
 
     // Check if file was uploaded
     if (!file) {
-      return res.status(400).json({
-        status: 400,
-        message: "Category icon image is required",
-        data: null,
-      });
+      return sendError(res, 400, "Category icon image is required");
     }
 
     // Check if category with same name already exists
@@ -119,11 +103,7 @@ export const createCategory: RequestHandler<
       // Delete uploaded file if category already exists
       await deleteFile(file.filename);
 
-      return res.status(400).json({
-        status: 400,
-        message: "Category with this name already exists",
-        data: null,
-      });
+      return sendError(res, 400, "Category with this name already exists");
     }
 
     // Get file URL
@@ -136,11 +116,7 @@ export const createCategory: RequestHandler<
       description,
     });
 
-    res.status(201).json({
-      status: 201,
-      message: "Category created successfully",
-      data: category,
-    });
+    sendSuccess(res, 201, "Category created successfully", category);
   } catch (error) {
     console.error("Create category error:", error);
 
@@ -149,11 +125,7 @@ export const createCategory: RequestHandler<
       await deleteFile(req.file.filename);
     }
 
-    res.status(500).json({
-      status: 500,
-      message: "Internal Server Error",
-      data: null,
-    });
+    sendError(res, 500, "Internal Server Error");
   }
 };
 
@@ -176,11 +148,7 @@ export const updateCategory: RequestHandler<
         await deleteFile(file.filename);
       }
 
-      return res.status(404).json({
-        status: 404,
-        message: "Category not found",
-        data: null,
-      });
+      return sendError(res, 404, "Category not found");
     }
 
     // If updating name, check for duplicates
@@ -196,11 +164,7 @@ export const updateCategory: RequestHandler<
           await deleteFile(file.filename);
         }
 
-        return res.status(400).json({
-          status: 400,
-          message: "Category with this name already exists",
-          data: null,
-        });
+        return sendError(res, 400, "Category with this name already exists");
       }
     }
 
@@ -229,11 +193,7 @@ export const updateCategory: RequestHandler<
       }
     );
 
-    res.status(200).json({
-      status: 200,
-      message: "Category updated successfully",
-      data: updatedCategory,
-    });
+    sendSuccess(res, 200, "Category updated successfully", updatedCategory);
   } catch (error) {
     console.error("Update category error:", error);
 
@@ -242,11 +202,7 @@ export const updateCategory: RequestHandler<
       await deleteFile(req.file.filename);
     }
 
-    res.status(500).json({
-      status: 500,
-      message: "Internal Server Error",
-      data: null,
-    });
+    sendError(res, 500, "Internal Server Error");
   }
 };
 
@@ -258,11 +214,7 @@ export const deleteCategory: RequestHandler = async (req, res) => {
     const category = await db.category.findByIdAndDelete(id);
 
     if (!category) {
-      return res.status(404).json({
-        status: 404,
-        message: "Category not found",
-        data: null,
-      });
+      return sendError(res, 404, "Category not found");
     }
 
     // Delete icon file
@@ -271,17 +223,9 @@ export const deleteCategory: RequestHandler = async (req, res) => {
       await deleteFile(iconFilename);
     }
 
-    res.status(200).json({
-      status: 200,
-      message: "Category deleted successfully",
-      data: null,
-    });
+    sendSuccess(res, 200, "Category deleted successfully", null);
   } catch (error) {
     console.error("Delete category error:", error);
-    res.status(500).json({
-      status: 500,
-      message: "Internal Server Error",
-      data: null,
-    });
+    sendError(res, 500, "Internal Server Error");
   }
 };

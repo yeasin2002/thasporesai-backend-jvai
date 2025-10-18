@@ -41,13 +41,7 @@ app.get("/api-docs.json", (_req, res) => {
 });
 app.use(
   "/scaler",
-  apiReference({
-    theme: "deepSpace",
-    content: openApiDocument,
-    // spec: {
-    //   content: openapiSpecification,
-    // },
-  })
+  apiReference({ theme: "deepSpace", content: openApiDocument })
 );
 
 app.use("/api/auth", auth);
