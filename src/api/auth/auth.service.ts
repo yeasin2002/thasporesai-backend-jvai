@@ -15,6 +15,7 @@ import type {
   RefreshToken,
   Register,
   ResetPassword,
+  VerifyOTP,
 } from "./auth.validation";
 
 // Register Handler
@@ -221,6 +222,73 @@ export const forgotPassword: RequestHandler<{}, any, ForgotPassword> = async (
   }
 };
 
+// Verify OTP Handler
+export const verifyOTP: RequestHandler<{}, any, VerifyOTP> = async (
+  req,
+  res
+) => {
+  try {
+    const { email, otp } = req.body;
+
+    // Find user
+    const user = await db.user.findOne({ email });
+    if (!user) {
+      return res.status(400).json({
+        status: 400,
+        message: "Invalid OTP or email",
+        data: null,
+      });
+    }
+
+    // Verify OTP
+    if (!user.otp || !user.otp.code) {
+      return res.status(400).json({
+        status: 400,
+        message: "No OTP found. Please request a new one.",
+        data: null,
+      });
+    }
+
+    if (user.otp.used) {
+      return res.status(400).json({
+        status: 400,
+        message: "OTP has already been used",
+        data: null,
+      });
+    }
+
+    if (user.otp.expiresAt && user.otp.expiresAt < new Date()) {
+      return res.status(400).json({
+        status: 400,
+        message: "OTP has expired. Please request a new one.",
+        data: null,
+      });
+    }
+
+    if (user.otp.code !== otp) {
+      return res.status(400).json({
+        status: 400,
+        message: "Invalid OTP",
+        data: null,
+      });
+    }
+
+    // OTP is valid - don't mark as used yet, will be used in reset password
+    res.status(200).json({
+      status: 200,
+      message: "OTP verified successfully. You can now reset your password.",
+      data: null,
+    });
+  } catch (error) {
+    console.error("Verify OTP error:", error);
+    res.status(500).json({
+      status: 500,
+      message: "Internal Server Error",
+      data: null,
+    });
+  }
+};
+
 // Reset Password Handler
 export const resetPassword: RequestHandler<{}, any, ResetPassword> = async (
   req,
@@ -239,7 +307,7 @@ export const resetPassword: RequestHandler<{}, any, ResetPassword> = async (
       });
     }
 
-    // Verify OTP
+    // Verify OTP again (in case user skips verify step)
     if (!user.otp || !user.otp.code) {
       return res.status(400).json({
         status: 400,

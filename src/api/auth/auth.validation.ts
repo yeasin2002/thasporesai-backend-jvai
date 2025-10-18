@@ -54,6 +54,20 @@ export const ForgotPasswordSchema = z
   })
   .openapi("ForgotPassword");
 
+// Verify OTP Schema
+export const VerifyOTPSchema = z
+  .object({
+    email: z
+      .string()
+      .email("Invalid email format")
+      .openapi({ description: "User's email address" }),
+    otp: z
+      .string()
+      .length(6, "OTP must be 6 digits")
+      .openapi({ description: "6-digit OTP code" }),
+  })
+  .openapi("VerifyOTP");
+
 // Reset Password Schema
 export const ResetPasswordSchema = z
   .object({
@@ -63,8 +77,8 @@ export const ResetPasswordSchema = z
       .openapi({ description: "User's email address" }),
     otp: z
       .string()
-      .length(4, "OTP must be 4 digits")
-      .openapi({ description: "4-digit OTP code" }),
+      .length(6, "OTP must be 6 digits")
+      .openapi({ description: "6-digit OTP code" }),
     newPassword: z
       .string()
       .min(6, "Password must be at least 6 characters")
@@ -162,6 +176,7 @@ export const ErrorResponseSchema = z
 export type Register = z.infer<typeof RegisterSchema>;
 export type Login = z.infer<typeof LoginSchema>;
 export type ForgotPassword = z.infer<typeof ForgotPasswordSchema>;
+export type VerifyOTP = z.infer<typeof VerifyOTPSchema>;
 export type ResetPassword = z.infer<typeof ResetPasswordSchema>;
 export type RefreshToken = z.infer<typeof RefreshTokenSchema>;
 export type UserData = z.infer<typeof UserDataSchema>;

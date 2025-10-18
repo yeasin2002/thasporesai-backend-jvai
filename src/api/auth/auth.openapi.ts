@@ -10,12 +10,14 @@ import {
   SuccessResponseSchema,
   TokenResponseSchema,
   UserResponseSchema,
+  VerifyOTPSchema,
 } from "./auth.validation";
 
 // Register schemas
 registry.register("Register", RegisterSchema);
 registry.register("Login", LoginSchema);
 registry.register("ForgotPassword", ForgotPasswordSchema);
+registry.register("VerifyOTP", VerifyOTPSchema);
 registry.register("ResetPassword", ResetPasswordSchema);
 registry.register("RefreshToken", RefreshTokenSchema);
 registry.register("AuthResponse", AuthResponseSchema);
@@ -164,11 +166,55 @@ registry.registerPath({
   },
 });
 
+// POST /api/auth/verify-otp
+registry.registerPath({
+  method: "post",
+  path: "/api/auth/verify-otp",
+  description: "Verify OTP before resetting password",
+  summary: "Verify OTP",
+  tags: ["Authentication"],
+  request: {
+    body: {
+      content: {
+        "application/json": {
+          schema: VerifyOTPSchema,
+        },
+      },
+    },
+  },
+  responses: {
+    200: {
+      description: "OTP verified successfully",
+      content: {
+        "application/json": {
+          schema: SuccessResponseSchema,
+        },
+      },
+    },
+    400: {
+      description: "Invalid OTP or validation error",
+      content: {
+        "application/json": {
+          schema: ErrorResponseSchema,
+        },
+      },
+    },
+    500: {
+      description: "Internal server error",
+      content: {
+        "application/json": {
+          schema: ErrorResponseSchema,
+        },
+      },
+    },
+  },
+});
+
 // POST /api/auth/reset-password
 registry.registerPath({
   method: "post",
   path: "/api/auth/reset-password",
-  description: "Reset password using OTP",
+  description: "Reset password using verified OTP",
   summary: "Reset password",
   tags: ["Authentication"],
   request: {

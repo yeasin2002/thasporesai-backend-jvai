@@ -9,6 +9,7 @@ import {
   refresh,
   register,
   resetPassword,
+  verifyOTP,
 } from "./auth.service";
 import {
   ForgotPasswordSchema,
@@ -16,6 +17,7 @@ import {
   RefreshTokenSchema,
   RegisterSchema,
   ResetPasswordSchema,
+  VerifyOTPSchema,
 } from "./auth.validation";
 
 export const auth: Router = express.Router();
@@ -28,6 +30,7 @@ auth.post(
   validateBody(ForgotPasswordSchema),
   forgotPassword
 );
+auth.post("/verify-otp", validateBody(VerifyOTPSchema), verifyOTP);
 auth.post("/reset-password", validateBody(ResetPasswordSchema), resetPassword);
 auth.post("/refresh", validateBody(RefreshTokenSchema), refresh);
 
