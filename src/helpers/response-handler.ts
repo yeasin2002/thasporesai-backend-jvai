@@ -4,13 +4,13 @@ import type { Response } from "express";
  * Standard API response structure
  */
 export interface ApiResponse<T = any> {
-  status: number;
-  message: string;
-  data: T | null;
-  errors?: Array<{
-    path: string;
-    message: string;
-  }>;
+	status: number;
+	message: string;
+	data: T | null;
+	errors?: Array<{
+		path: string;
+		message: string;
+	}>;
 }
 
 /**
@@ -21,16 +21,16 @@ export interface ApiResponse<T = any> {
  * @param data - Response data (optional)
  */
 export function sendSuccess<T = any>(
-  res: Response,
-  statusCode: number = 200,
-  message: string,
-  data: T | null = null
+	res: Response,
+	statusCode: number = 200,
+	message: string,
+	data: T | null = null,
 ): Response<ApiResponse<T>> {
-  return res.status(statusCode).json({
-    status: statusCode,
-    message,
-    data,
-  });
+	return res.status(statusCode).json({
+		status: statusCode,
+		message,
+		data,
+	});
 }
 
 /**
@@ -41,22 +41,22 @@ export function sendSuccess<T = any>(
  * @param errors - Validation errors (optional)
  */
 export function sendError(
-  res: Response,
-  statusCode: number = 500,
-  message: string,
-  errors?: Array<{ path: string; message: string }>
+	res: Response,
+	statusCode: number = 500,
+	message: string,
+	errors?: Array<{ path: string; message: string }>,
 ): Response<ApiResponse<null>> {
-  const response: ApiResponse<null> = {
-    status: statusCode,
-    message,
-    data: null,
-  };
+	const response: ApiResponse<null> = {
+		status: statusCode,
+		message,
+		data: null,
+	};
 
-  if (errors && errors.length > 0) {
-    response.errors = errors;
-  }
+	if (errors && errors.length > 0) {
+		response.errors = errors;
+	}
 
-  return res.status(statusCode).json(response);
+	return res.status(statusCode).json(response);
 }
 
 /**
@@ -66,11 +66,11 @@ export function sendError(
  * @param data - Created resource data
  */
 export function sendCreated<T = any>(
-  res: Response,
-  message: string,
-  data: T
+	res: Response,
+	message: string,
+	data: T,
 ): Response<ApiResponse<T>> {
-  return sendSuccess(res, 201, message, data);
+	return sendSuccess(res, 201, message, data);
 }
 
 /**
@@ -78,7 +78,7 @@ export function sendCreated<T = any>(
  * @param res - Express response object
  */
 export function sendNoContent(res: Response): Response {
-  return res.status(204).send();
+	return res.status(204).send();
 }
 
 /**
@@ -88,11 +88,11 @@ export function sendNoContent(res: Response): Response {
  * @param errors - Validation errors (optional)
  */
 export function sendBadRequest(
-  res: Response,
-  message: string = "Bad Request",
-  errors?: Array<{ path: string; message: string }>
+	res: Response,
+	message: string = "Bad Request",
+	errors?: Array<{ path: string; message: string }>,
 ): Response<ApiResponse<null>> {
-  return sendError(res, 400, message, errors);
+	return sendError(res, 400, message, errors);
 }
 
 /**
@@ -101,10 +101,10 @@ export function sendBadRequest(
  * @param message - Error message
  */
 export function sendUnauthorized(
-  res: Response,
-  message: string = "Unauthorized"
+	res: Response,
+	message: string = "Unauthorized",
 ): Response<ApiResponse<null>> {
-  return sendError(res, 401, message);
+	return sendError(res, 401, message);
 }
 
 /**
@@ -113,10 +113,10 @@ export function sendUnauthorized(
  * @param message - Error message
  */
 export function sendForbidden(
-  res: Response,
-  message: string = "Forbidden"
+	res: Response,
+	message: string = "Forbidden",
 ): Response<ApiResponse<null>> {
-  return sendError(res, 403, message);
+	return sendError(res, 403, message);
 }
 
 /**
@@ -125,10 +125,10 @@ export function sendForbidden(
  * @param message - Error message
  */
 export function sendNotFound(
-  res: Response,
-  message: string = "Not Found"
+	res: Response,
+	message: string = "Not Found",
 ): Response<ApiResponse<null>> {
-  return sendError(res, 404, message);
+	return sendError(res, 404, message);
 }
 
 /**
@@ -137,66 +137,66 @@ export function sendNotFound(
  * @param message - Error message
  */
 export function sendInternalError(
-  res: Response,
-  message: string = "Internal Server Error"
+	res: Response,
+	message: string = "Internal Server Error",
 ): Response<ApiResponse<null>> {
-  return sendError(res, 500, message);
+	return sendError(res, 500, message);
 }
 
 /**
  * Response handler class for chaining
  */
 export class ResponseHandler {
-  constructor(private res: Response) {}
+	constructor(private res: Response) {}
 
-  success<T = any>(
-    statusCode: number = 200,
-    message: string,
-    data: T | null = null
-  ): Response<ApiResponse<T>> {
-    return sendSuccess(this.res, statusCode, message, data);
-  }
+	success<T = any>(
+		statusCode: number = 200,
+		message: string,
+		data: T | null = null,
+	): Response<ApiResponse<T>> {
+		return sendSuccess(this.res, statusCode, message, data);
+	}
 
-  error(
-    statusCode: number = 500,
-    message: string,
-    errors?: Array<{ path: string; message: string }>
-  ): Response<ApiResponse<null>> {
-    return sendError(this.res, statusCode, message, errors);
-  }
+	error(
+		statusCode: number = 500,
+		message: string,
+		errors?: Array<{ path: string; message: string }>,
+	): Response<ApiResponse<null>> {
+		return sendError(this.res, statusCode, message, errors);
+	}
 
-  created<T = any>(message: string, data: T): Response<ApiResponse<T>> {
-    return sendCreated(this.res, message, data);
-  }
+	created<T = any>(message: string, data: T): Response<ApiResponse<T>> {
+		return sendCreated(this.res, message, data);
+	}
 
-  noContent(): Response {
-    return sendNoContent(this.res);
-  }
+	noContent(): Response {
+		return sendNoContent(this.res);
+	}
 
-  badRequest(
-    message: string = "Bad Request",
-    errors?: Array<{ path: string; message: string }>
-  ): Response<ApiResponse<null>> {
-    return sendBadRequest(this.res, message, errors);
-  }
+	badRequest(
+		message: string = "Bad Request",
+		errors?: Array<{ path: string; message: string }>,
+	): Response<ApiResponse<null>> {
+		return sendBadRequest(this.res, message, errors);
+	}
 
-  unauthorized(message: string = "Unauthorized"): Response<ApiResponse<null>> {
-    return sendUnauthorized(this.res, message);
-  }
+	unauthorized(message: string = "Unauthorized"): Response<ApiResponse<null>> {
+		return sendUnauthorized(this.res, message);
+	}
 
-  forbidden(message: string = "Forbidden"): Response<ApiResponse<null>> {
-    return sendForbidden(this.res, message);
-  }
+	forbidden(message: string = "Forbidden"): Response<ApiResponse<null>> {
+		return sendForbidden(this.res, message);
+	}
 
-  notFound(message: string = "Not Found"): Response<ApiResponse<null>> {
-    return sendNotFound(this.res, message);
-  }
+	notFound(message: string = "Not Found"): Response<ApiResponse<null>> {
+		return sendNotFound(this.res, message);
+	}
 
-  internalError(
-    message: string = "Internal Server Error"
-  ): Response<ApiResponse<null>> {
-    return sendInternalError(this.res, message);
-  }
+	internalError(
+		message: string = "Internal Server Error",
+	): Response<ApiResponse<null>> {
+		return sendInternalError(this.res, message);
+	}
 }
 
 /**
@@ -204,5 +204,5 @@ export class ResponseHandler {
  * @param res - Express response object
  */
 export function createResponseHandler(res: Response): ResponseHandler {
-  return new ResponseHandler(res);
+	return new ResponseHandler(res);
 }

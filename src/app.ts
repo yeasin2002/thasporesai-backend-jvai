@@ -9,7 +9,6 @@ import { auth } from "./api/auth/auth.route";
 import "./api/user/user.openapi"; // Import to register OpenAPI specs
 import { user } from "./api/user/user.route";
 import { connectDB } from "./lib";
-import { generateOTP } from "./lib/jwt";
 import { generateOpenAPIDocument } from "./lib/openapi";
 import { errorHandler, notFoundHandler } from "./middleware/common";
 
@@ -32,7 +31,7 @@ app.get("/", (_req, res) => {
 const openApiDocument = generateOpenAPIDocument();
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(openApiDocument));
 app.get("/api-docs.json", (_req, res) => {
-  res.setHeader("Content-Type", "application/json");
+	res.setHeader("Content-Type", "application/json");
   res.send(openApiDocument);
 });
 app.use(
@@ -54,9 +53,9 @@ app.use(errorHandler);
 
 const port = process.env.PORT || 4000;
 app.listen(port, async () => {
-  await connectDB();
+	await connectDB();
 
-  console.log(`🚀 Server is running on port ${port}`);
+	console.log(`🚀 Server is running on port ${port}`);
   console.log("✍️ Swagger doc: http://localhost:4000/api-docs");
   console.log("📋 Scaler doc: http://localhost:4000/scaler");
 });

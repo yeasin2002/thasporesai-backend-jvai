@@ -1,10 +1,10 @@
 import {
-  CreateUserSchema,
-  ErrorResponseSchema,
-  UpdateUserSchema,
-  UserIdSchema,
-  UserResponseSchema,
-  UsersResponseSchema,
+	CreateUserSchema,
+	ErrorResponseSchema,
+	UpdateUserSchema,
+	UserIdSchema,
+	UserResponseSchema,
+	UsersResponseSchema,
 } from "@/api/user/user.schema";
 import { registry } from "@/lib/openapi";
 
@@ -18,151 +18,151 @@ registry.register("ErrorResponse", ErrorResponseSchema);
 
 // Register user routes
 registry.registerPath({
-  method: "get",
-  path: "/api/user",
-  description: "Get all users",
-  summary: "Retrieve all users",
-  tags: ["Users"],
-  responses: {
-    200: {
-      description: "Users retrieved successfully",
-      content: {
-        "application/json": {
-          schema: UsersResponseSchema,
-        },
-      },
-    },
-    500: {
-      description: "Internal server error",
-      content: {
-        "application/json": {
-          schema: ErrorResponseSchema,
-        },
-      },
-    },
-  },
+	method: "get",
+	path: "/api/user",
+	description: "Get all users",
+	summary: "Retrieve all users",
+	tags: ["Users"],
+	responses: {
+		200: {
+			description: "Users retrieved successfully",
+			content: {
+				"application/json": {
+					schema: UsersResponseSchema,
+				},
+			},
+		},
+		500: {
+			description: "Internal server error",
+			content: {
+				"application/json": {
+					schema: ErrorResponseSchema,
+				},
+			},
+		},
+	},
 });
 
 registry.registerPath({
-  method: "post",
-  path: "/api/user",
-  description: "Create a new user",
-  summary: "Create user",
-  tags: ["Users"],
-  request: {
-    body: {
-      content: {
-        "application/json": {
-          schema: CreateUserSchema,
-        },
-      },
-    },
-  },
-  responses: {
-    201: {
-      description: "User created successfully",
-      content: {
-        "application/json": {
-          schema: UserResponseSchema,
-        },
-      },
-    },
-    400: {
-      description: "Validation error",
-      content: {
-        "application/json": {
-          schema: ErrorResponseSchema,
-        },
-      },
-    },
-    500: {
-      description: "Internal server error",
-      content: {
-        "application/json": {
-          schema: ErrorResponseSchema,
-        },
-      },
-    },
-  },
+	method: "post",
+	path: "/api/user",
+	description: "Create a new user",
+	summary: "Create user",
+	tags: ["Users"],
+	request: {
+		body: {
+			content: {
+				"application/json": {
+					schema: CreateUserSchema,
+				},
+			},
+		},
+	},
+	responses: {
+		201: {
+			description: "User created successfully",
+			content: {
+				"application/json": {
+					schema: UserResponseSchema,
+				},
+			},
+		},
+		400: {
+			description: "Validation error",
+			content: {
+				"application/json": {
+					schema: ErrorResponseSchema,
+				},
+			},
+		},
+		500: {
+			description: "Internal server error",
+			content: {
+				"application/json": {
+					schema: ErrorResponseSchema,
+				},
+			},
+		},
+	},
 });
 
 registry.registerPath({
-  method: "put",
-  path: "/api/user/{id}",
-  description: "Update a user",
-  summary: "Update user",
-  tags: ["Users"],
-  request: {
-    params: UserIdSchema,
-    body: {
-      content: {
-        "application/json": {
-          schema: UpdateUserSchema,
-        },
-      },
-    },
-  },
-  responses: {
-    200: {
-      description: "User updated successfully",
-      content: {
-        "application/json": {
-          schema: UserResponseSchema,
-        },
-      },
-    },
-    400: {
-      description: "Validation error",
-      content: {
-        "application/json": {
-          schema: ErrorResponseSchema,
-        },
-      },
-    },
-    500: {
-      description: "Internal server error",
-      content: {
-        "application/json": {
-          schema: ErrorResponseSchema,
-        },
-      },
-    },
-  },
+	method: "put",
+	path: "/api/user/{id}",
+	description: "Update a user",
+	summary: "Update user",
+	tags: ["Users"],
+	request: {
+		params: UserIdSchema,
+		body: {
+			content: {
+				"application/json": {
+					schema: UpdateUserSchema,
+				},
+			},
+		},
+	},
+	responses: {
+		200: {
+			description: "User updated successfully",
+			content: {
+				"application/json": {
+					schema: UserResponseSchema,
+				},
+			},
+		},
+		400: {
+			description: "Validation error",
+			content: {
+				"application/json": {
+					schema: ErrorResponseSchema,
+				},
+			},
+		},
+		500: {
+			description: "Internal server error",
+			content: {
+				"application/json": {
+					schema: ErrorResponseSchema,
+				},
+			},
+		},
+	},
 });
 
 registry.registerPath({
-  method: "delete",
-  path: "/api/user/{id}",
-  description: "Delete a user",
-  summary: "Delete user",
-  tags: ["Users"],
-  request: {
-    params: UserIdSchema,
-  },
-  responses: {
-    200: {
-      description: "User deleted successfully",
-      content: {
-        "application/json": {
-          schema: UserResponseSchema,
-        },
-      },
-    },
-    400: {
-      description: "Validation error",
-      content: {
-        "application/json": {
-          schema: ErrorResponseSchema,
-        },
-      },
-    },
-    500: {
-      description: "Internal server error",
-      content: {
-        "application/json": {
-          schema: ErrorResponseSchema,
-        },
-      },
-    },
-  },
+	method: "delete",
+	path: "/api/user/{id}",
+	description: "Delete a user",
+	summary: "Delete user",
+	tags: ["Users"],
+	request: {
+		params: UserIdSchema,
+	},
+	responses: {
+		200: {
+			description: "User deleted successfully",
+			content: {
+				"application/json": {
+					schema: UserResponseSchema,
+				},
+			},
+		},
+		400: {
+			description: "Validation error",
+			content: {
+				"application/json": {
+					schema: ErrorResponseSchema,
+				},
+			},
+		},
+		500: {
+			description: "Internal server error",
+			content: {
+				"application/json": {
+					schema: ErrorResponseSchema,
+				},
+			},
+		},
+	},
 });

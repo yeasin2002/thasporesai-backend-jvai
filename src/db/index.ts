@@ -1,5 +1,5 @@
 import { User } from "./models/user.model";
 
 export const db = {
-  user: User,
+	user: User,
 };
