@@ -25,6 +25,9 @@ app.use(
 app.use(morgan("dev"));
 app.use(express.json());
 
+// Serve uploaded files statically
+app.use("/uploads", express.static("uploads"));
+
 app.get("/", (_req, res) => {
   res.status(200).send("OK");
 });

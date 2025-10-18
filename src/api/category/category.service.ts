@@ -1,4 +1,5 @@
 import { db } from "@/db";
+import { deleteFile, getFileUrl } from "@/lib/multer";
 import type { RequestHandler } from "express";
 import type {
   CreateCategory,
@@ -97,7 +98,17 @@ export const createCategory: RequestHandler<
   CreateCategory
 > = async (req, res) => {
   try {
-    const { name, icon, description } = req.body;
+    const { name, description } = req.body;
+    const file = req.file;
+
+    // Check if file was uploaded
+    if (!file) {
+      return res.status(400).json({
+        status: 400,
+        message: "Category icon image is required",
+        data: null,
+      });
+    }
 
     // Check if category with same name already exists
     const existingCategory = await db.category.findOne({
@@ -105,6 +116,9 @@ export const createCategory: RequestHandler<
     });
 
     if (existingCategory) {
+      // Delete uploaded file if category already exists
+      await deleteFile(file.filename);
+
       return res.status(400).json({
         status: 400,
         message: "Category with this name already exists",
@@ -112,10 +126,13 @@ export const createCategory: RequestHandler<
       });
     }
 
+    // Get file URL
+    const iconUrl = getFileUrl(file.filename);
+
     // Create category
     const category = await db.category.create({
       name,
-      icon,
+      icon: iconUrl,
       description,
     });
 
@@ -126,6 +143,12 @@ export const createCategory: RequestHandler<
     });
   } catch (error) {
     console.error("Create category error:", error);
+
+    // Delete uploaded file if error occurs
+    if (req.file) {
+      await deleteFile(req.file.filename);
+    }
+
     res.status(500).json({
       status: 500,
       message: "Internal Server Error",
@@ -143,10 +166,16 @@ export const updateCategory: RequestHandler<
   try {
     const { id } = req.params;
     const updates = req.body;
+    const file = req.file;
 
     // Check if category exists
     const category = await db.category.findById(id);
     if (!category) {
+      // Delete uploaded file if category not found
+      if (file) {
+        await deleteFile(file.filename);
+      }
+
       return res.status(404).json({
         status: 404,
         message: "Category not found",
@@ -162,6 +191,11 @@ export const updateCategory: RequestHandler<
       });
 
       if (existingCategory) {
+        // Delete uploaded file if duplicate name
+        if (file) {
+          await deleteFile(file.filename);
+        }
+
         return res.status(400).json({
           status: 400,
           message: "Category with this name already exists",
@@ -170,11 +204,30 @@ export const updateCategory: RequestHandler<
       }
     }
 
+    // Prepare update object
+    const updateData: any = { ...updates };
+
+    // If new icon uploaded, delete old icon and update with new one
+    if (file) {
+      // Extract filename from old icon URL
+      const oldIconFilename = category.icon.split("/").pop();
+      if (oldIconFilename) {
+        await deleteFile(oldIconFilename);
+      }
+
+      // Add new icon URL to updates
+      updateData.icon = getFileUrl(file.filename);
+    }
+
     // Update category
-    const updatedCategory = await db.category.findByIdAndUpdate(id, updates, {
-      new: true,
-      runValidators: true,
-    });
+    const updatedCategory = await db.category.findByIdAndUpdate(
+      id,
+      updateData,
+      {
+        new: true,
+        runValidators: true,
+      }
+    );
 
     res.status(200).json({
       status: 200,
@@ -183,6 +236,12 @@ export const updateCategory: RequestHandler<
     });
   } catch (error) {
     console.error("Update category error:", error);
+
+    // Delete uploaded file if error occurs
+    if (req.file) {
+      await deleteFile(req.file.filename);
+    }
+
     res.status(500).json({
       status: 500,
       message: "Internal Server Error",
@@ -204,6 +263,12 @@ export const deleteCategory: RequestHandler = async (req, res) => {
         message: "Category not found",
         data: null,
       });
+    }
+
+    // Delete icon file
+    const iconFilename = category.icon.split("/").pop();
+    if (iconFilename) {
+      await deleteFile(iconFilename);
     }
 
     res.status(200).json({

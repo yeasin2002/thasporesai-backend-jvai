@@ -1,11 +1,12 @@
 import "./category.openapi";
 
+import { upload } from "@/lib/multer";
 import {
   validateBody,
   validateParams,
   validateQuery,
 } from "@/middleware/validation";
-import express, { Router } from "express";
+import express, { type Router } from "express";
 import {
   createCategory,
   deleteCategory,
@@ -27,10 +28,17 @@ category.get("/", validateQuery(SearchCategorySchema), getAllCategories);
 category.get("/:id", validateParams(CategoryIdSchema), getCategoryById);
 
 // Admin routes (TODO: Add requireRole('admin') middleware when auth is ready)
-category.post("/", validateBody(CreateCategorySchema), createCategory);
+// Note: multer processes multipart/form-data, so validateBody runs after file upload
+category.post(
+  "/",
+  upload.single("icon"),
+  validateBody(CreateCategorySchema),
+  createCategory
+);
 category.put(
   "/:id",
   validateParams(CategoryIdSchema),
+  upload.single("icon"),
   validateBody(UpdateCategorySchema),
   updateCategory
 );

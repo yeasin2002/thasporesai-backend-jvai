@@ -15,7 +15,7 @@ export const CategorySchema = z
     icon: z
       .string()
       .min(1, "Icon is required")
-      .openapi({ description: "Category icon (emoji or icon name)" }),
+      .openapi({ description: "Category icon URL (uploaded image path)" }),
     description: z
       .string()
       .min(10, "Description must be at least 10 characters")
@@ -28,18 +28,24 @@ export const CategorySchema = z
   })
   .openapi("Category");
 
-// Create Category Schema
-export const CreateCategorySchema = CategorySchema.omit({
-  _id: true,
-  createdAt: true,
-  updatedAt: true,
-}).openapi("CreateCategory");
+// Create Category Schema (icon will be uploaded via multipart/form-data)
+export const CreateCategorySchema = z
+  .object({
+    name: z
+      .string()
+      .min(2, "Name must be at least 2 characters")
+      .openapi({ description: "Category name" }),
+    description: z
+      .string()
+      .min(10, "Description must be at least 10 characters")
+      .openapi({ description: "Category description" }),
+  })
+  .openapi("CreateCategory");
 
-// Update Category Schema
+// Update Category Schema (all fields optional, icon uploaded separately)
 export const UpdateCategorySchema = z
   .object({
     name: z.string().min(2, "Name must be at least 2 characters").optional(),
-    icon: z.string().min(1, "Icon is required").optional(),
     description: z
       .string()
       .min(10, "Description must be at least 10 characters")
