@@ -50,7 +50,8 @@ export const requireAuth = (
       };
 
       next();
-    } catch (error) {
+      // oxlint-disable-next-line no-unused-vars
+    } catch (_error) {
       return res.status(401).json({
         status: 401,
         message: "Unauthorized - Invalid or expired token",
@@ -210,7 +211,8 @@ export const optionalAuth = (
           email: decoded.email,
           role: decoded.role,
         };
-      } catch (error) {
+        // oxlint-disable-next-line no-unused-vars
+      } catch (_error) {
         // Token invalid, but we don't fail - just continue without user
         console.log("Optional auth: Invalid token, continuing without user");
       }

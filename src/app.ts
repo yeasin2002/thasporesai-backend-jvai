@@ -4,18 +4,19 @@ import "dotenv/config";
 import express from "express";
 import morgan from "morgan";
 import swaggerUi from "swagger-ui-express";
-import "./api/auth/auth.openapi";
-import { auth } from "./api/auth/auth.route";
-import "./api/category/category.openapi";
-import { category } from "./api/category/category.route";
-import "./api/job/job.openapi";
-import { job } from "./api/job/job.route";
-import "./api/user/user.openapi";
-import { user } from "./api/user/user.route";
-import { connectDB } from "./lib";
-import { logInfo, morganStream } from "./lib/logger";
-import { generateOpenAPIDocument } from "./lib/openapi";
-import { errorHandler, notFoundHandler } from "./middleware/common";
+
+import {
+  connectDB,
+  generateOpenAPIDocument,
+  logInfo,
+  morganStream,
+} from "@/lib";
+import { errorHandler, notFoundHandler } from "@/middleware";
+
+import { auth } from "@/api/auth/auth.route";
+import { category } from "@/api/category/category.route";
+import { job } from "@/api/job/job.route";
+import { user } from "@/api/user/user.route";
 
 const app = express();
 
