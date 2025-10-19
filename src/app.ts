@@ -19,6 +19,8 @@ import { job } from "@/api/job/job.route";
 import { user } from "@/api/user/user.route";
 
 const app = express();
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 app.use(
   cors({
@@ -34,7 +36,7 @@ app.use(
   })
 );
 
-app.use(express.json());
+
 
 // Serve uploaded files statically
 app.use("/uploads", express.static("uploads"));
