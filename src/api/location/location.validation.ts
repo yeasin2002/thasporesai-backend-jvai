@@ -62,26 +62,29 @@ export const LocationIdSchema = z
 
 // Response schemas
 export const LocationResponseSchema = z
-	.object({
-		status: z.number(),
-		message: z.string(),
-		data: LocationSchema.nullable(),
-	})
-	.openapi("LocationResponse");
+  .object({
+    status: z.number(),
+    message: z.string(),
+    success: z.boolean(),
+    data: LocationSchema.nullable(),
+  })
+  .openapi("LocationResponse");
 
 export const LocationsResponseSchema = z
-	.object({
-		status: z.number(),
-		message: z.string(),
-		data: z.array(LocationSchema),
-	})
-	.openapi("LocationsResponse");
+  .object({
+    status: z.number(),
+    message: z.string(),
+    success: z.boolean(),
+    data: z.array(LocationSchema),
+  })
+  .openapi("LocationsResponse");
 
 export const ErrorResponseSchema = z
 	.object({
 		status: z.number(),
 		message: z.string(),
 		data: z.null(),
+		success: z.boolean(),
 	})
 	.openapi("ErrorResponse");
 
