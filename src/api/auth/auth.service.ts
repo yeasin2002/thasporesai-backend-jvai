@@ -25,8 +25,8 @@ export const register: RequestHandler<{}, unknown, Register> = async (
   res
 ) => {
   try {
-    const { email, password, name, role, phone } = req.body;
-    await sendWelcomeEmail(email, name);
+    const { email, password, full_name, role, phone } = req.body;
+    await sendWelcomeEmail(email, full_name);
 
     // Check if user already exists
     const existingUser = await db.user.findOne({ email });
@@ -43,7 +43,7 @@ export const register: RequestHandler<{}, unknown, Register> = async (
 
     // Create user
     const user = await db.user.create({
-      name,
+      full_name,
       email,
       password: hashedPassword,
       role: role || "customer",

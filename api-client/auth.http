@@ -15,9 +15,9 @@ POST {{baseUrl}}/api/auth/register
 Content-Type: {{contentType}}
 
 {
-  "name": "John Doe",
-  "email": "john@example.com",
-  "password": "password123",
+  "full_name": "Md Kawsar Islam",
+  "email": "mdkawsarislam2002@gmail.com",
+  "password": "yeasin2002",
   "role": "customer",
   "phone": "+1234567890"
 }
@@ -29,9 +29,9 @@ POST {{baseUrl}}/api/auth/register
 Content-Type: {{contentType}}
 
 {
-  "name": "Jane Smith",
-  "email": "jane@example.com",
-  "password": "password123",
+  "full_name": "Md Kawsar Islam",
+  "email": "mdkawsarislam2002@gmail.com",
+  "password": "yeasin2002",
   "role": "contractor",
   "phone": "+0987654321"
 }
@@ -94,7 +94,7 @@ POST {{baseUrl}}/api/auth/register
 Content-Type: {{contentType}}
 
 {
-  "name": "Duplicate User",
+  "full_name": "Duplicate User",
   "email": "john@example.com",
   "password": "password123",
   "role": "customer"
@@ -148,7 +148,7 @@ POST {{baseUrl}}/api/auth/register
 Content-Type: {{contentType}}
 
 {
-  "name": "Test User",
+  "full_name": "Test User",
   "email": "invalid-email",
   "password": "password123",
   "role": "customer"
@@ -159,7 +159,7 @@ POST {{baseUrl}}/api/auth/register
 Content-Type: {{contentType}}
 
 {
-  "name": "Test User",
+  "full_name": "Test User",
   "email": "test@example.com",
   "password": "123",
   "role": "customer"
