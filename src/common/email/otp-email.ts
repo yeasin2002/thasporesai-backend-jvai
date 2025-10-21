@@ -7,15 +7,15 @@ import { nodemailerTransporter } from "@/lib/nodemailer";
  * @param name - User's name (optional)
  */
 export async function sendOTPEmail(
-  email: string,
-  otp: string,
-  name?: string
+	email: string,
+	otp: string,
+	name?: string,
 ): Promise<void> {
-  const mailOptions = {
-    from: `"JobSphere" <${process.env.SMTP_USER}>`,
-    to: email,
-    subject: "Password Reset OTP - JobSphere",
-    html: `
+	const mailOptions = {
+		from: `"JobSphere" <${process.env.SMTP_USER}>`,
+		to: email,
+		subject: "Password Reset OTP - JobSphere",
+		html: `
       <!DOCTYPE html>
       <html>
         <head>
@@ -41,10 +41,10 @@ export async function sendOTPEmail(
                       <h2 style="margin: 0 0 20px 0; color: #333333; font-size: 24px;">Password Reset Request</h2>
                       
                       ${
-                        name
-                          ? `<p style="margin: 0 0 20px 0; color: #666666; font-size: 16px; line-height: 1.5;">Hi ${name},</p>`
-                          : ""
-                      }
+												name
+													? `<p style="margin: 0 0 20px 0; color: #666666; font-size: 16px; line-height: 1.5;">Hi ${name},</p>`
+													: ""
+											}
                       
                       <p style="margin: 0 0 20px 0; color: #666666; font-size: 16px; line-height: 1.5;">
                         We received a request to reset your password. Use the OTP code below to verify your identity:
@@ -100,7 +100,7 @@ export async function sendOTPEmail(
         </body>
       </html>
     `,
-    text: `
+		text: `
 JobSphere - Password Reset OTP
 
 ${name ? `Hi ${name},` : "Hello,"}
@@ -119,7 +119,7 @@ Security Tip: Never share your OTP with anyone. JobSphere will never ask for you
 This is an automated email, please do not reply.
 © ${new Date().getFullYear()} JobSphere. All rights reserved.
     `,
-  };
+	};
 
-  await nodemailerTransporter.sendMail(mailOptions);
+	await nodemailerTransporter.sendMail(mailOptions);
 }

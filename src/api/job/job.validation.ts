@@ -6,194 +6,194 @@ extendZodWithOpenApi(z);
 
 // Base Job Schema
 export const JobSchema = z
-  .object({
-    _id: z.string().openapi({ description: "Job ID" }),
-    title: z
-      .string()
-      .min(5, "Title must be at least 5 characters")
-      .openapi({ description: "Job title" }),
-    category: z
-      .array(z.string())
-      .min(1, "At least one category is required")
-      .openapi({ description: "Array of category IDs" }),
-    description: z
-      .string()
-      .min(20, "Description must be at least 20 characters")
-      .openapi({ description: "Job description" }),
-    location: z
-      .string()
-      .min(3, "Location is required")
-      .openapi({ description: "Job location" }),
-    budget: z
-      .number()
-      .positive("Budget must be positive")
-      .openapi({ description: "Job budget" }),
-    date: z.string().or(z.date()).openapi({ description: "Job date" }),
-    coverImg: z
-      .string()
-      .url("Invalid image URL")
-      .openapi({ description: "Cover image URL" }),
-    customerId: z
-      .string()
-      .openapi({ description: "Customer ID who posted the job" }),
-    contractorId: z
-      .string()
-      .optional()
-      .openapi({ description: "Assigned contractor ID" }),
-    status: z
-      .enum(["open", "in_progress", "completed", "cancelled"])
-      .openapi({ description: "Job status" }),
-    createdAt: z.string().optional().openapi({ description: "Creation date" }),
-    updatedAt: z
-      .string()
-      .optional()
-      .openapi({ description: "Last update date" }),
-  })
-  .openapi("Job");
+	.object({
+		_id: z.string().openapi({ description: "Job ID" }),
+		title: z
+			.string()
+			.min(5, "Title must be at least 5 characters")
+			.openapi({ description: "Job title" }),
+		category: z
+			.array(z.string())
+			.min(1, "At least one category is required")
+			.openapi({ description: "Array of category IDs" }),
+		description: z
+			.string()
+			.min(20, "Description must be at least 20 characters")
+			.openapi({ description: "Job description" }),
+		location: z
+			.string()
+			.min(3, "Location is required")
+			.openapi({ description: "Job location" }),
+		budget: z
+			.number()
+			.positive("Budget must be positive")
+			.openapi({ description: "Job budget" }),
+		date: z.string().or(z.date()).openapi({ description: "Job date" }),
+		coverImg: z
+			.string()
+			.url("Invalid image URL")
+			.openapi({ description: "Cover image URL" }),
+		customerId: z
+			.string()
+			.openapi({ description: "Customer ID who posted the job" }),
+		contractorId: z
+			.string()
+			.optional()
+			.openapi({ description: "Assigned contractor ID" }),
+		status: z
+			.enum(["open", "in_progress", "completed", "cancelled"])
+			.openapi({ description: "Job status" }),
+		createdAt: z.string().optional().openapi({ description: "Creation date" }),
+		updatedAt: z
+			.string()
+			.optional()
+			.openapi({ description: "Last update date" }),
+	})
+	.openapi("Job");
 
 // Create Job Schema (customer creates job)
 export const CreateJobSchema = z
-  .object({
-    title: z
-      .string()
-      .min(5, "Title must be at least 5 characters")
-      .openapi({ description: "Job title" }),
-    category: z
-      .array(z.string())
-      .min(1, "At least one category is required")
-      .openapi({ description: "Array of category IDs" }),
-    description: z
-      .string()
-      .min(20, "Description must be at least 20 characters")
-      .openapi({ description: "Job description" }),
-    location: z
-      .string()
-      .min(3, "Location is required")
-      .openapi({ description: "Job location" }),
-    budget: z
-      .number()
-      .positive("Budget must be positive")
-      .openapi({ description: "Job budget" }),
-    date: z.string().or(z.date()).openapi({ description: "Job date" }),
-    coverImg: z
-      .string()
-      .url("Invalid image URL")
-      .openapi({ description: "Cover image URL" }),
-  })
-  .openapi("CreateJob");
+	.object({
+		title: z
+			.string()
+			.min(5, "Title must be at least 5 characters")
+			.openapi({ description: "Job title" }),
+		category: z
+			.array(z.string())
+			.min(1, "At least one category is required")
+			.openapi({ description: "Array of category IDs" }),
+		description: z
+			.string()
+			.min(20, "Description must be at least 20 characters")
+			.openapi({ description: "Job description" }),
+		location: z
+			.string()
+			.min(3, "Location is required")
+			.openapi({ description: "Job location" }),
+		budget: z
+			.number()
+			.positive("Budget must be positive")
+			.openapi({ description: "Job budget" }),
+		date: z.string().or(z.date()).openapi({ description: "Job date" }),
+		coverImg: z
+			.string()
+			.url("Invalid image URL")
+			.openapi({ description: "Cover image URL" }),
+	})
+	.openapi("CreateJob");
 
 // Update Job Schema
 export const UpdateJobSchema = z
-  .object({
-    title: z.string().min(5, "Title must be at least 5 characters").optional(),
-    category: z
-      .array(z.string())
-      .min(1, "At least one category is required")
-      .optional(),
-    description: z
-      .string()
-      .min(20, "Description must be at least 20 characters")
-      .optional(),
-    location: z.string().min(3, "Location is required").optional(),
-    budget: z.number().positive("Budget must be positive").optional(),
-    date: z.string().or(z.date()).optional(),
-    coverImg: z.string().url("Invalid image URL").optional(),
-    status: z
-      .enum(["open", "in_progress", "completed", "cancelled"])
-      .optional(),
-  })
-  .openapi("UpdateJob");
+	.object({
+		title: z.string().min(5, "Title must be at least 5 characters").optional(),
+		category: z
+			.array(z.string())
+			.min(1, "At least one category is required")
+			.optional(),
+		description: z
+			.string()
+			.min(20, "Description must be at least 20 characters")
+			.optional(),
+		location: z.string().min(3, "Location is required").optional(),
+		budget: z.number().positive("Budget must be positive").optional(),
+		date: z.string().or(z.date()).optional(),
+		coverImg: z.string().url("Invalid image URL").optional(),
+		status: z
+			.enum(["open", "in_progress", "completed", "cancelled"])
+			.optional(),
+	})
+	.openapi("UpdateJob");
 
 // Job ID Param Schema
 export const JobIdSchema = z
-  .object({
-    id: z
-      .string()
-      .min(1, "Job ID is required")
-      .openapi({ description: "Job ID" }),
-  })
-  .openapi("JobIdParam");
+	.object({
+		id: z
+			.string()
+			.min(1, "Job ID is required")
+			.openapi({ description: "Job ID" }),
+	})
+	.openapi("JobIdParam");
 
 // Search/Filter Query Schema
 export const SearchJobSchema = z
-  .object({
-    search: z
-      .string()
-      .optional()
-      .openapi({ description: "Search term for title or description" }),
-    category: z
-      .string()
-      .optional()
-      .openapi({ description: "Filter by category ID" }),
-    status: z
-      .enum(["open", "in_progress", "completed", "cancelled"])
-      .optional()
-      .openapi({ description: "Filter by status" }),
-    minBudget: z
-      .string()
-      .regex(/^\d+$/, "Must be a number")
-      .optional()
-      .openapi({ description: "Minimum budget" }),
-    maxBudget: z
-      .string()
-      .regex(/^\d+$/, "Must be a number")
-      .optional()
-      .openapi({ description: "Maximum budget" }),
-    location: z
-      .string()
-      .optional()
-      .openapi({ description: "Filter by location" }),
-    page: z
-      .string()
-      .regex(/^\d+$/, "Page must be a number")
-      .optional()
-      .openapi({ description: "Page number" }),
-    limit: z
-      .string()
-      .regex(/^\d+$/, "Limit must be a number")
-      .optional()
-      .openapi({ description: "Items per page" }),
-  })
-  .openapi("SearchJob");
+	.object({
+		search: z
+			.string()
+			.optional()
+			.openapi({ description: "Search term for title or description" }),
+		category: z
+			.string()
+			.optional()
+			.openapi({ description: "Filter by category ID" }),
+		status: z
+			.enum(["open", "in_progress", "completed", "cancelled"])
+			.optional()
+			.openapi({ description: "Filter by status" }),
+		minBudget: z
+			.string()
+			.regex(/^\d+$/, "Must be a number")
+			.optional()
+			.openapi({ description: "Minimum budget" }),
+		maxBudget: z
+			.string()
+			.regex(/^\d+$/, "Must be a number")
+			.optional()
+			.openapi({ description: "Maximum budget" }),
+		location: z
+			.string()
+			.optional()
+			.openapi({ description: "Filter by location" }),
+		page: z
+			.string()
+			.regex(/^\d+$/, "Page must be a number")
+			.optional()
+			.openapi({ description: "Page number" }),
+		limit: z
+			.string()
+			.regex(/^\d+$/, "Limit must be a number")
+			.optional()
+			.openapi({ description: "Items per page" }),
+	})
+	.openapi("SearchJob");
 
 // Response Schemas
 export const JobResponseSchema = z
-  .object({
-    status: z.number(),
-    message: z.string(),
-    data: JobSchema.nullable(),
-  })
-  .openapi("JobResponse");
+	.object({
+		status: z.number(),
+		message: z.string(),
+		data: JobSchema.nullable(),
+	})
+	.openapi("JobResponse");
 
 export const JobsResponseSchema = z
-  .object({
-    status: z.number(),
-    message: z.string(),
-    data: z.object({
-      jobs: z.array(JobSchema),
-      total: z.number().openapi({ description: "Total number of jobs" }),
-      page: z.number().openapi({ description: "Current page" }),
-      limit: z.number().openapi({ description: "Items per page" }),
-      totalPages: z.number().openapi({ description: "Total pages" }),
-    }),
-  })
-  .openapi("JobsResponse");
+	.object({
+		status: z.number(),
+		message: z.string(),
+		data: z.object({
+			jobs: z.array(JobSchema),
+			total: z.number().openapi({ description: "Total number of jobs" }),
+			page: z.number().openapi({ description: "Current page" }),
+			limit: z.number().openapi({ description: "Items per page" }),
+			totalPages: z.number().openapi({ description: "Total pages" }),
+		}),
+	})
+	.openapi("JobsResponse");
 
 export const SuccessResponseSchema = z
-  .object({
-    status: z.number(),
-    message: z.string(),
-    data: z.null(),
-  })
-  .openapi("SuccessResponse");
+	.object({
+		status: z.number(),
+		message: z.string(),
+		data: z.null(),
+	})
+	.openapi("SuccessResponse");
 
 export const ErrorResponseSchema = z
-  .object({
-    status: z.number(),
-    message: z.string(),
-    data: z.null().optional(),
-  })
-  .openapi("ErrorResponse");
+	.object({
+		status: z.number(),
+		message: z.string(),
+		data: z.null().optional(),
+	})
+	.openapi("ErrorResponse");
 
 // Type exports
 export type Job = z.infer<typeof JobSchema>;
