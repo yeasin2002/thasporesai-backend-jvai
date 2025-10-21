@@ -86,15 +86,24 @@ export const ResetPasswordSchema = z
   })
   .openapi("ResetPassword");
 
+export const ChangeRoleSchema = z
+  .object({
+    role: z
+      .enum(["customer", "contractor", "admin"])
+      .default("customer")
+      .openapi({ description: "User role" }),
+  })
+  .openapi("ChangeRole");
+
 // Refresh Token Schema
 export const RefreshTokenSchema = z
-	.object({
-		refreshToken: z
-			.string()
-			.min(1, "Refresh token is required")
-			.openapi({ description: "Refresh token" }),
-	})
-	.openapi("RefreshToken");
+  .object({
+    refreshToken: z
+      .string()
+      .min(1, "Refresh token is required")
+      .openapi({ description: "Refresh token" }),
+  })
+  .openapi("RefreshToken");
 
 // User Response Schema (without password)
 export const UserDataSchema = z
@@ -117,63 +126,63 @@ export const UserDataSchema = z
 
 // Auth Response Schema
 export const AuthResponseSchema = z
-	.object({
-		status: z.number(),
-		message: z.string(),
-		data: z.object({
-			user: UserDataSchema,
-			accessToken: z.string().openapi({ description: "JWT access token" }),
-			refreshToken: z.string().openapi({ description: "JWT refresh token" }),
-		}),
-	})
-	.openapi("AuthResponse");
+  .object({
+    status: z.number(),
+    message: z.string(),
+    data: z.object({
+      user: UserDataSchema,
+      accessToken: z.string().openapi({ description: "JWT access token" }),
+      refreshToken: z.string().openapi({ description: "JWT refresh token" }),
+    }),
+  })
+  .openapi("AuthResponse");
 
 // Token Response Schema
 export const TokenResponseSchema = z
-	.object({
-		status: z.number(),
-		message: z.string(),
-		data: z.object({
-			accessToken: z.string().openapi({ description: "JWT access token" }),
-			refreshToken: z.string().openapi({ description: "JWT refresh token" }),
-		}),
-	})
-	.openapi("TokenResponse");
+  .object({
+    status: z.number(),
+    message: z.string(),
+    data: z.object({
+      accessToken: z.string().openapi({ description: "JWT access token" }),
+      refreshToken: z.string().openapi({ description: "JWT refresh token" }),
+    }),
+  })
+  .openapi("TokenResponse");
 
 // User Response Schema
 export const UserResponseSchema = z
-	.object({
-		status: z.number(),
-		message: z.string(),
-		data: UserDataSchema,
-	})
-	.openapi("UserResponse");
+  .object({
+    status: z.number(),
+    message: z.string(),
+    data: UserDataSchema,
+  })
+  .openapi("UserResponse");
 
 // Success Response Schema
 export const SuccessResponseSchema = z
-	.object({
-		status: z.number(),
-		message: z.string(),
-		data: z.null(),
-	})
-	.openapi("SuccessResponse");
+  .object({
+    status: z.number(),
+    message: z.string(),
+    data: z.null(),
+  })
+  .openapi("SuccessResponse");
 
 // Error Response Schema
 export const ErrorResponseSchema = z
-	.object({
-		status: z.number(),
-		message: z.string(),
-		data: z.null().optional(),
-		errors: z
-			.array(
-				z.object({
-					path: z.string(),
-					message: z.string(),
-				}),
-			)
-			.optional(),
-	})
-	.openapi("ErrorResponse");
+  .object({
+    status: z.number(),
+    message: z.string(),
+    data: z.null().optional(),
+    errors: z
+      .array(
+        z.object({
+          path: z.string(),
+          message: z.string(),
+        })
+      )
+      .optional(),
+  })
+  .openapi("ErrorResponse");
 
 // Type exports
 export type Register = z.infer<typeof RegisterSchema>;
@@ -188,3 +197,5 @@ export type TokenResponse = z.infer<typeof TokenResponseSchema>;
 export type UserResponse = z.infer<typeof UserResponseSchema>;
 export type SuccessResponse = z.infer<typeof SuccessResponseSchema>;
 export type ErrorResponse = z.infer<typeof ErrorResponseSchema>;
+export type ChangeRole = z.infer<typeof ChangeRoleSchema>;
+

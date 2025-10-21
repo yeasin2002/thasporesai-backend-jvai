@@ -1,5 +1,6 @@
 import { sendOTPEmail, sendWelcomeEmail } from "@/common/email";
 import { db } from "@/db";
+import { sendInternalError, sendNotFound, sendSuccess, sendUnauthorized } from "@/helpers";
 import {
   comparePassword,
   generateOTP,
@@ -11,6 +12,7 @@ import {
 } from "@/lib/jwt";
 import type { RequestHandler } from "express";
 import type {
+  ChangeRole,
   ForgotPassword,
   Login,
   RefreshToken,
@@ -472,19 +474,38 @@ export const refresh: RequestHandler<{}, unknown, RefreshToken> = async (
   }
 };
 
+export const changeRole: RequestHandler<{}, unknown, ChangeRole> = async (
+  req,
+  res
+) => {
+  try {
+    const { role } = req.body;
+    const userId = (req as any).user?.userId;
+
+    if (!userId) return sendUnauthorized(res);
+
+    const user = await db.user
+      .findById(userId)
+      .select("-password -refreshTokens -otp");
+    if (!user) return sendNotFound(res, "User not found");
+
+    user.role = role;
+    await user.save();
+
+    return sendSuccess(res, 200, "User role changed successfully", user);
+  } catch (error) {
+    console.error("Change role error:", error);
+    return sendInternalError(res);
+  }
+};
+
 // Get Current User (Me) Handler
 export const me: RequestHandler = async (req, res) => {
   try {
     // This will be populated by auth middleware
     const userId = (req as any).user?.userId;
 
-    if (!userId) {
-      return res.status(401).json({
-        status: 401,
-        message: "Unauthorized",
-        data: null,
-      });
-    }
+    if (!userId) return sendUnauthorized(res);
 
     const user = await db.user
       .findById(userId)
