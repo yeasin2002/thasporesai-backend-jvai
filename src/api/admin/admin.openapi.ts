@@ -86,66 +86,6 @@ registry.registerPath({
   },
 });
 
-// GET /api/admin/customers - Get all customers
-registry.registerPath({
-  method: "get",
-  path: "/api/admin/customers",
-  description: "Get all customers with optional search",
-  summary: "Retrieve all customers",
-  tags: ["Admin - User Management"],
-  request: {
-    query: UserQuerySchema,
-  },
-  responses: {
-    200: {
-      description: "Customers retrieved successfully",
-      content: {
-        "application/json": {
-          schema: UsersResponseSchema,
-        },
-      },
-    },
-    500: {
-      description: "Internal server error",
-      content: {
-        "application/json": {
-          schema: ErrorResponseSchema,
-        },
-      },
-    },
-  },
-});
-
-// GET /api/admin/contractors - Get all contractors
-registry.registerPath({
-  method: "get",
-  path: "/api/admin/contractors",
-  description: "Get all contractors with optional search",
-  summary: "Retrieve all contractors",
-  tags: ["Admin - User Management"],
-  request: {
-    query: UserQuerySchema,
-  },
-  responses: {
-    200: {
-      description: "Contractors retrieved successfully",
-      content: {
-        "application/json": {
-          schema: UsersResponseSchema,
-        },
-      },
-    },
-    500: {
-      description: "Internal server error",
-      content: {
-        "application/json": {
-          schema: ErrorResponseSchema,
-        },
-      },
-    },
-  },
-});
-
 // DELETE /api/admin/users/{id} - Delete user
 registry.registerPath({
   method: "delete",

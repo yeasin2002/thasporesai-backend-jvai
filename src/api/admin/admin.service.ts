@@ -75,73 +75,8 @@ export const getUserById: RequestHandler<{ id: string }> = async (req, res) => {
   }
 };
 
-// Get all customers
-export const getAllCustomers: RequestHandler = async (req, res) => {
-  try {
-    const { search } = req.query as { search?: string };
 
-    // Build query filter
-    const filter: any = { role: "customer" };
 
-    // Search by full name (case-insensitive)
-    if (search) {
-      filter.full_name = { $regex: search, $options: "i" };
-    }
-
-    const customers = await db.user
-      .find(filter)
-      .select("-password -refreshTokens -otp")
-      .populate("category", "message icon description")
-      .sort({ createdAt: -1 });
-
-    res.status(200).json({
-      status: 200,
-      message: "Customers fetched successfully",
-      data: customers,
-    });
-  } catch (error) {
-    console.log(error);
-    res.status(500).json({
-      status: 500,
-      message: "Internal Server Error",
-      data: null,
-    });
-  }
-};
-
-// Get all contractors
-export const getAllContractors: RequestHandler = async (req, res) => {
-  try {
-    const { search } = req.query as { search?: string };
-
-    // Build query filter
-    const filter: any = { role: "contractor" };
-
-    // Search by full name (case-insensitive)
-    if (search) {
-      filter.full_name = { $regex: search, $options: "i" };
-    }
-
-    const contractors = await db.user
-      .find(filter)
-      .select("-password -refreshTokens -otp")
-      .populate("category", "message icon description")
-      .sort({ createdAt: -1 });
-
-    res.status(200).json({
-      status: 200,
-      message: "Contractors fetched successfully",
-      data: contractors,
-    });
-  } catch (error) {
-    console.log(error);
-    res.status(500).json({
-      status: 500,
-      message: "Internal Server Error",
-      data: null,
-    });
-  }
-};
 
 // Delete user account (hard delete)
 export const deleteUser: RequestHandler<{ id: string }> = async (req, res) => {
