@@ -4,13 +4,14 @@ import type { Response } from "express";
  * Standard API response structure
  */
 export interface ApiResponse<T = any> {
-	status: number;
-	message: string;
-	data: T | null;
-	errors?: Array<{
-		path: string;
-		message: string;
-	}>;
+  status: number;
+  message: string;
+  data: T | null;
+  success: boolean;
+  errors?: Array<{
+    path: string;
+    message: string;
+  }>;
 }
 
 /**
@@ -27,10 +28,11 @@ export function sendSuccess<T = any>(
 	data: T | null = null,
 ): Response<ApiResponse<T>> {
 	return res.status(statusCode).json({
-		status: statusCode,
-		message,
-		data,
-	});
+    status: statusCode,
+    message,
+    data,
+    success: true,
+  });
 }
 
 /**
@@ -47,10 +49,11 @@ export function sendError(
 	errors?: Array<{ path: string; message: string }>,
 ): Response<ApiResponse<null>> {
 	const response: ApiResponse<null> = {
-		status: statusCode,
-		message,
-		data: null,
-	};
+    status: statusCode,
+    message,
+    data: null,
+    success: false,
+  };
 
 	if (errors && errors.length > 0) {
 		response.errors = errors;
