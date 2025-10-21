@@ -86,14 +86,6 @@ export const ResetPasswordSchema = z
   })
   .openapi("ResetPassword");
 
-export const ChangeRoleSchema = z
-  .object({
-    role: z
-      .enum(["customer", "contractor", "admin"])
-      .default("customer")
-      .openapi({ description: "User role" }),
-  })
-  .openapi("ChangeRole");
 
 // Refresh Token Schema
 export const RefreshTokenSchema = z
@@ -197,5 +189,5 @@ export type TokenResponse = z.infer<typeof TokenResponseSchema>;
 export type UserResponse = z.infer<typeof UserResponseSchema>;
 export type SuccessResponse = z.infer<typeof SuccessResponseSchema>;
 export type ErrorResponse = z.infer<typeof ErrorResponseSchema>;
-export type ChangeRole = z.infer<typeof ChangeRoleSchema>;
+
 

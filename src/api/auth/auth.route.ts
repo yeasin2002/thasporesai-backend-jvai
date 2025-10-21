@@ -4,7 +4,6 @@ import { requireAuth } from "@/middleware/auth.middleware";
 import { validateBody } from "@/middleware/validation.middleware";
 import express, { type Router } from "express";
 import {
-  changeRole,
   forgotPassword,
   login,
   me,
@@ -14,7 +13,6 @@ import {
   verifyOTP,
 } from "./auth.service";
 import {
-  ChangeRoleSchema,
   ForgotPasswordSchema,
   LoginSchema,
   RefreshTokenSchema,
@@ -37,8 +35,8 @@ auth.post("/verify-otp", validateBody(VerifyOTPSchema), verifyOTP);
 auth.post("/reset-password", validateBody(ResetPasswordSchema), resetPassword);
 auth.post("/refresh", validateBody(RefreshTokenSchema), refresh);
 
-auth.post("/change-role", validateBody(ChangeRoleSchema), changeRole);
 
 
 // Protected routes
 auth.get("/me", requireAuth, me);
+

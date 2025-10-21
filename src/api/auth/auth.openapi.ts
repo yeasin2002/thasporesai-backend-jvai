@@ -1,7 +1,6 @@
 import { registry } from "@/lib/openapi";
 import {
   AuthResponseSchema,
-  ChangeRoleSchema,
   ErrorResponseSchema,
   ForgotPasswordSchema,
   LoginSchema,
@@ -26,7 +25,6 @@ registry.register("TokenResponse", TokenResponseSchema);
 registry.register("UserResponse", UserResponseSchema);
 registry.register("SuccessResponse", SuccessResponseSchema);
 registry.register("ErrorResponse", ErrorResponseSchema);
-registry.register("ChangeRole", ChangeRoleSchema);
 
 // POST /api/auth/register
 registry.registerPath({
@@ -358,47 +356,4 @@ registry.registerComponent("securitySchemes", "bearerAuth", {
   scheme: "bearer",
   bearerFormat: "JWT",
   description: "JWT access token",
-});
-
-// POST /api/auth/change-role
-registry.registerPath({
-  method: "post",
-  path: "/api/auth/change-role",
-  description: "Change user role",
-  summary: "Change user role",
-  tags: ["Authentication"],
-  responses: {
-    200: {
-      description: "User role changed successfully",
-      content: {
-        "application/json": {
-          schema: SuccessResponseSchema,
-        },
-      },
-    },
-    401: {
-      description: "Unauthorized",
-      content: {
-        "application/json": {
-          schema: ErrorResponseSchema,
-        },
-      },
-    },
-    404: {
-      description: "User not found",
-      content: {
-        "application/json": {
-          schema: ErrorResponseSchema,
-        },
-      },
-    },
-    500: {
-      description: "Internal server error",
-      content: {
-        "application/json": {
-          schema: ErrorResponseSchema,
-        },
-      },
-    },
-  },
 });
