@@ -138,7 +138,7 @@ export const createJob: RequestHandler<unknown, unknown, CreateJob> = async (
       req.body;
 
     // Get customer ID from authenticated user
-    const customerId = req.user!.userId;
+    const customerId = req.user?.userId as string;
 
     // Validate categories exist
     const categories = await db.category.find({ _id: { $in: category } });
@@ -193,8 +193,8 @@ export const updateJob: RequestHandler<
   try {
     const { id } = req.params;
     const updates = req.body;
-    const userId = req.user!.userId;
-    const userRole = req.user!.role;
+    const userId = req.user?.userId as string;
+    const userRole = req.user?.role;
 
     // Check if job exists
     const job = await db.job.findById(id);
@@ -258,8 +258,8 @@ export const updateJob: RequestHandler<
 export const deleteJob: RequestHandler = async (req, res) => {
   try {
     const { id } = req.params;
-    const userId = req.user!.userId;
-    const userRole = req.user!.role;
+    const userId = req.user?.userId as string;
+    const userRole = req.user?.role;
 
     // Check if job exists
     const job = await db.job.findById(id);
@@ -300,7 +300,7 @@ export const deleteJob: RequestHandler = async (req, res) => {
 // Get My Jobs (Customer's own jobs)
 export const getMyJobs: RequestHandler = async (req, res) => {
   try {
-    const customerId = req.user!.userId;
+    const customerId = req.user?.userId as string;
 
     const jobs = await db.job
       .find({ customerId })

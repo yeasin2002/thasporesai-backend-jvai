@@ -5,7 +5,11 @@ import express from "express";
 import morgan from "morgan";
 import swaggerUi from "swagger-ui-express";
 
-import { auth, category, job, user } from "@/api";
+import { auth } from "@/api/auth/auth.route";
+import { category } from "@/api/category/category.route";
+import { job } from "@/api/job/job.route";
+import { user } from "@/api/user/user.route";
+
 import { connectDB, generateOpenAPIDocument } from "@/lib";
 import { errorHandler, notFoundHandler } from "@/middleware";
 
@@ -20,6 +24,7 @@ app.use(
   cors({
     origin: ["http://localhost:5173", "http://localhost:5173"],
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    credentials: true,
   })
 );
 

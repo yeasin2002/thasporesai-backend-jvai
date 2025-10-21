@@ -52,7 +52,7 @@ export const register: RequestHandler<{}, unknown, Register> = async (
 
     // Generate tokens
     const tokenPayload = {
-      userId: user._id.toString(),
+      userId: user._id as string,
       email: user.email,
       role: user.role as "customer" | "contractor" | "admin",
     };
@@ -113,13 +113,13 @@ export const login: RequestHandler<{}, unknown, Login> = async (req, res) => {
     }
 
     // Check if account is active
-    if (!user.isActive) {
-      return res.status(403).json({
-        status: 403,
-        message: "Account is suspended. Please contact support.",
-        data: null,
-      });
-    }
+    // if (!user.isActive) {
+    //   return res.status(403).json({
+    //     status: 403,
+    //     message: "Account is suspended. Please contact support.",
+    //     data: null,
+    //   });
+    // }
 
     // Verify password
     const isPasswordValid = await comparePassword(password, user.password);
@@ -130,10 +130,9 @@ export const login: RequestHandler<{}, unknown, Login> = async (req, res) => {
         data: null,
       });
     }
-
     // Generate tokens
     const tokenPayload = {
-      userId: user._id.toString(),
+      userId: user._id as string,
       email: user.email,
       role: user.role as "customer" | "contractor" | "admin",
     };
@@ -212,7 +211,7 @@ export const forgotPassword: RequestHandler<
 
     // Send OTP via email
     try {
-      await sendOTPEmail(user.email, otp, user.name);
+      await sendOTPEmail(user.email, otp, user.full_name);
       console.log(`✅ OTP sent to ${email}: ${otp}`); // For development/debugging
     } catch (emailError) {
       console.error("Failed to send OTP email:", emailError);
@@ -414,13 +413,13 @@ export const refresh: RequestHandler<{}, unknown, RefreshToken> = async (
     }
 
     // Check if account is active
-    if (!user.isActive) {
-      return res.status(403).json({
-        status: 403,
-        message: "Account is suspended",
-        data: null,
-      });
-    }
+    // if (!user.isActive) {
+    //   return res.status(403).json({
+    //     status: 403,
+    //     message: "Account is suspended",
+    //     data: null,
+    //   });
+    // }
 
     // Verify refresh token exists in database
     const tokenIndex = user.refreshTokens.findIndex(
@@ -437,7 +436,7 @@ export const refresh: RequestHandler<{}, unknown, RefreshToken> = async (
 
     // Generate new tokens
     const tokenPayload = {
-      userId: user._id.toString(),
+      userId: user._id as string,
       email: user.email,
       role: user.role as "customer" | "contractor" | "admin",
     };

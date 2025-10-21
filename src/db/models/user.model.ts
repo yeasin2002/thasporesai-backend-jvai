@@ -1,7 +1,7 @@
 import { Schema, model, type Document, type Types } from "mongoose";
 
 export interface User {
-  role: "contractor" | "user" | "admin";
+  role: "contractor" | "customer" | "admin";
   full_name: string;
   profile_img?: string;
   cover_img?: string;
@@ -47,9 +47,8 @@ const userSchema = new Schema<UserDocument>(
   {
     role: {
       type: String,
-      enum: ["contractor", "user", "admin"],
-      default: "user",
-      required: true,
+      enum: ["contractor", "customer", "admin"],
+      default: "customer",
     },
     full_name: { type: String, required: true },
     profile_img: { type: String },
