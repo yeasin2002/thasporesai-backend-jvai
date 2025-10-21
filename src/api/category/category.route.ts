@@ -25,6 +25,8 @@ import {
 
 export const category: Router = express.Router();
 
+
+
 // Public routes (anyone can access)
 category.get("/", validateQuery(SearchCategorySchema), getAllCategories);
 category.get("/:id", validateParams(CategoryIdSchema), getCategoryById);

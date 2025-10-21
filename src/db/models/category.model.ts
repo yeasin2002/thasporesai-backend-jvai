@@ -21,7 +21,6 @@ const CategorySchema = new Schema<CategoryDocument>(
     },
     description: {
       type: String,
-      required: true,
     },
   },
   { timestamps: true }

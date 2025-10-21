@@ -16,10 +16,12 @@ export const CategorySchema = z
       .string()
       .min(1, "Icon is required")
       .openapi({ description: "Category icon URL (uploaded image path)" }),
+
     description: z
       .string()
-      .min(10, "Description must be at least 10 characters")
+      .optional()
       .openapi({ description: "Category description" }),
+
     createdAt: z.string().optional().openapi({ description: "Creation date" }),
     updatedAt: z
       .string()
@@ -37,12 +39,13 @@ export const CreateCategorySchema = z
       .openapi({ description: "Category name" }),
     description: z
       .string()
-      .min(10, "Description must be at least 10 characters")
+      .optional()
       .openapi({ description: "Category description" }),
-    icon: z
-      .string()
-      .min(1, "Icon is required")
-      .openapi({ description: "Category icon URL (uploaded image path)" }),
+    icon: z.any().optional(),
+    // icon: z
+    //   .string()
+    //   .min(1, "Icon is required")
+    //   .openapi({ description: "Category icon URL (uploaded image path)" }),
   })
   .openapi("CreateCategory");
 
@@ -50,14 +53,12 @@ export const CreateCategorySchema = z
 export const UpdateCategorySchema = z
   .object({
     name: z.string().min(2, "Name must be at least 2 characters").optional(),
-    description: z
-      .string()
-      .min(10, "Description must be at least 10 characters")
-      .optional(),
-    icon: z
-      .string()
-      .min(1, "Icon is required")
-      .openapi({ description: "Category icon URL (uploaded image path)" }),
+    description: z.string().optional(),
+    icon: z.any().optional(),
+    // icon: z
+    //   .string()
+    //   .min(1, "Icon is required")
+    //   .openapi({ description: "Category icon URL (uploaded image path)" }),
   })
   .openapi("UpdateCategory");
 
