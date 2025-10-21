@@ -12,7 +12,9 @@ export interface User {
   location?: string;
   availability?: Date;
   is_verified: boolean;
+  isSuspend: boolean;
   category?: Types.ObjectId[];
+
   // Contractor specific fields
   skills?: string[];
   experience?: Array<{
@@ -60,6 +62,7 @@ const userSchema = new Schema<UserDocument>(
     location: { type: String },
     availability: { type: Date },
     is_verified: { type: Boolean, default: false },
+    isSuspend: { type: Boolean, default: false },
     category: [
       {
         type: Schema.Types.ObjectId,
