@@ -6,7 +6,7 @@ import morgan from "morgan";
 import swaggerUi from "swagger-ui-express";
 
 import { auth, category, job, user } from "@/api";
-import { connectDB, generateOpenAPIDocument, logInfo } from "@/lib";
+import { connectDB, generateOpenAPIDocument } from "@/lib";
 import { errorHandler, notFoundHandler } from "@/middleware";
 
 const app = express();
@@ -18,7 +18,7 @@ app.use(morgan("dev"));
 
 app.use(
   cors({
-    origin: process.env.CORS_ORIGIN || "",
+    origin: ["http://localhost:5173", "http://localhost:5173"],
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   })
 );
@@ -51,10 +51,10 @@ const port = process.env.PORT || 4000;
 app.listen(port, async () => {
   await connectDB();
 
-  logInfo(`Server started on port ${port}`, {
-    port,
-    environment: process.env.NODE_ENV || "development",
-  });
+  // logInfo(`Server started on port ${port}`, {
+  //   port,
+  //   environment: process.env.NODE_ENV || "development",
+  // });
 
   console.log(`🚀 Server is running on port ${port}`);
   console.log("✍️ Swagger doc: http://localhost:4000/swagger");
