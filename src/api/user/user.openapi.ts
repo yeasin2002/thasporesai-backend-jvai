@@ -1,10 +1,11 @@
 import {
-	CreateUserSchema,
-	ErrorResponseSchema,
-	UpdateUserSchema,
-	UserIdSchema,
-	UserResponseSchema,
-	UsersResponseSchema,
+  CreateUserSchema,
+  ErrorResponseSchema,
+  UpdateUserSchema,
+  UserIdSchema,
+  UserQuerySchema,
+  UserResponseSchema,
+  UsersResponseSchema,
 } from "@/api/user/user.schema";
 import { registry } from "@/lib/openapi";
 
@@ -12,35 +13,39 @@ import { registry } from "@/lib/openapi";
 registry.register("CreateUser", CreateUserSchema);
 registry.register("UpdateUser", UpdateUserSchema);
 registry.register("UserIdParam", UserIdSchema);
+registry.register("UserQuery", UserQuerySchema);
 registry.register("UserResponse", UserResponseSchema);
 registry.register("UsersResponse", UsersResponseSchema);
 registry.register("ErrorResponse", ErrorResponseSchema);
 
 // Register user routes
 registry.registerPath({
-	method: "get",
-	path: "/api/user",
-	description: "Get all users",
-	summary: "Retrieve all users",
-	tags: ["Users"],
-	responses: {
-		200: {
-			description: "Users retrieved successfully",
-			content: {
-				"application/json": {
-					schema: UsersResponseSchema,
-				},
-			},
-		},
-		500: {
-			description: "Internal server error",
-			content: {
-				"application/json": {
-					schema: ErrorResponseSchema,
-				},
-			},
-		},
-	},
+  method: "get",
+  path: "/api/user",
+  description: "Get all users with optional search and filter",
+  summary: "Retrieve all users",
+  tags: ["Users"],
+  request: {
+    query: UserQuerySchema,
+  },
+  responses: {
+    200: {
+      description: "Users retrieved successfully with populated category data",
+      content: {
+        "application/json": {
+          schema: UsersResponseSchema,
+        },
+      },
+    },
+    500: {
+      description: "Internal server error",
+      content: {
+        "application/json": {
+          schema: ErrorResponseSchema,
+        },
+      },
+    },
+  },
 });
 
 registry.registerPath({

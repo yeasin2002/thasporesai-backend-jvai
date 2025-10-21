@@ -130,6 +130,20 @@ export const UserIdSchema = z
 	})
 	.openapi("UserIdParam");
 
+// Schema for user query parameters
+export const UserQuerySchema = z
+	.object({
+		search: z
+			.string()
+			.optional()
+			.openapi({ description: "Search by full name (case-insensitive)" }),
+		role: z
+			.enum(["contractor", "customer", "admin"])
+			.optional()
+			.openapi({ description: "Filter by user role" }),
+	})
+	.openapi("UserQuery");
+
 // Response schemas
 export const UserResponseSchema = z
 	.object({
@@ -159,6 +173,7 @@ export const ErrorResponseSchema = z
 export type User = z.infer<typeof UserSchema>;
 export type CreateUser = z.infer<typeof CreateUserSchema>;
 export type UpdateUser = z.infer<typeof UpdateUserSchema>;
+export type UserQuery = z.infer<typeof UserQuerySchema>;
 export type UserResponse = z.infer<typeof UserResponseSchema>;
 export type UsersResponse = z.infer<typeof UsersResponseSchema>;
 export type ErrorResponse = z.infer<typeof ErrorResponseSchema>;
