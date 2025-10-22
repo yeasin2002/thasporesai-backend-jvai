@@ -35,7 +35,7 @@
 ### Development
 
 ```bash
-bun dev          # Start development server with hot reload
+bun dev          # Start development server with hot reload (tsx)
 bun dev:b        # Start with Bun hot reload (alternative)
 ```
 
@@ -52,15 +52,15 @@ bun compile      # Create standalone executable with Bun
 ```bash
 bun check        # Run oxlint
 bun check-types  # TypeScript type checking
-bun biome        # Run biome
-bun biome format # Format code
+bun format       # Format code with biome
 ```
 
-### Database
+### Module Generation
 
 ```bash
-bun db:push      # Apply schema changes (mentioned in README)
-bun db:studio    # Open database UI (mentioned in README)
+bun run generate:module                    # Interactive mode
+bun run generate:module --module auth      # Direct mode
+bun run generate:module --sub admin --module user  # Nested module
 ```
 
 ## Configuration Notes

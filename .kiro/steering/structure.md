@@ -6,35 +6,45 @@
 providus_org/
 ├── src/                    # Source code
 │   ├── db/                 # Database connection and models
-│   ├── lib/                # Database connection and models
-│   ├── helper/             # Database connection and models
-│   ├── middleware/         # Database connection and models
-│   ├── schema/             # Database connection and models/
+│   ├── lib/                # Utility libraries and helpers
+│   ├── helper/             # Helper functions
+│   ├── middleware/         # Express middleware
+│   ├── schema/             # Shared schemas
 │   ├── api/                # API route handlers
-│       ├── user/                # User API route handlers
-│           ├── user.route.ts        # Express User API routes. Define all user related routes here. 
-│           ├── user.service.ts      # User API route service. Define all user related business logic here in functional way. 
-│           ├── user.schema.ts       # User API route validation. Define all user related zod validation schemas for body, query, params etc. 
-│           ├── user.openapi.ts      # User API route OpenAPI. Register all user related OpenAPI specs with @asteasolutions/zod-to-openapi. 
-│       ├── auth/                # Auth API route handlers
-│           ├── auth.route.ts        # Express Auth API routes. Define all auth related routes here. 
-│           ├── auth.service.ts      # Auth API route service. Define all auth related business logic here in functional way. 
-│           ├── auth.schema.ts       # Auth API route validation. Define all auth related zod validation schemas for body, query, params etc. 
-│           ├── auth.openapi.ts      # Auth API route OpenAPI. Register all auth related OpenAPI specs with @asteasolutions/zod-to-openapi. 
-│       └── [other modules]/     # Other API modules following same pattern
-│
-│   └── app.ts            # Application entry point
-├── api-client/               # API client code like test-api.http  for each API route
-    ├── user-api.http/                # User API client code
-    ├── auth-api.http/                # Auth API client code
-    ├── [module]-api.http/                # [module] API client code
-    
+│   │   ├── auth/           # Authentication module
+│   │   │   ├── auth.route.ts
+│   │   │   ├── auth.service.ts
+│   │   │   ├── auth.validation.ts
+│   │   │   └── auth.openapi.ts
+│   │   ├── category/       # Category module
+│   │   ├── job/            # Job module
+│   │   ├── location/       # Location module
+│   │   ├── admin/          # Admin module (nested structure)
+│   │   │   ├── user/       # Admin user management sub-module
+│   │   │   │   ├── user.route.ts
+│   │   │   │   ├── user.service.ts
+│   │   │   │   ├── user.validation.ts
+│   │   │   │   └── user.openapi.ts
+│   │   │   ├── dashboard/  # Admin dashboard sub-module
+│   │   │   ├── job/        # Admin job management sub-module
+│   │   │   ├── payments/   # Admin payments sub-module
+│   │   │   └── settings/   # Admin settings sub-module
+│   │   └── [other modules]/
+│   │
+│   └── app.ts              # Application entry point
+├── api-client/             # API client code (HTTP test files)
+│   ├── user-api.http
+│   ├── auth-api.http
+│   └── [module]-api.http
+├── script/                 # Utility scripts
+│   └── generate-module.js  # Module generator script
 ├── .kiro/                  # Kiro AI assistant configuration
+│   └── steering/           # Steering documentation
 ├── .husky/                 # Git hooks configuration
 ├── .ruler/                 # Code quality rules
 ├── node_modules/           # Dependencies
 ├── dist/                   # Build output (generated)
-└── [config files]         # Various configuration files
+└── [config files]          # Various configuration files
 ```
 
 ## Source Code Organization
@@ -60,7 +70,9 @@ Each API module follows this pattern:
 - Express router with route definitions
 - Imports validation middleware
 - Imports service handlers
-- Exports router instance
+- Exports router instance with descriptive name
+- Example: `export const auth: Router = express.Router();`
+- For nested modules: `export const adminUser: Router = express.Router();`
 
 #### `[module].service.ts`
 - Business logic as RequestHandler functions
@@ -68,7 +80,7 @@ Each API module follows this pattern:
 - Error handling
 - Response formatting
 
-#### `[module].schema.ts`
+#### `[module].validation.ts`
 - Zod validation schemas with OpenAPI extensions
 - TypeScript type exports
 - Schemas for: create, update, params, responses
@@ -76,10 +88,36 @@ Each API module follows this pattern:
 #### `[module].openapi.ts`
 - Registers schemas with OpenAPI registry
 - Registers route paths with full documentation
-- Must be imported in `app.ts` to execute registration
-- Example: `import "./api/user/user.openapi";`
+- Must be imported at the top of the corresponding `.route.ts` file
+- Example: `import "./user.openapi";`
 
-**Important**: OpenAPI files must be imported in `app.ts` BEFORE calling `generateOpenAPIDocument()` to ensure all routes are registered.
+**Important**: OpenAPI files are imported in route files, which are then imported in `app.ts` BEFORE calling `generateOpenAPIDocument()` to ensure all routes are registered.
+
+### Nested Module Pattern
+
+For complex features like admin panel, use nested modules:
+
+```
+src/api/admin/
+├── user/           # Sub-module for user management
+│   ├── user.route.ts
+│   ├── user.service.ts
+│   ├── user.validation.ts
+│   └── user.openapi.ts
+├── dashboard/      # Sub-module for dashboard
+└── settings/       # Sub-module for settings
+```
+
+**Registration in app.ts:**
+```typescript
+import { adminUser } from "@/api/admin/user/user.route";
+app.use("/api/admin/users", adminUser);
+```
+
+**Export naming convention for nested modules:**
+- Use descriptive names that indicate the parent module
+- Example: `adminUser`, `adminDashboard`, `adminSettings`
+- This prevents naming conflicts with top-level modules
 
 ## Configuration Files
 

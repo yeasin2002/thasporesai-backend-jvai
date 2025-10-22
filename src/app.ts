@@ -5,11 +5,17 @@ import express from "express";
 import morgan from "morgan";
 import swaggerUi from "swagger-ui-express";
 
-import { adminUser } from "@/api/admin/user/user.route";
 import { auth } from "@/api/auth/auth.route";
 import { category } from "@/api/category/category.route";
 import { job } from "@/api/job/job.route";
 import { location } from "@/api/location/location.route";
+
+// admin- dashboard routes
+import { dashboard } from "@/api/admin/dashboard/dashboard.route";
+import { adminJob } from "@/api/admin/job/job.route";
+import { payments } from "@/api/admin/payments/payments.route";
+import { settings } from "@/api/admin/settings/settings.route";
+import { adminUser } from "@/api/admin/user/user.route";
 
 import { connectDB, generateOpenAPIDocument } from "@/lib";
 import { errorHandler, notFoundHandler } from "@/middleware";
@@ -24,7 +30,7 @@ app.use(morgan("dev"));
 
 app.use(
   cors({
-    origin: ["http://localhost:5173", "http://localhost:5173"],
+    origin: ["http://localhost:5173", "http://localhost:5173", "*"],
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     credentials: true,
   })
@@ -51,7 +57,11 @@ app.use("/api/category", category);
 app.use("/api/job", job);
 app.use("/api/location", location);
 
+app.use("/api/admin/dashboard", dashboard);
 app.use("/api/admin/users", adminUser);
+app.use("/api/admin/job", adminJob);
+app.use("/api/admin/payments", payments);
+app.use("/api/admin/settings", settings);
 
 app.use(notFoundHandler);
 app.use(errorHandler);

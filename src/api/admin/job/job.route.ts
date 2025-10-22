@@ -3,7 +3,7 @@
 
   import express, { Router } from "express";
 
-export const job: Router = express.Router();
+export const adminJob: Router = express.Router();
 
 // TODO: Add your routes here
 // Example:

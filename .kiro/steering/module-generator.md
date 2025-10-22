@@ -6,22 +6,66 @@ JobSphere includes an automated module scaffolding tool that generates boilerpla
 
 ## Usage
 
+### Interactive Mode
+
 ```bash
 bun run generate:module
 ```
 
 The script will prompt for a module name and automatically generate all necessary files.
 
+### Direct Mode (with --module flag)
+
+```bash
+# Create a top-level module without prompt
+bun run generate:module --module auth
+
+# Create a nested sub-module without prompt
+bun run generate:module --sub admin --module user
+```
+
+### Nested Module Mode (with --sub flag)
+
+```bash
+# Interactive: prompts for sub-module name
+bun run generate:module --sub admin
+
+# Direct: no prompts
+bun run generate:module --sub admin --module dashboard
+```
+
+**Flags:**
+- `--module <name>`: Specify module name directly (skips prompt)
+- `--sub <parent>`: Create as a sub-module under the specified parent module
+- Both flags can be combined for fully automated nested module creation
+
 ## Generated Structure
+
+### Top-Level Module
 
 For a module named `job`, the generator creates:
 
 ```
 src/api/job/
-├── job.route.ts      # Express router with CRUD endpoints
-├── job.service.ts    # Business logic request handlers
-└── job.schema.ts     # Zod validation schemas + TypeScript types
+├── job.route.ts        # Express router
+├── job.service.ts      # Business logic request handlers
+├── job.validation.ts   # Zod validation schemas + TypeScript types
+└── job.openapi.ts      # OpenAPI documentation
 ```
+
+### Nested Sub-Module
+
+For a sub-module `user` under parent `admin`, the generator creates:
+
+```
+src/api/admin/user/
+├── user.route.ts       # Express router (exports as 'adminUser')
+├── user.service.ts     # Business logic request handlers
+├── user.validation.ts  # Zod validation schemas + TypeScript types
+└── user.openapi.ts     # OpenAPI documentation
+```
+
+**Note:** If the parent module doesn't exist, it will be created automatically.
 
 ## Generated Files
 
@@ -68,9 +112,15 @@ src/api/job/
 
 The generator handles various input formats:
 
-- **Input**: `job` → **Files**: `job.route.ts`, **Types**: `Job`, **Variable**: `job`
-- **Input**: `job-application` → **Files**: `job-application.route.ts`, **Types**: `JobApplication`
-- **Input**: `payment_method` → **Files**: `payment_method.route.ts`, **Types**: `PaymentMethod`
+**Top-level modules:**
+- **Input**: `job` → **Files**: `job.route.ts`, **Types**: `Job`, **Export**: `job`
+- **Input**: `job-application` → **Files**: `job-application.route.ts`, **Types**: `JobApplication`, **Export**: `jobApplication`
+- **Input**: `payment_method` → **Files**: `payment_method.route.ts`, **Types**: `PaymentMethod`, **Export**: `paymentMethod`
+
+**Nested sub-modules:**
+- **Input**: `--sub admin --module user` → **Files**: `admin/user/user.route.ts`, **Export**: `adminUser`
+- **Input**: `--sub admin --module dashboard` → **Files**: `admin/dashboard/dashboard.route.ts`, **Export**: `adminDashboard`
+- **Route paths**: Nested modules use combined paths (e.g., `/api/admin/users`)
 
 ## Post-Generation Steps
 
@@ -112,11 +162,24 @@ export const db = {
 
 Add to `src/app.ts`:
 
+**For top-level modules:**
 ```typescript
 import { job } from "./api/job/job.route";
 
 app.use("/api/jobs", job);
 ```
+
+**For nested sub-modules:**
+```typescript
+import { adminUser } from "@/api/admin/user/user.route";
+
+app.use("/api/admin/users", adminUser);
+```
+
+**Export naming convention:**
+- Top-level modules: Use module name (e.g., `job`, `auth`, `category`)
+- Nested modules: Use `parentModule` + `ModuleName` in camelCase (e.g., `adminUser`, `adminDashboard`)
+- This prevents naming conflicts between top-level and nested modules
 
 ### 4. Customize Schema
 
