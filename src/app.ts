@@ -18,7 +18,8 @@ import { settings } from "@/api/admin/settings/settings.route";
 import { adminUser } from "@/api/admin/user/user.route";
 
 import { connectDB, generateOpenAPIDocument } from "@/lib";
-import { errorHandler, notFoundHandler } from "@/middleware";
+import { errorHandler, notFoundHandler, requireRole } from "@/middleware";
+import { authAdmin } from "./api/admin/auth-admin/auth-admin.route";
 import { getLocalIP } from "./lib/get-my-ip";
 
 const app = express();
@@ -57,11 +58,15 @@ app.use("/api/category", category);
 app.use("/api/job", job);
 app.use("/api/location", location);
 
-app.use("/api/admin/dashboard", dashboard);
-app.use("/api/admin/users", adminUser);
-app.use("/api/admin/job", adminJob);
-app.use("/api/admin/payments", payments);
-app.use("/api/admin/settings", settings);
+
+
+app.use("/api/admin/auth", authAdmin);
+// Protected admin routes (require admin authentication)
+app.use("/api/admin/dashboard", requireRole("admin"), dashboard);
+app.use("/api/admin/users", requireRole("admin"), adminUser);
+app.use("/api/admin/job", requireRole("admin"), adminJob);
+app.use("/api/admin/payments", requireRole("admin"), payments);
+app.use("/api/admin/settings", requireRole("admin"), settings);
 
 app.use(notFoundHandler);
 app.use(errorHandler);
@@ -74,5 +79,5 @@ app.listen(port, async () => {
   console.log(`✨ Server is running on port http://${getLocalIP()}:${port} \n`);
 
   console.log(`✍️ Swagger doc: http://localhost:${port}/swagger`);
-  console.log(`📋 Scaler doc: http://localhost:${port}/scaler`);
+  console.log(`📋 Scaler doc: http://localhost:${port}/scaler \n`);
 });

@@ -123,6 +123,7 @@ registry.registerPath({
   },
 });
 
+
 // POST /api/auth/forgot-password
 registry.registerPath({
   method: "post",

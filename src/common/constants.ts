@@ -7,6 +7,10 @@ export const openAPITags = {
   payment: { name: "payment", basepath: "/api/payment" },
   setting: { name: "setting", basepath: "/api/setting" },
   admin: {
+    auth: {
+      name: "Admin - Authentication",
+      basepath: "/api/admin/auth",
+    },
     dashboard: {
       name: "Admin - Dashboard",
       basepath: "/api/admin/dashboard",

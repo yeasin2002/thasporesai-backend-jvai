@@ -6,6 +6,7 @@ import {
   validateQuery,
 } from "@/middleware/validation.middleware";
 import express, { type Router } from "express";
+
 import {
   deleteUser,
   getAllUsers,
