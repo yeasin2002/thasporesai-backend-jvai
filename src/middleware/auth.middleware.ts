@@ -1,17 +1,18 @@
+import { sendInternalError, sendUnauthorized } from "@/helpers";
 import { verifyAccessToken } from "@/lib/jwt";
 import type { NextFunction, Request, Response } from "express";
 
 // Extend Express Request type to include user
 declare global {
-	namespace Express {
-		interface Request {
-			user?: {
-				userId: string;
-				email: string;
-				role: "customer" | "contractor" | "admin";
-			};
-		}
-	}
+  namespace Express {
+    interface Request {
+      user?: {
+        userId: string;
+        email: string;
+        role: "customer" | "contractor" | "admin";
+      };
+    }
+  }
 }
 
 /**
@@ -19,53 +20,40 @@ declare global {
  * Adds user data to req.user if token is valid
  */
 export const requireAuth = (
-	req: Request,
-	res: Response,
-	next: NextFunction,
+  req: Request,
+  res: Response,
+  next: NextFunction
 ) => {
-	try {
-		// Get token from Authorization header
-		const authHeader = req.headers.authorization;
+  try {
+    // Get token from Authorization header
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      return sendUnauthorized(res, "Unauthorized - No token provided");
+    }
 
-		if (!authHeader || !authHeader.startsWith("Bearer ")) {
-			return res.status(401).json({
-				status: 401,
-				message: "Unauthorized - No token provided",
-				data: null,
-			});
-		}
+    // Extract token
+    const token = authHeader.substring(7);
 
-		// Extract token
-		const token = authHeader.substring(7); // Remove "Bearer " prefix
+    // Verify token
+    try {
+      const decoded = verifyAccessToken(token);
 
-		// Verify token
-		try {
-			const decoded = verifyAccessToken(token);
+      // Add user data to request
+      req.user = {
+        userId: decoded.userId,
+        email: decoded.email,
+        role: decoded.role,
+      };
 
-			// Add user data to request
-			req.user = {
-				userId: decoded.userId,
-				email: decoded.email,
-				role: decoded.role,
-			};
-
-			next();
-			// oxlint-disable-next-line no-unused-vars
-		} catch (_error) {
-			return res.status(401).json({
-				status: 401,
-				message: "Unauthorized - Invalid or expired token",
-				data: null,
-			});
-		}
-	} catch (error) {
-		console.error("Auth middleware error:", error);
-		return res.status(500).json({
-			status: 500,
-			message: "Internal Server Error",
-			data: null,
-		});
-	}
+      next();
+      // oxlint-disable-next-line no-unused-vars
+    } catch (_error) {
+      return sendUnauthorized(res, "Unauthorized - Invalid or expired token");
+    }
+  } catch (error) {
+    console.error("Auth middleware error:", error);
+    return sendInternalError(res, "Internal Server Error");
+  }
 };
 
 /**
@@ -74,38 +62,29 @@ export const requireAuth = (
  * @param role - Required role (customer, contractor, or admin)
  */
 export const requireRole = (role: "customer" | "contractor" | "admin") => {
-	return (req: Request, res: Response, next: NextFunction) => {
-		try {
-			// Check if user is authenticated
-			if (!req.user) {
-				return res.status(401).json({
-					status: 401,
-					message: "Unauthorized - Authentication required",
-					data: null,
-				});
-			}
+  return (req: Request, res: Response, next: NextFunction) => {
+    try {
+      // Check if user is authenticated
+      if (!req.user) {
+        return sendUnauthorized(res, "Unauthorized - Authentication required");
+      }
 
-			// Check if user has required role
-			if (req.user.role !== role) {
-				return res.status(403).json({
-					status: 403,
-					message: `Forbidden - ${
-						role.charAt(0).toUpperCase() + role.slice(1)
-					} access required`,
-					data: null,
-				});
-			}
+      // Check if user has required role
+      if (req.user.role !== role) {
+        return sendUnauthorized(
+          res,
+          `Forbidden - ${
+            role.charAt(0).toUpperCase() + role.slice(1)
+          } access required`
+        );
+      }
 
-			next();
-		} catch (error) {
-			console.error("Role middleware error:", error);
-			return res.status(500).json({
-				status: 500,
-				message: "Internal Server Error",
-				data: null,
-			});
-		}
-	};
+      next();
+    } catch (error) {
+      console.error("Role middleware error:", error);
+      return sendInternalError(res, "Internal Server Error");
+    }
+  };
 };
 
 /**
@@ -114,38 +93,26 @@ export const requireRole = (role: "customer" | "contractor" | "admin") => {
  * @param roles - Array of allowed roles
  */
 export const requireAnyRole = (
-	roles: Array<"customer" | "contractor" | "admin">,
+  roles: Array<"customer" | "contractor" | "admin">
 ) => {
-	return (req: Request, res: Response, next: NextFunction) => {
-		try {
-			// Check if user is authenticated
-			if (!req.user) {
-				return res.status(401).json({
-					status: 401,
-					message: "Unauthorized - Authentication required",
-					data: null,
-				});
-			}
+  return (req: Request, res: Response, next: NextFunction) => {
+    try {
+      // Check if user is authenticated
+      if (!req.user) {
+        return sendUnauthorized(res, "Unauthorized - Authentication required");
+      }
 
-			// Check if user has any of the required roles
-			if (!roles.includes(req.user.role)) {
-				return res.status(403).json({
-					status: 403,
-					message: "Forbidden - Insufficient permissions",
-					data: null,
-				});
-			}
+      // Check if user has any of the required roles
+      if (!roles.includes(req.user.role)) {
+        return sendUnauthorized(res, "Forbidden - Insufficient permissions");
+      }
 
-			next();
-		} catch (error) {
-			console.error("Role middleware error:", error);
-			return res.status(500).json({
-				status: 500,
-				message: "Internal Server Error",
-				data: null,
-			});
-		}
-	};
+      next();
+    } catch (error) {
+      console.error("Role middleware error:", error);
+      return sendInternalError(res, "Internal Server Error");
+    }
+  };
 };
 
 /**
@@ -154,39 +121,30 @@ export const requireAnyRole = (
  * @param userIdParam - Name of the route parameter containing user ID (default: "id")
  */
 export const requireOwnership = (userIdParam: string = "id") => {
-	return (req: Request, res: Response, next: NextFunction) => {
-		try {
-			// Check if user is authenticated
-			if (!req.user) {
-				return res.status(401).json({
-					status: 401,
-					message: "Unauthorized - Authentication required",
-					data: null,
-				});
-			}
+  return (req: Request, res: Response, next: NextFunction) => {
+    try {
+      // Check if user is authenticated
+      if (!req.user) {
+        return sendUnauthorized(res, "Unauthorized - Authentication required");
+      }
 
-			// Get user ID from route params
-			const resourceUserId = req.params[userIdParam];
+      // Get user ID from route params
+      const resourceUserId = req.params[userIdParam];
 
-			// Check if user is accessing their own resource or is admin
-			if (req.user.userId !== resourceUserId && req.user.role !== "admin") {
-				return res.status(403).json({
-					status: 403,
-					message: "Forbidden - You can only access your own resources",
-					data: null,
-				});
-			}
+      // Check if user is accessing their own resource or is admin
+      if (req.user.userId !== resourceUserId && req.user.role !== "admin") {
+        return sendUnauthorized(
+          res,
+          "Forbidden - You can only access your own resources"
+        );
+      }
 
-			next();
-		} catch (error) {
-			console.error("Ownership middleware error:", error);
-			return res.status(500).json({
-				status: 500,
-				message: "Internal Server Error",
-				data: null,
-			});
-		}
-	};
+      next();
+    } catch (error) {
+      console.error("Ownership middleware error:", error);
+      return sendInternalError(res, "Internal Server Error");
+    }
+  };
 };
 
 /**
@@ -194,33 +152,33 @@ export const requireOwnership = (userIdParam: string = "id") => {
  * Useful for routes that have different behavior for authenticated vs unauthenticated users
  */
 export const optionalAuth = (
-	req: Request,
-	_res: Response,
-	next: NextFunction,
+  req: Request,
+  _res: Response,
+  next: NextFunction
 ) => {
-	try {
-		const authHeader = req.headers.authorization;
+  try {
+    const authHeader = req.headers.authorization;
 
-		if (authHeader?.startsWith("Bearer ")) {
-			const token = authHeader.substring(7);
+    if (authHeader?.startsWith("Bearer ")) {
+      const token = authHeader.substring(7);
 
-			try {
-				const decoded = verifyAccessToken(token);
-				req.user = {
-					userId: decoded.userId,
-					email: decoded.email,
-					role: decoded.role,
-				};
-				// oxlint-disable-next-line no-unused-vars
-			} catch (_error) {
-				// Token invalid, but we don't fail - just continue without user
-				console.log("Optional auth: Invalid token, continuing without user");
-			}
-		}
+      try {
+        const decoded = verifyAccessToken(token);
+        req.user = {
+          userId: decoded.userId,
+          email: decoded.email,
+          role: decoded.role,
+        };
+        // oxlint-disable-next-line no-unused-vars
+      } catch (_error) {
+        // Token invalid, but we don't fail - just continue without user
+        console.log("Optional auth: Invalid token, continuing without user");
+      }
+    }
 
-		next();
-	} catch (error) {
-		console.error("Optional auth middleware error:", error);
-		next();
-	}
+    next();
+  } catch (error) {
+    console.error("Optional auth middleware error:", error);
+    next();
+  }
 };
