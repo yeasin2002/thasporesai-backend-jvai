@@ -13,6 +13,7 @@ import { location } from "@/api/location/location.route";
 
 import { connectDB, generateOpenAPIDocument } from "@/lib";
 import { errorHandler, notFoundHandler } from "@/middleware";
+import { getLocalIP } from "./lib/get-my-ip";
 
 const app = express();
 app.use(express.json());
@@ -56,14 +57,11 @@ app.use(errorHandler);
 
 const port = process.env.PORT || 4000;
 app.listen(port, async () => {
-	await connectDB();
+  await connectDB();
 
-	// logInfo(`Server started on port ${port}`, {
-	//   port,
-	//   environment: process.env.NODE_ENV || "development",
-	// });
+  console.log(`🚀 Server is running on port http://localhost:${port}`);
+  console.log(`✨ Server is running on port http://${getLocalIP()}:${port} \n`);
 
-	console.log(`🚀 Server is running on port ${port}`);
-	console.log("✍️ Swagger doc: http://localhost:4000/swagger");
-	console.log("📋 Scaler doc: http://localhost:4000/scaler");
+  console.log(`✍️ Swagger doc: http://localhost:${port}/swagger`);
+  console.log(`📋 Scaler doc: http://localhost:${port}/scaler`);
 });
