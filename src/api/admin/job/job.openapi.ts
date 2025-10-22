@@ -1,13 +1,13 @@
-
+import { openAPITags } from "@/common/constants";
 import { registry } from "@/lib/openapi";
 
 // registry.register("job", jobSchema);
 registry.registerPath({
   method: "post",
-  path: "/api/admin/job",
+  path: openAPITags.admin.job_management.basepath,
   description: "",
   summary: "",
-  tags: ["job"],
+  tags: [openAPITags.admin.job_management.name],
   responses: {
     200: {
       description: "job retrieved successfully",
@@ -16,17 +16,14 @@ registry.registerPath({
   },
 });
 
-
-
-
 // TODO: Add your openAPI specification here
-//  Full Example 
+//  Full Example
 // registry.registerPath({
 //   method: "get",
-//   path: "/api/admin/job",
+//   path: openAPITags.admin.job_management.basepath,
 //   description: "",
 //   summary: "",
-//   tags: ["job"],
+//   tags: [openAPITags.admin.job_management.name],
 //   responses: {
 //     200: {
 //       description: "job retrieved successfully",
@@ -46,5 +43,3 @@ registry.registerPath({
 //     },
 //   },
 // });
-
-

@@ -62,6 +62,16 @@ providus_org/
 - Mongoose models and schemas (to be added)
 - Database utilities and helpers
 
+### `/src/common/constants.ts` - Centralized Configuration
+
+Contains centralized constants for the entire application:
+
+- **openAPITags**: Defines all API paths and OpenAPI tags
+  - Prevents hardcoded paths throughout the codebase
+  - Single source of truth for API documentation
+  - Easy to refactor and maintain
+  - Example: `openAPITags.authentication.basepath` → `"/api/auth"`
+
 ### `/src/api/**/*` - Module Structure
 
 Each API module follows this pattern:

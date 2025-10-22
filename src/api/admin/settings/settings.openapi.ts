@@ -1,13 +1,13 @@
-
+import { openAPITags } from "@/common/constants";
 import { registry } from "@/lib/openapi";
 
 // registry.register("settings", settingsSchema);
 registry.registerPath({
   method: "post",
-  path: "/api/admin/settings",
+  path: openAPITags.admin.setting_management.basepath,
   description: "",
   summary: "",
-  tags: ["settings"],
+  tags: [openAPITags.admin.setting_management.name],
   responses: {
     200: {
       description: "settings retrieved successfully",
@@ -16,17 +16,14 @@ registry.registerPath({
   },
 });
 
-
-
-
 // TODO: Add your openAPI specification here
-//  Full Example 
+//  Full Example
 // registry.registerPath({
 //   method: "get",
-//   path: "/api/admin/settings",
+//   path: openAPITags.admin.setting_management.basepath,
 //   description: "",
 //   summary: "",
-//   tags: ["settings"],
+//   tags: [openAPITags.admin.setting_management.name],
 //   responses: {
 //     200: {
 //       description: "settings retrieved successfully",
@@ -46,5 +43,3 @@ registry.registerPath({
 //     },
 //   },
 // });
-
-

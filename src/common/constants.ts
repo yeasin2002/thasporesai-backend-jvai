@@ -7,25 +7,25 @@ export const openAPITags = {
   payment: { name: "payment", basepath: "/api/payment" },
   setting: { name: "setting", basepath: "/api/setting" },
   admin: {
+    dashboard: {
+      name: "Admin - Dashboard",
+      basepath: "/api/admin/dashboard",
+    },
     user_management: {
-      name: "admin - user management",
-      basepath: "/api/admin/user",
+      name: "Admin - User Management",
+      basepath: "/api/admin/users",
     },
     job_management: {
-      name: "admin - job management",
-      basepath: "/api/admin/job",
-    },
-    category_management: {
-      name: "admin - category management",
-      basepath: "/api/admin/category",
+      name: "Admin - Job Management",
+      basepath: "/api/admin/jobs",
     },
     payment_management: {
-      name: "admin - payment management",
-      basepath: "/api/admin/payment",
+      name: "Admin - Payment Management",
+      basepath: "/api/admin/payments",
     },
     setting_management: {
-      name: "admin - setting management",
-      basepath: "/api/admin/setting",
+      name: "Admin - Settings",
+      basepath: "/api/admin/settings",
     },
   },
 };

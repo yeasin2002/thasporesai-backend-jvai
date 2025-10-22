@@ -1,13 +1,13 @@
-
+import { openAPITags } from "@/common/constants";
 import { registry } from "@/lib/openapi";
 
 // registry.register("dashboard", dashboardSchema);
 registry.registerPath({
   method: "post",
-  path: "/api/admin/dashboard",
+  path: openAPITags.admin.dashboard.basepath,
   description: "",
   summary: "",
-  tags: ["dashboard"],
+  tags: [openAPITags.admin.dashboard.name],
   responses: {
     200: {
       description: "dashboard retrieved successfully",
@@ -16,17 +16,14 @@ registry.registerPath({
   },
 });
 
-
-
-
 // TODO: Add your openAPI specification here
-//  Full Example 
+//  Full Example
 // registry.registerPath({
 //   method: "get",
-//   path: "/api/admin/dashboard",
+//   path: openAPITags.admin.dashboard.basepath,
 //   description: "",
 //   summary: "",
-//   tags: ["dashboard"],
+//   tags: [openAPITags.admin.dashboard.name],
 //   responses: {
 //     200: {
 //       description: "dashboard retrieved successfully",
@@ -46,5 +43,3 @@ registry.registerPath({
 //     },
 //   },
 // });
-
-

@@ -1,13 +1,13 @@
-
+import { openAPITags } from "@/common/constants";
 import { registry } from "@/lib/openapi";
 
 // registry.register("payments", paymentsSchema);
 registry.registerPath({
   method: "post",
-  path: "/api/admin/payments",
+  path: openAPITags.admin.payment_management.basepath,
   description: "",
   summary: "",
-  tags: ["payments"],
+  tags: [openAPITags.admin.payment_management.name],
   responses: {
     200: {
       description: "payments retrieved successfully",
@@ -16,17 +16,14 @@ registry.registerPath({
   },
 });
 
-
-
-
 // TODO: Add your openAPI specification here
-//  Full Example 
+//  Full Example
 // registry.registerPath({
 //   method: "get",
-//   path: "/api/admin/payments",
+//   path: openAPITags.admin.payment_management.basepath,
 //   description: "",
 //   summary: "",
-//   tags: ["payments"],
+//   tags: [openAPITags.admin.payment_management.name],
 //   responses: {
 //     200: {
 //       description: "payments retrieved successfully",
@@ -46,5 +43,3 @@ registry.registerPath({
 //     },
 //   },
 // });
-
-

@@ -77,9 +77,10 @@ export type CreateUser = z.infer<typeof CreateUserSchema>;
 
 ### 2. Register OpenAPI Specs (`[module].openapi.ts`)
 
-Register schemas and routes with the global registry:
+Register schemas and routes with the global registry using centralized constants:
 
 ```typescript
+import { openAPITags } from "@/common/constants";
 import { registry } from "@/lib/openapi";
 import {
   CreateUserSchema,
@@ -88,7 +89,7 @@ import {
   UserResponseSchema,
   UsersResponseSchema,
   ErrorResponseSchema,
-} from "./user.schema";
+} from "./user.validation";
 
 // Register schemas (optional but recommended for reusability)
 registry.register("CreateUser", CreateUserSchema);
@@ -98,13 +99,13 @@ registry.register("UserResponse", UserResponseSchema);
 registry.register("UsersResponse", UsersResponseSchema);
 registry.register("ErrorResponse", ErrorResponseSchema);
 
-// Register GET /api/user
+// Register GET /api/user - Use centralized constants
 registry.registerPath({
   method: "get",
-  path: "/api/user",
+  path: openAPITags.user.basepath,
   description: "Get all users",
   summary: "Retrieve all users",
-  tags: ["Users"],
+  tags: [openAPITags.user.name],
   responses: {
     200: {
       description: "Users retrieved successfully",
@@ -128,10 +129,10 @@ registry.registerPath({
 // Register POST /api/user
 registry.registerPath({
   method: "post",
-  path: "/api/user",
+  path: openAPITags.user.basepath,
   description: "Create a new user",
   summary: "Create user",
-  tags: ["Users"],
+  tags: [openAPITags.user.name],
   request: {
     body: {
       content: {
@@ -169,13 +170,13 @@ registry.registerPath({
   },
 });
 
-// Register PUT /api/user/{id}
+// Register PUT /api/user/{id} - Use template literals for paths with params
 registry.registerPath({
   method: "put",
-  path: "/api/user/{id}",
+  path: `${openAPITags.user.basepath}/{id}`,
   description: "Update a user",
   summary: "Update user",
-  tags: ["Users"],
+  tags: [openAPITags.user.name],
   request: {
     params: UserIdSchema,
     body: {
@@ -213,45 +214,50 @@ registry.registerPath({
     },
   },
 });
-
-// Register DELETE /api/user/{id}
-registry.registerPath({
-  method: "delete",
-  path: "/api/user/{id}",
-  description: "Delete a user",
-  summary: "Delete user",
-  tags: ["Users"],
-  request: {
-    params: UserIdSchema,
-  },
-  responses: {
-    200: {
-      description: "User deleted successfully",
-      content: {
-        "application/json": {
-          schema: UserResponseSchema,
-        },
-      },
-    },
-    400: {
-      description: "Validation error",
-      content: {
-        "application/json": {
-          schema: ErrorResponseSchema,
-        },
-      },
-    },
-    500: {
-      description: "Internal server error",
-      content: {
-        "application/json": {
-          schema: ErrorResponseSchema,
-        },
-      },
-    },
-  },
-});
 ```
+
+## Centralized Constants Pattern
+
+All API paths and tags are defined in `src/common/constants.ts`:
+
+```typescript
+export const openAPITags = {
+  authentication: { name: "Authentication", basepath: "/api/auth" },
+  user: { name: "user", basepath: "/api/user" },
+  job: { name: "job", basepath: "/api/job" },
+  category: { name: "category", basepath: "/api/category" },
+  location: { name: "location", basepath: "/api/location" },
+  admin: {
+    dashboard: {
+      name: "Admin - Dashboard",
+      basepath: "/api/admin/dashboard",
+    },
+    user_management: {
+      name: "Admin - User Management",
+      basepath: "/api/admin/users",
+    },
+    job_management: {
+      name: "Admin - Job Management",
+      basepath: "/api/admin/jobs",
+    },
+    // ... other admin modules
+  },
+};
+```
+
+**Benefits:**
+- Single source of truth for all API paths
+- Easy to refactor and maintain
+- Consistent naming across documentation
+- Type-safe with TypeScript
+- Prevents typos and inconsistencies
+
+**Usage:**
+- Import: `import { openAPITags } from "@/common/constants";`
+- Base path: `path: openAPITags.user.basepath`
+- With params: `path: \`\${openAPITags.user.basepath}/{id}\``
+- Tags: `tags: [openAPITags.user.name]`
+- Nested modules: `openAPITags.admin.user_management.basepath`
 
 ### 3. Import in `[module].route.ts`
 
