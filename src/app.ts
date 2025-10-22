@@ -5,7 +5,7 @@ import express from "express";
 import morgan from "morgan";
 import swaggerUi from "swagger-ui-express";
 
-import { admin } from "@/api/admin/admin.route";
+import { adminUser } from "@/api/admin/user/user.route";
 import { auth } from "@/api/auth/auth.route";
 import { category } from "@/api/category/category.route";
 import { job } from "@/api/job/job.route";
@@ -50,7 +50,8 @@ app.use("/api/auth", auth);
 app.use("/api/category", category);
 app.use("/api/job", job);
 app.use("/api/location", location);
-app.use("/api/admin", admin);
+
+app.use("/api/admin/users", adminUser);
 
 app.use(notFoundHandler);
 app.use(errorHandler);

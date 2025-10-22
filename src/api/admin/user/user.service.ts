@@ -1,4 +1,4 @@
-import type { SuspendUser } from "@/api/admin/admin.validation";
+import type { SuspendUser } from "@/api/admin/user/user.validation";
 import { db } from "@/db";
 import type { RequestHandler } from "express";
 
@@ -74,9 +74,6 @@ export const getUserById: RequestHandler<{ id: string }> = async (req, res) => {
     });
   }
 };
-
-
-
 
 // Delete user account (hard delete)
 export const deleteUser: RequestHandler<{ id: string }> = async (req, res) => {

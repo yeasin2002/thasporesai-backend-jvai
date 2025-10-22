@@ -1,4 +1,4 @@
-import "./admin.openapi";
+import "./user.openapi";
 
 import {
   validateBody,
@@ -11,22 +11,22 @@ import {
   getAllUsers,
   getUserById,
   suspendUser,
-} from "./admin.service";
+} from "./user.service";
 import {
   SuspendUserSchema,
   UserIdParamSchema,
   UserQuerySchema,
-} from "./admin.validation";
+} from "./user.validation";
 
-export const admin: Router = express.Router();
+export const adminUser: Router = express.Router();
 
 // User management routes
-admin
-  .get("/users", validateQuery(UserQuerySchema), getAllUsers)
-  .get("/users/:id", validateParams(UserIdParamSchema), getUserById)
-  .delete("/users/:id", validateParams(UserIdParamSchema), deleteUser)
+adminUser
+  .get("/", validateQuery(UserQuerySchema), getAllUsers)
+  .get("/:id", validateParams(UserIdParamSchema), getUserById)
+  .delete("/:id", validateParams(UserIdParamSchema), deleteUser)
   .patch(
-    "/users/:id/suspend",
+    "/:id/suspend",
     validateParams(UserIdParamSchema),
     validateBody(SuspendUserSchema),
     suspendUser
