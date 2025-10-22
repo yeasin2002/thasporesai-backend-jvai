@@ -67,6 +67,7 @@ providus_org/
 Each API module follows this pattern:
 
 #### `[module].route.ts`
+
 - Express router with route definitions
 - Imports validation middleware
 - Imports service handlers
@@ -75,17 +76,20 @@ Each API module follows this pattern:
 - For nested modules: `export const adminUser: Router = express.Router();`
 
 #### `[module].service.ts`
+
 - Business logic as RequestHandler functions
 - Database operations
 - Error handling
 - Response formatting
 
 #### `[module].validation.ts`
+
 - Zod validation schemas with OpenAPI extensions
 - TypeScript type exports
 - Schemas for: create, update, params, responses
 
 #### `[module].openapi.ts`
+
 - Registers schemas with OpenAPI registry
 - Registers route paths with full documentation
 - Must be imported at the top of the corresponding `.route.ts` file
@@ -109,12 +113,14 @@ src/api/admin/
 ```
 
 **Registration in app.ts:**
+
 ```typescript
 import { adminUser } from "@/api/admin/user/user.route";
 app.use("/api/admin/users", adminUser);
 ```
 
 **Export naming convention for nested modules:**
+
 - Use descriptive names that indicate the parent module
 - Example: `adminUser`, `adminDashboard`, `adminSettings`
 - This prevents naming conflicts with top-level modules

@@ -1,3 +1,4 @@
+import { openAPITags } from "@/common/constants";
 import { registry } from "@/lib/openapi";
 import {
   ErrorResponseSchema,
@@ -21,10 +22,10 @@ registry.register("AdminErrorResponse", ErrorResponseSchema);
 // GET /api/admin/users - Get all users
 registry.registerPath({
   method: "get",
-  path: "/api/admin/users",
+  path: `${openAPITags.admin.user_management.basepath}s`,
   description: "Get all users with optional search and role filter",
   summary: "Retrieve all users",
-  tags: ["Admin - User Management"],
+  tags: [openAPITags.admin.user_management.name],
   request: {
     query: UserQuerySchema,
   },
@@ -51,10 +52,10 @@ registry.registerPath({
 // GET /api/admin/users/{id} - Get single user
 registry.registerPath({
   method: "get",
-  path: "/api/admin/users/{id}",
+  path: `${openAPITags.admin.user_management.basepath}s/{id}`,
   description: "Get a single user by ID with full details",
   summary: "Retrieve user by ID",
-  tags: ["Admin - User Management"],
+  tags: [openAPITags.admin.user_management.name],
   request: {
     params: UserIdParamSchema,
   },
@@ -89,10 +90,10 @@ registry.registerPath({
 // DELETE /api/admin/users/{id} - Delete user
 registry.registerPath({
   method: "delete",
-  path: "/api/admin/users/{id}",
+  path: `${openAPITags.admin.user_management.basepath}s/{id}`,
   description: "Permanently delete a user account",
   summary: "Delete user account",
-  tags: ["Admin - User Management"],
+  tags: [openAPITags.admin.user_management.name],
   request: {
     params: UserIdParamSchema,
   },
@@ -127,10 +128,10 @@ registry.registerPath({
 // PATCH /api/admin/users/{id}/suspend - Suspend/unsuspend user
 registry.registerPath({
   method: "patch",
-  path: "/api/admin/users/{id}/suspend",
+  path: `${openAPITags.admin.user_management.basepath}s/{id}/suspend`,
   description: "Suspend or unsuspend a user account",
   summary: "Suspend/unsuspend user",
-  tags: ["Admin - User Management"],
+  tags: [openAPITags.admin.user_management.name],
   request: {
     params: UserIdParamSchema,
     body: {
