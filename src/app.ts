@@ -14,7 +14,7 @@ import { location } from "@/api/location/location.route";
 import { adminUser } from "@/api/admin/user/user.route";
 
 // common routes
-import { imgUpload } from "@/common/img-upload/img-upload.route";
+import { imgUpload } from "@/api/img-upload/img-upload.route";
 
 import { connectDB, generateOpenAPIDocument } from "@/lib";
 import { errorHandler, notFoundHandler, requireRole } from "@/middleware";

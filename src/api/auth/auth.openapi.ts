@@ -1,5 +1,5 @@
-import { openAPITags } from "@/common/constants";
 import { registry } from "@/lib/openapi";
+import { openAPITags } from "@/shared/constants";
 import {
   AuthResponseSchema,
   ErrorResponseSchema,
@@ -122,7 +122,6 @@ registry.registerPath({
     },
   },
 });
-
 
 // POST /api/auth/forgot-password
 registry.registerPath({

@@ -1,5 +1,5 @@
-import { openAPITags } from "@/common/constants";
 import { registry } from "@/lib/openapi";
+import { openAPITags } from "@/shared/constants";
 
 // registry.register("payments", paymentsSchema);
 registry.registerPath({
