@@ -4,15 +4,6 @@ import { requireAuth } from "@/middleware/auth.middleware";
 import { validateBody } from "@/middleware/validation.middleware";
 import express, { type Router } from "express";
 import {
-  forgotPassword,
-  login,
-  me,
-  refresh,
-  register,
-  resetPassword,
-  verifyOTP,
-} from "./auth.service";
-import {
   ForgotPasswordSchema,
   LoginSchema,
   RefreshTokenSchema,
@@ -20,6 +11,15 @@ import {
   ResetPasswordSchema,
   VerifyOTPSchema,
 } from "./auth.validation";
+import {
+  forgotPassword,
+  login,
+  me,
+  refresh,
+  register,
+  resetPassword,
+  verifyOTP,
+} from "./services";
 
 export const auth: Router = express.Router();
 
