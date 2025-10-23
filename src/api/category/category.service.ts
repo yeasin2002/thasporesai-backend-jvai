@@ -1,12 +1,11 @@
 import { db } from "@/db";
 import { sendError, sendSuccess } from "@/helpers";
 import { deleteFile, getFileUrl } from "@/lib/multer";
-import chalk from "chalk";
 import type { RequestHandler } from "express";
 import type {
-	CreateCategory,
-	SearchCategory,
-	UpdateCategory,
+  CreateCategory,
+  SearchCategory,
+  UpdateCategory,
 } from "./category.validation";
 
 // Get All Categories (with search and pagination)
@@ -84,54 +83,52 @@ export const getCategoryById: RequestHandler = async (req, res) => {
 };
 
 // Create Category (Admin only)
-export const createCategory: RequestHandler<
-	unknown,
-	unknown,
-	CreateCategory
-> = async (req, res) => {
-	try {
-		const { name, description } = req.body;
-		const file = req.file;
-		console.log(chalk.bgRed.white("🚀 ~ updateCategory ~ file:"), file);
+export const createCategory: RequestHandler<unknown, unknown, CreateCategory> = async (
+  req,
+  res
+) => {
+  try {
+    const { name, description } = req.body;
+    const file = req.file;
 
-		// Check if file was uploaded
-		if (!file) {
-			return sendError(res, 400, "Category icon image is required");
-		}
+    // Check if file was uploaded
+    if (!file) {
+      return sendError(res, 400, "Category icon image is required");
+    }
 
-		// Check if category with same name already exists
-		const existingCategory = await db.category.findOne({
-			name: { $regex: new RegExp(`^${name}$`, "i") },
-		});
+    // Check if category with same name already exists
+    const existingCategory = await db.category.findOne({
+      name: { $regex: new RegExp(`^${name}$`, "i") },
+    });
 
-		if (existingCategory) {
-			// Delete uploaded file if category already exists
-			await deleteFile(file.filename);
+    if (existingCategory) {
+      // Delete uploaded file if category already exists
+      await deleteFile(file.filename);
 
-			return sendError(res, 400, "Category with this name already exists");
-		}
+      return sendError(res, 400, "Category with this name already exists");
+    }
 
-		// Get file URL
-		const iconUrl = getFileUrl(file.filename);
+    // Get file URL
+    const iconUrl = getFileUrl(file.filename);
 
-		// Create category
-		const category = await db.category.create({
-			name,
-			icon: iconUrl,
-			description,
-		});
+    // Create category
+    const category = await db.category.create({
+      name,
+      icon: iconUrl,
+      description,
+    });
 
-		sendSuccess(res, 201, "Category created successfully", category);
-	} catch (error) {
-		console.error("Create category error:", error);
+    sendSuccess(res, 201, "Category created successfully", category);
+  } catch (error) {
+    console.error("Create category error:", error);
 
-		// Delete uploaded file if error occurs
-		if (req.file) {
-			await deleteFile(req.file.filename);
-		}
+    // Delete uploaded file if error occurs
+    if (req.file) {
+      await deleteFile(req.file.filename);
+    }
 
-		sendError(res, 500, "Internal Server Error");
-	}
+    sendError(res, 500, "Internal Server Error");
+  }
 };
 
 // Update Category (Admin only)

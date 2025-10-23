@@ -13,10 +13,14 @@ const CategorySchema = new Schema<CategoryDocument>(
     name: {
       type: String,
       required: true,
+      unique: true,
+      toLowerCase: true,
+      trim: true,
     },
     description: {
       type: String,
       required: false,
+      trim: true,
     },
     icon: {
       type: String,
