@@ -12,19 +12,19 @@ import {
 } from "@/middleware/validation.middleware";
 import express, { type Router } from "express";
 import {
-	createJob,
-	deleteJob,
-	getAllJobs,
-	getJobById,
-	getMyJobs,
-	updateJob,
-} from "./job.service";
-import {
-	CreateJobSchema,
-	JobIdSchema,
-	SearchJobSchema,
-	UpdateJobSchema,
+  CreateJobSchema,
+  JobIdSchema,
+  SearchJobSchema,
+  UpdateJobSchema,
 } from "./job.validation";
+import {
+  createJob,
+  deleteJob,
+  getAllJobs,
+  getJobById,
+  getMyJobs,
+  updateJob,
+} from "./services";
 
 export const job: Router = express.Router();
 
