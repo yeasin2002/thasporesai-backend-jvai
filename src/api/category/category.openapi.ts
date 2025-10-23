@@ -1,4 +1,5 @@
-import { openAPITags } from "@/common/constants";
+import { mediaTypeFormat, openAPITags } from "@/common/constants";
+
 import { registry } from "@/lib/openapi";
 import {
   CategoriesResponseSchema,
@@ -35,7 +36,7 @@ registry.registerPath({
     200: {
       description: "Categories retrieved successfully",
       content: {
-        "application/json": {
+        [mediaTypeFormat.json]: {
           schema: CategoriesResponseSchema,
         },
       },
@@ -43,7 +44,7 @@ registry.registerPath({
     500: {
       description: "Internal server error",
       content: {
-        "application/json": {
+        [mediaTypeFormat.json]: {
           schema: ErrorResponseSchema,
         },
       },
@@ -65,7 +66,7 @@ registry.registerPath({
     200: {
       description: "Category retrieved successfully",
       content: {
-        "application/json": {
+        [mediaTypeFormat.json]: {
           schema: CategoryResponseSchema,
         },
       },
@@ -73,7 +74,7 @@ registry.registerPath({
     404: {
       description: "Category not found",
       content: {
-        "application/json": {
+        [mediaTypeFormat.json]: {
           schema: ErrorResponseSchema,
         },
       },
@@ -81,7 +82,7 @@ registry.registerPath({
     500: {
       description: "Internal server error",
       content: {
-        "application/json": {
+        [mediaTypeFormat.json]: {
           schema: ErrorResponseSchema,
         },
       },
@@ -100,7 +101,7 @@ registry.registerPath({
   request: {
     body: {
       content: {
-        "multipart/form-data": {
+        [mediaTypeFormat.form]: {
           schema: CreateCategorySchema,
         },
       },
@@ -110,7 +111,7 @@ registry.registerPath({
     201: {
       description: "Category created successfully",
       content: {
-        "application/json": {
+        [mediaTypeFormat.json]: {
           schema: CategoryResponseSchema,
         },
       },
@@ -118,7 +119,7 @@ registry.registerPath({
     400: {
       description: "Validation error or category already exists",
       content: {
-        "application/json": {
+        [mediaTypeFormat.json]: {
           schema: ErrorResponseSchema,
         },
       },
@@ -126,7 +127,7 @@ registry.registerPath({
     401: {
       description: "Unauthorized",
       content: {
-        "application/json": {
+        [mediaTypeFormat.json]: {
           schema: ErrorResponseSchema,
         },
       },
@@ -134,7 +135,7 @@ registry.registerPath({
     403: {
       description: "Forbidden - Admin only",
       content: {
-        "application/json": {
+        [mediaTypeFormat.json]: {
           schema: ErrorResponseSchema,
         },
       },
@@ -142,7 +143,7 @@ registry.registerPath({
     500: {
       description: "Internal server error",
       content: {
-        "application/json": {
+        [mediaTypeFormat.json]: {
           schema: ErrorResponseSchema,
         },
       },
@@ -162,7 +163,7 @@ registry.registerPath({
     params: CategoryIdSchema,
     body: {
       content: {
-        "multipart/form-data": {
+        [mediaTypeFormat.form]: {
           schema: UpdateCategorySchema,
         },
       },
@@ -172,7 +173,7 @@ registry.registerPath({
     200: {
       description: "Category updated successfully",
       content: {
-        "application/json": {
+        [mediaTypeFormat.json]: {
           schema: CategoryResponseSchema,
         },
       },
@@ -180,7 +181,7 @@ registry.registerPath({
     400: {
       description: "Validation error or category name already exists",
       content: {
-        "application/json": {
+        [mediaTypeFormat.json]: {
           schema: ErrorResponseSchema,
         },
       },
@@ -188,7 +189,7 @@ registry.registerPath({
     401: {
       description: "Unauthorized",
       content: {
-        "application/json": {
+        [mediaTypeFormat.json]: {
           schema: ErrorResponseSchema,
         },
       },
@@ -196,7 +197,7 @@ registry.registerPath({
     403: {
       description: "Forbidden - Admin only",
       content: {
-        "application/json": {
+        [mediaTypeFormat.json]: {
           schema: ErrorResponseSchema,
         },
       },
@@ -204,7 +205,7 @@ registry.registerPath({
     404: {
       description: "Category not found",
       content: {
-        "application/json": {
+        [mediaTypeFormat.json]: {
           schema: ErrorResponseSchema,
         },
       },
@@ -212,7 +213,7 @@ registry.registerPath({
     500: {
       description: "Internal server error",
       content: {
-        "application/json": {
+        [mediaTypeFormat.json]: {
           schema: ErrorResponseSchema,
         },
       },
@@ -235,7 +236,7 @@ registry.registerPath({
     200: {
       description: "Category deleted successfully",
       content: {
-        "application/json": {
+        [mediaTypeFormat.json]: {
           schema: SuccessResponseSchema,
         },
       },
@@ -243,7 +244,7 @@ registry.registerPath({
     401: {
       description: "Unauthorized",
       content: {
-        "application/json": {
+        [mediaTypeFormat.json]: {
           schema: ErrorResponseSchema,
         },
       },
@@ -251,7 +252,7 @@ registry.registerPath({
     403: {
       description: "Forbidden - Admin only",
       content: {
-        "application/json": {
+        [mediaTypeFormat.json]: {
           schema: ErrorResponseSchema,
         },
       },
@@ -259,7 +260,7 @@ registry.registerPath({
     404: {
       description: "Category not found",
       content: {
-        "application/json": {
+        [mediaTypeFormat.json]: {
           schema: ErrorResponseSchema,
         },
       },
@@ -267,7 +268,7 @@ registry.registerPath({
     500: {
       description: "Internal server error",
       content: {
-        "application/json": {
+        [mediaTypeFormat.json]: {
           schema: ErrorResponseSchema,
         },
       },

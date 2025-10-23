@@ -104,14 +104,15 @@ extendZodWithOpenApi(z);
 const generateOpenAPI = (moduleName, routePath = `/api/${moduleName}`) => {
   return `
 import { registry } from "@/lib/openapi";
+import { mediaTypeFormat, openAPITags } from "@/common/constants";
 
 // registry.register("${moduleName}", ${moduleName}Schema);
 registry.registerPath({
   method: "post",
-  path: "${routePath}",
+  path: "${routePath}", // use openAPITags basepath - Example: openAPITags.category.basepath
   description: "",
   summary: "",
-  tags: ["${moduleName}"],
+  tags: ["${moduleName}"], // use openAPITags name - Example: openAPITags.category.name
   responses: {
     200: {
       description: "${moduleName} retrieved successfully",
@@ -127,10 +128,10 @@ registry.registerPath({
 //  Full Example 
 // registry.registerPath({
 //   method: "get",
-//   path: "${routePath}",
+//   path: "${routePath}", // use openAPITags basepath - Example: openAPITags.category.basepath
 //   description: "",
 //   summary: "",
-//   tags: ["${moduleName}"],
+//   tags: ["${moduleName}"], // use openAPITags name - Example: openAPITags.category.name
 //   responses: {
 //     200: {
 //       description: "${moduleName} retrieved successfully",

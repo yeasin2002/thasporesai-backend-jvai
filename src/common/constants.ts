@@ -33,3 +33,10 @@ export const openAPITags = {
     },
   },
 };
+
+
+
+export const mediaTypeFormat = {
+  json: "application/json",
+  form: "multipart/form-data",
+};

@@ -11,10 +11,6 @@ import { job } from "@/api/job/job.route";
 import { location } from "@/api/location/location.route";
 
 // admin- dashboard routes
-import { dashboard } from "@/api/admin/dashboard/dashboard.route";
-import { adminJob } from "@/api/admin/job/job.route";
-import { payments } from "@/api/admin/payments/payments.route";
-import { settings } from "@/api/admin/settings/settings.route";
 import { adminUser } from "@/api/admin/user/user.route";
 
 import { connectDB, generateOpenAPIDocument } from "@/lib";
@@ -46,7 +42,11 @@ const openApiDocument = generateOpenAPIDocument();
 app.use("/swagger", swaggerUi.serve, swaggerUi.setup(openApiDocument));
 app.use(
   "/scaler",
-  apiReference({ theme: "deepSpace", content: openApiDocument })
+  apiReference({
+    theme: "deepSpace",
+    content: openApiDocument,
+    favicon: "/uploads/logo.png",
+  })
 );
 app.get("/api-docs.json", (_req, res) => {
   res.setHeader("Content-Type", "application/json");
@@ -62,11 +62,11 @@ app.use("/api/location", location);
 
 app.use("/api/admin/auth", authAdmin);
 // Protected admin routes (require admin authentication)
-app.use("/api/admin/dashboard", requireRole("admin"), dashboard);
 app.use("/api/admin/users", requireRole("admin"), adminUser);
-app.use("/api/admin/job", requireRole("admin"), adminJob);
-app.use("/api/admin/payments", requireRole("admin"), payments);
-app.use("/api/admin/settings", requireRole("admin"), settings);
+// app.use("/api/admin/dashboard", requireRole("admin"), dashboard);
+// app.use("/api/admin/job", requireRole("admin"), adminJob);
+// app.use("/api/admin/payments", requireRole("admin"), payments);
+// app.use("/api/admin/settings", requireRole("admin"), settings);
 
 app.use(notFoundHandler);
 app.use(errorHandler);

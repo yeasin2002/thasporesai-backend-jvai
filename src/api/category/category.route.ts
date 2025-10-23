@@ -39,13 +39,13 @@ category.post(
 	createCategory,
 );
 category.put(
-	"/:id",
-	requireAuth,
-	requireRole("admin"),
-	validateParams(CategoryIdSchema),
-	upload.single("icon"),
-	validateBody(UpdateCategorySchema),
-	updateCategory,
+  "/:id",
+  requireAuth,
+  validateParams(CategoryIdSchema),
+  requireRole("admin"),
+  upload.single("icon"),
+  validateBody(UpdateCategorySchema),
+  updateCategory
 );
 category.delete(
 	"/:id",
