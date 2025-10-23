@@ -48,7 +48,9 @@ For a module named `job`, the generator creates:
 ```
 src/api/job/
 ├── job.route.ts        # Express router
-├── job.service.ts      # Business logic request handlers
+├── services/           # Service handlers folder
+│   ├── index.ts        # Barrel export for all services
+│   └── example.service.ts  # Example service handler
 ├── job.validation.ts   # Zod validation schemas + TypeScript types
 └── job.openapi.ts      # OpenAPI documentation
 ```
@@ -60,12 +62,28 @@ For a sub-module `user` under parent `admin`, the generator creates:
 ```
 src/api/admin/user/
 ├── user.route.ts       # Express router (exports as 'adminUser')
-├── user.service.ts     # Business logic request handlers
+├── services/           # Service handlers folder
+│   ├── index.ts        # Barrel export for all services
+│   └── example.service.ts  # Example service handler
 ├── user.validation.ts  # Zod validation schemas + TypeScript types
 └── user.openapi.ts     # OpenAPI documentation
 ```
 
 **Note:** If the parent module doesn't exist, it will be created automatically.
+
+### Services Folder Structure
+
+The generator creates a `services/` folder to organize business logic:
+
+- **`index.ts`**: Exports all service handlers for easy importing
+- **`example.service.ts`**: Template service handler to get started
+- **Additional services**: Create new files like `login.service.ts`, `register.service.ts`, etc.
+
+**Benefits:**
+- Keeps modules organized and maintainable
+- Separates concerns (one file per action)
+- Easier to test individual services
+- Reduces file size and complexity
 
 ## Generated Files
 
@@ -73,19 +91,23 @@ src/api/admin/user/
 
 - Defines all HTTP endpoints (GET, POST, PUT, DELETE)
 - Integrates validation middleware
+- Imports service handlers from `services/` folder
 - Exports router as camelCase variable
-- Example endpoints:
-  - `GET /` - Get all items
-  - `POST /` - Create new item
-  - `PUT /:id` - Update item by ID
-  - `DELETE /:id` - Delete item by ID
+- Example: `import { login, register } from "./services";`
 
-### 2. `[module].service.ts` - Request Handlers
+### 2. `services/` folder - Business Logic
 
-- Contains business logic for each endpoint
+#### `services/index.ts` - Barrel Export
+
+- Exports all service handlers
+- Example: `export * from "./login.service";`
+
+#### `services/[action].service.ts` - Individual Handlers
+
+- Contains business logic for specific actions
 - Properly typed RequestHandler functions
 - Database operations using `db.[module]`
-- Consistent error handling
+- Consistent error handling using helper functions
 - Standard JSON response format:
   ```typescript
   {
@@ -95,7 +117,24 @@ src/api/admin/user/
   }
   ```
 
-### 3. `[module].schema.ts` - Validation & Types
+**Example service file:**
+
+```typescript
+import type { RequestHandler } from "express";
+import { sendInternalError, sendSuccess } from "@/helpers";
+
+export const login: RequestHandler = async (req, res) => {
+  try {
+    // Business logic here
+    return sendSuccess(res, 200, "Login successful", data);
+  } catch (error) {
+    console.log(error);
+    return sendInternalError(res, "Internal Server Error");
+  }
+};
+```
+
+### 3. `[module].validation.ts` - Validation & Types
 
 - Zod schemas with OpenAPI documentation
 - Runtime validation schemas
@@ -202,9 +241,16 @@ export const JobSchema = z.object({
 
 ### 5. Add Business Logic
 
-Customize the service handlers with specific logic:
+Create individual service files in the `services/` folder:
+
+**Example: `services/create-job.service.ts`**
 
 ```typescript
+import type { CreateJob } from "../job.validation";
+import { db } from "@/db";
+import { sendError, sendSuccess } from "@/helpers";
+import type { RequestHandler } from "express";
+
 export const createJob: RequestHandler<{}, any, CreateJob> = async (
   req,
   res
@@ -212,11 +258,7 @@ export const createJob: RequestHandler<{}, any, CreateJob> = async (
   try {
     // Add custom validation
     if (req.body.budget < 10) {
-      return res.status(400).json({
-        status: 400,
-        message: "Budget must be at least $10",
-        data: null,
-      });
+      return sendError(res, 400, "Budget must be at least $10");
     }
 
     // Add authentication context
@@ -226,20 +268,32 @@ export const createJob: RequestHandler<{}, any, CreateJob> = async (
       status: "open",
     });
 
-    res.status(201).json({
-      status: 201,
-      message: "Job created successfully",
-      data: job,
-    });
+    return sendSuccess(res, 201, "Job created successfully", job);
   } catch (error) {
     console.log(error);
-    res.status(500).json({
-      status: 500,
-      message: "Internal Server Error",
-      data: null,
-    });
+    return sendError(res, 500, "Internal Server Error");
   }
 };
+```
+
+**Then export in `services/index.ts`:**
+
+```typescript
+export * from "./create-job.service";
+export * from "./get-jobs.service";
+export * from "./update-job.service";
+export * from "./delete-job.service";
+```
+
+**Use in route file:**
+
+```typescript
+import { createJob, getJobs, updateJob, deleteJob } from "./services";
+
+job.post("/", validateBody(CreateJobSchema), createJob);
+job.get("/", getJobs);
+job.put("/:id", validateBody(UpdateJobSchema), updateJob);
+job.delete("/:id", deleteJob);
 ```
 
 ## Features

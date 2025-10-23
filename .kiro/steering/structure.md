@@ -9,20 +9,39 @@ providus_org/
 │   ├── lib/                # Utility libraries and helpers
 │   ├── helper/             # Helper functions
 │   ├── middleware/         # Express middleware
+│   ├── common/             # Common constants and utilities
+│   │   └── constants.ts    # Centralized API tags and paths
 │   ├── schema/             # Shared schemas
 │   ├── api/                # API route handlers
 │   │   ├── auth/           # Authentication module
 │   │   │   ├── auth.route.ts
-│   │   │   ├── auth.service.ts
+│   │   │   ├── services/   # Service handlers (business logic)
+│   │   │   │   ├── index.ts          # Export all services
+│   │   │   │   ├── login.service.ts
+│   │   │   │   ├── register.service.ts
+│   │   │   │   ├── forgot-password.service.ts
+│   │   │   │   └── reset-password.service.ts
 │   │   │   ├── auth.validation.ts
 │   │   │   └── auth.openapi.ts
 │   │   ├── category/       # Category module
 │   │   ├── job/            # Job module
 │   │   ├── location/       # Location module
 │   │   ├── admin/          # Admin module (nested structure)
+│   │   │   ├── auth-admin/ # Admin authentication sub-module
+│   │   │   │   ├── auth-admin.route.ts
+│   │   │   │   ├── services/
+│   │   │   │   │   ├── index.ts
+│   │   │   │   │   └── login.service.ts
+│   │   │   │   ├── auth-admin.validation.ts
+│   │   │   │   └── auth-admin.openapi.ts
 │   │   │   ├── user/       # Admin user management sub-module
 │   │   │   │   ├── user.route.ts
-│   │   │   │   ├── user.service.ts
+│   │   │   │   ├── services/
+│   │   │   │   │   ├── index.ts
+│   │   │   │   │   ├── get-all-users.service.ts
+│   │   │   │   │   ├── get-user.service.ts
+│   │   │   │   │   ├── delete-user.service.ts
+│   │   │   │   │   └── suspend-user.service.ts
 │   │   │   │   ├── user.validation.ts
 │   │   │   │   └── user.openapi.ts
 │   │   │   ├── dashboard/  # Admin dashboard sub-module
@@ -85,12 +104,33 @@ Each API module follows this pattern:
 - Example: `export const auth: Router = express.Router();`
 - For nested modules: `export const adminUser: Router = express.Router();`
 
-#### `[module].service.ts`
+#### `services/` folder
 
-- Business logic as RequestHandler functions
-- Database operations
-- Error handling
-- Response formatting
+- Contains individual service handler files
+- Each file handles specific business logic (e.g., `login.service.ts`, `register.service.ts`)
+- Keeps code organized and maintainable
+- **`index.ts`**: Barrel export file that exports all services
+- **`[action].service.ts`**: Individual service handlers as RequestHandler functions
+
+**Benefits of services folder:**
+
+- Better code organization for large modules
+- Easier to locate specific functionality
+- Reduces file size and complexity
+- Improves maintainability and testability
+- Clear separation of concerns
+
+**Example structure:**
+
+```
+auth/
+├── services/
+│   ├── index.ts                    # export * from "./login.service"
+│   ├── login.service.ts            # export const login: RequestHandler
+│   ├── register.service.ts         # export const register: RequestHandler
+│   ├── forgot-password.service.ts  # export const forgotPassword: RequestHandler
+│   └── reset-password.service.ts   # export const resetPassword: RequestHandler
+```
 
 #### `[module].validation.ts`
 
@@ -102,6 +142,7 @@ Each API module follows this pattern:
 
 - Registers schemas with OpenAPI registry
 - Registers route paths with full documentation
+- Uses centralized constants from `@/common/constants`
 - Must be imported at the top of the corresponding `.route.ts` file
 - Example: `import "./user.openapi";`
 
@@ -115,7 +156,12 @@ For complex features like admin panel, use nested modules:
 src/api/admin/
 ├── user/           # Sub-module for user management
 │   ├── user.route.ts
-│   ├── user.service.ts
+│   ├── services/
+│   │   ├── index.ts
+│   │   ├── get-all-users.service.ts
+│   │   ├── get-user.service.ts
+│   │   ├── delete-user.service.ts
+│   │   └── suspend-user.service.ts
 │   ├── user.validation.ts
 │   └── user.openapi.ts
 ├── dashboard/      # Sub-module for dashboard

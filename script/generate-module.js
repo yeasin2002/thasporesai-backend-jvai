@@ -64,22 +64,33 @@ export const ${camelName}: Router = express.Router();
 `;
 };
 
-// Generate service template
-const generateService = (_moduleName) => {
-  return `
-import type { RequestHandler } from "express";
+// Generate service index template
+const generateServiceIndex = () => {
+  return `// Export all service handlers
+// Example:
+// export * from "./login";
+// export * from "./register";
+`;
+};
+
+// Generate example service template
+const generateExampleService = (moduleName) => {
+  return `import type { RequestHandler } from "express";
 import { sendInternalError, sendSuccess } from "@/helpers";
 
-// TODO: Add your request handlers here
-// Example:
- export const handler: RequestHandler = async (req, res) => {
-   try {
-		return sendSuccess(res, "Success", null);
-   } catch (error) {
-     console.log(error);
-		return sendInternalError(res, "Internal Server Error");
-   }
- };
+// TODO: Implement your service handler
+// Example: Get all ${moduleName}
+export const getAll${toPascalCase(
+    moduleName
+  )}: RequestHandler = async (req, res) => {
+  try {
+    // Add your business logic here
+    return sendSuccess(res, 200, "Success", null);
+  } catch (error) {
+    console.log(error);
+    return sendInternalError(res, "Internal Server Error");
+  }
+};
 `;
 };
 
@@ -242,15 +253,20 @@ async function main() {
         .substring(1)}`
     );
 
+    // Create services directory
+    const servicesPath = join(modulePath, "services");
+    await mkdir(servicesPath, { recursive: true });
+    console.log(
+      `✅ Created directory: ${servicesPath
+        .replace(process.cwd(), "")
+        .substring(1)}`
+    );
+
     // Generate files
     const files = [
       {
         name: `${cleanModuleName}.route.ts`,
         content: generateRoute(cleanModuleName),
-      },
-      {
-        name: `${cleanModuleName}.service.ts`,
-        content: generateService(cleanModuleName),
       },
       {
         name: `${cleanModuleName}.validation.ts`,
@@ -262,8 +278,29 @@ async function main() {
       },
     ];
 
+    // Generate service files
+    const serviceFiles = [
+      {
+        name: "index.ts",
+        content: generateServiceIndex(),
+      },
+      {
+        name: "example.service.ts",
+        content: generateExampleService(cleanModuleName),
+      },
+    ];
+
+    // Create main module files
     for (const file of files) {
       const filePath = join(modulePath, file.name);
+      await writeFile(filePath, file.content, "utf-8");
+      const relativePath = filePath.replace(process.cwd(), "").substring(1);
+      console.log(`✅ Created file: ${relativePath}`);
+    }
+
+    // Create service files
+    for (const file of serviceFiles) {
+      const filePath = join(servicesPath, file.name);
       await writeFile(filePath, file.content, "utf-8");
       const relativePath = filePath.replace(process.cwd(), "").substring(1);
       console.log(`✅ Created file: ${relativePath}`);
@@ -276,18 +313,21 @@ async function main() {
     console.log(`\n🎉 Module "${displayPath}" created successfully!`);
     console.log(`\n📋 Next steps:`);
     console.log(`   1. Define schemas in ${cleanModuleName}.validation.ts`);
-    console.log(`   2. Add handlers in ${cleanModuleName}.service.ts`);
-    console.log(`   3. Define routes in ${cleanModuleName}.route.ts`);
+    console.log(
+      `   2. Add service handlers in services/ folder (e.g., login.service.ts, register.service.ts)`
+    );
+    console.log(`   3. Export services in services/index.ts`);
+    console.log(`   4. Define routes in ${cleanModuleName}.route.ts`);
 
     if (subModuleFlag) {
       console.log(
-        `   4. Register route in parent or src/app.ts: app.use("${routePath}", ${toCamelCase(
+        `   5. Register route in parent or src/app.ts: app.use("${routePath}", ${toCamelCase(
           cleanModuleName
         )})\n`
       );
     } else {
       console.log(
-        `   4. Register route in src/app.ts: app.use("${routePath}", ${toCamelCase(
+        `   5. Register route in src/app.ts: app.use("${routePath}", ${toCamelCase(
           cleanModuleName
         )})\n`
       );
