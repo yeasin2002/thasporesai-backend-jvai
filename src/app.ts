@@ -13,6 +13,9 @@ import { location } from "@/api/location/location.route";
 // admin- dashboard routes
 import { adminUser } from "@/api/admin/user/user.route";
 
+// common routes
+import { imgUpload } from "@/common/img-upload/img-upload.route";
+
 import { connectDB, generateOpenAPIDocument } from "@/lib";
 import { errorHandler, notFoundHandler, requireRole } from "@/middleware";
 import { authAdmin } from "./api/admin/auth-admin/auth-admin.route";
@@ -58,8 +61,10 @@ app.use("/api/category", category);
 app.use("/api/job", job);
 app.use("/api/location", location);
 
+// Common routes
+app.use("/api/upload", imgUpload);
 
-
+// Admin routes
 app.use("/api/admin/auth", authAdmin);
 // Protected admin routes (require admin authentication)
 app.use("/api/admin/users", requireRole("admin"), adminUser);
