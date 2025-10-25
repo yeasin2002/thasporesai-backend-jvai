@@ -1,4 +1,5 @@
 import { registry } from "@/lib/openapi";
+import { mediaTypeFormat, openAPITags } from "@/shared/constants";
 import {
   ErrorResponseSchema,
   ImageUploadResponseSchema,
@@ -11,14 +12,14 @@ registry.register("ImageUploadErrorResponse", ErrorResponseSchema);
 // POST /api/upload - Upload image
 registry.registerPath({
   method: "post",
-  path: "/api/upload",
+  path: openAPITags.common.imag_upload.basepath,
   description: "Upload a single image file and get the URL",
-  summary: "Upload image",
-  tags: ["Image Upload"],
+  summary: "Upload images",
+  tags: [openAPITags.common.imag_upload.name],
   requestBody: {
     required: true,
     content: {
-      "multipart/form-data": {
+      [mediaTypeFormat.form]: {
         schema: {
           type: "object",
           properties: {
@@ -37,7 +38,7 @@ registry.registerPath({
     200: {
       description: "Image uploaded successfully",
       content: {
-        "application/json": {
+        [mediaTypeFormat.json]: {
           schema: ImageUploadResponseSchema,
         },
       },
@@ -45,7 +46,7 @@ registry.registerPath({
     400: {
       description: "No image file provided or invalid file type",
       content: {
-        "application/json": {
+        [mediaTypeFormat.json]: {
           schema: ErrorResponseSchema,
         },
       },
@@ -53,7 +54,7 @@ registry.registerPath({
     500: {
       description: "Internal server error",
       content: {
-        "application/json": {
+        [mediaTypeFormat.json]: {
           schema: ErrorResponseSchema,
         },
       },

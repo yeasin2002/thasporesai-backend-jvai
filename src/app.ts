@@ -14,11 +14,11 @@ import { location } from "@/api/location/location.route";
 import { adminUser } from "@/api/admin/user/user.route";
 
 // common routes
-import { imgUpload } from "@/api/img-upload/img-upload.route";
 
 import { connectDB, generateOpenAPIDocument } from "@/lib";
 import { errorHandler, notFoundHandler, requireRole } from "@/middleware";
 import { authAdmin } from "./api/admin/auth-admin/auth-admin.route";
+import { common } from "./api/common/common.route";
 import { getLocalIP } from "./lib/get-my-ip";
 
 const app = express();
@@ -62,7 +62,7 @@ app.use("/api/job", job);
 app.use("/api/location", location);
 
 // Common routes
-app.use("/api/upload", imgUpload);
+app.use("/api/common", common);
 
 // Admin routes
 app.use("/api/admin/auth", authAdmin);

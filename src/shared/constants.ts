@@ -6,6 +6,7 @@ export const openAPITags = {
   location: { name: "location", basepath: "/api/location" },
   payment: { name: "payment", basepath: "/api/payment" },
   setting: { name: "setting", basepath: "/api/setting" },
+  common: { imag_upload: { name: "common", basepath: "/api/common/upload" } },
   admin: {
     auth: {
       name: "Admin - Authentication",
@@ -33,8 +34,6 @@ export const openAPITags = {
     },
   },
 };
-
-
 
 export const mediaTypeFormat = {
   json: "application/json",
