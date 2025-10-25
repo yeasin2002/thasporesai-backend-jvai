@@ -6,6 +6,14 @@
 providus_org/
 ├── src/                    # Source code
 │   ├── db/                 # Database connection and models
+│     ├── models/             # Database connection and models
+│       ├── job.model.ts             
+│       ├── category.model.ts             
+│       ├── location.model.ts             
+│       ├── review.model.ts             
+│       ├── user.model.ts             
+│       ├── job-application-request.model.ts             
+│       ├── [model].model.ts             
 │   ├── lib/                # Utility libraries and helpers
 │   ├── helper/             # Helper functions
 │   ├── middleware/         # Express middleware
