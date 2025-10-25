@@ -1,4 +1,5 @@
 import { sendError, sendSuccess } from "@/helpers";
+import { getFileUrl } from "@/lib/multer";
 import type { RequestHandler } from "express";
 
 /**
@@ -15,8 +16,9 @@ export const uploadImage: RequestHandler = async (req, res) => {
     const baseUrl =
       process.env.API_BASE_URL || `${req.protocol}://${req.get("host")}`;
 
-    // Construct the image URL
-    const imageUrl = `${baseUrl}/uploads/${req.file.filename}`;
+    // Get the file URL using helper function
+    const relativeUrl = getFileUrl(req.file.filename);
+    const imageUrl = `${baseUrl}${relativeUrl}`;
 
     return sendSuccess(res, 200, "Image uploaded successfully", {
       url: imageUrl,

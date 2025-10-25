@@ -29,21 +29,22 @@ const fileFilter = (
 ) => {
 	// Accept images only
 	const allowedMimes = [
-		"image/jpeg",
-		"image/jpg",
-		"image/png",
-		"image/gif",
-		"image/webp",
-	];
+    "image/jpeg",
+    "image/jpg",
+    "image/png",
+    "image/gif",
+    "image/webp",
+    "image/svg+xml",
+  ];
 
 	if (allowedMimes.includes(file.mimetype)) {
 		cb(null, true);
 	} else {
 		cb(
-			new Error(
-				"Invalid file type. Only JPEG, PNG, GIF, and WebP images are allowed.",
-			),
-		);
+      new Error(
+        "Invalid file type. Only JPEG, PNG, GIF, WebP, and SVG images are allowed."
+      )
+    );
 	}
 };
 

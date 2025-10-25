@@ -1,4 +1,4 @@
-import { Schema, model, type Document, type Types } from "mongoose";
+import { Schema, Types, model, type Document } from "mongoose";
 
 export interface User {
   role: "contractor" | "customer" | "admin";
@@ -9,7 +9,7 @@ export interface User {
   password: string;
   phone?: string;
   bio?: string;
-  location?: string;
+  location?: Types.ObjectId[];
   availability?: Date;
   is_verified: boolean;
   isSuspend: boolean;
@@ -59,16 +59,13 @@ const userSchema = new Schema<UserDocument>(
     password: { type: String, required: true },
     phone: { type: String },
     bio: { type: String },
-    location: { type: String },
     availability: { type: Date },
     is_verified: { type: Boolean, default: false },
     isSuspend: { type: Boolean, default: false },
-    category: [
-      {
-        type: Schema.Types.ObjectId,
-        ref: "Category",
-      },
-    ],
+
+    location: [{ type: Types.ObjectId, ref: "Location" }],
+    category: [{ type: Schema.Types.ObjectId, ref: "Category" }],
+
     // Contractor specific fields
     skills: [{ type: String }],
     experience: [
