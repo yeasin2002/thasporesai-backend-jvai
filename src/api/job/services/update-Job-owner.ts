@@ -55,7 +55,8 @@ export const updateJob: RequestHandler<
       })
       .populate("category", "name icon")
       .populate("customerId", "name email")
-      .populate("contractorId", "name email");
+      .populate("contractorId", "name email")
+      .populate("location", "name state coordinates");
 
     res.status(200).json({
       status: 200,

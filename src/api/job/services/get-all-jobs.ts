@@ -64,7 +64,7 @@ export const getAllJobs: RequestHandler<
         .find(query)
         .populate("category", "name icon")
         .populate("customerId", "name email")
-        .populate("contractorId", "name email")
+        .populate("location", "name state coordinates")
         .skip(skip)
         .limit(limitNum)
         .sort({ createdAt: -1 }),

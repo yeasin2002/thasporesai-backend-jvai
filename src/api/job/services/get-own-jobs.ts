@@ -10,6 +10,7 @@ export const getMyJobs: RequestHandler = async (req, res) => {
       .find({ customerId })
       .populate("category", "name icon")
       .populate("contractorId", "name email")
+      .populate("location", "name state coordinates")
       .sort({ createdAt: -1 });
 
     res.status(200).json({

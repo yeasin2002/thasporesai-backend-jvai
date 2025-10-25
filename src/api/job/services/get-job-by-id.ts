@@ -10,7 +10,7 @@ export const getJobById: RequestHandler = async (req, res) => {
       .findById(id)
       .populate("category", "name icon description")
       .populate("customerId", "name email phone")
-      .populate("contractorId", "name email phone");
+      .populate("location", "name state coordinates");
 
     if (!job) {
       return res.status(404).json({

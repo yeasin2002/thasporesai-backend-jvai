@@ -41,7 +41,8 @@ export const createJob: RequestHandler<unknown, unknown, CreateJob> = async (
     const populatedJob = await db.job
       .findById(job._id)
       .populate("category", "name icon")
-      .populate("customerId", "name email");
+      .populate("customerId", "name email")
+      .populate("location", "name state coordinates");
 
     res.status(201).json({
       status: 201,
