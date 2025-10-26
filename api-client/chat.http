@@ -1,0 +1,27 @@
+### Chat API Test File
+### Use with REST Client extension in VS Code
+
+@baseUrl = http://localhost:4000
+@token = YOUR_JWT_TOKEN_HERE
+
+### Get all conversations
+GET {{baseUrl}}/api/chat/conversations
+Authorization: Bearer {{token}}
+
+### Create a new conversation
+POST {{baseUrl}}/api/chat/conversations
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "participantId": "USER_ID_HERE",
+  "jobId": "JOB_ID_HERE"
+}
+
+### Get messages for a conversation
+GET {{baseUrl}}/api/chat/conversations/CONVERSATION_ID_HERE/messages?page=1&limit=50
+Authorization: Bearer {{token}}
+
+### Get messages - page 2
+GET {{baseUrl}}/api/chat/conversations/CONVERSATION_ID_HERE/messages?page=2&limit=50
+Authorization: Bearer {{token}}
