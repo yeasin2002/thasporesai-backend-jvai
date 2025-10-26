@@ -53,35 +53,35 @@ export const JobSchema = z
 
 // Create Job Schema (customer creates job)
 export const CreateJobSchema = z
-  .object({
-    title: z
-      .string()
-      .min(5, "Title must be at least 5 characters")
-      .openapi({ description: "Job title" }),
-    category: z
-      .array(z.string())
-      .min(1, "At least one category is required")
-      .openapi({ description: "Array of category IDs" }),
-    description: z
-      .string()
-      .min(20, "Description must be at least 20 characters")
-      .openapi({ description: "Job description" }),
-    location: z
-      .string()
-      .min(3, "Location is required")
-      .openapi({ description: "Job location" }),
-    budget: z
-      .number()
-      .positive("Budget must be positive")
-      .openapi({ description: "Job budget" }),
-    date: z
-      .string()
-      .or(z.date())
-      .optional()
-      .openapi({ description: "Job date" }),
-    coverImg: z.string().openapi({ description: "Cover image URL" }),
-  })
-  .openapi("CreateJob");
+	.object({
+		title: z
+			.string()
+			.min(5, "Title must be at least 5 characters")
+			.openapi({ description: "Job title" }),
+		category: z
+			.array(z.string())
+			.min(1, "At least one category is required")
+			.openapi({ description: "Array of category IDs" }),
+		description: z
+			.string()
+			.min(20, "Description must be at least 20 characters")
+			.openapi({ description: "Job description" }),
+		location: z
+			.string()
+			.min(3, "Location is required")
+			.openapi({ description: "Job location" }),
+		budget: z
+			.number()
+			.positive("Budget must be positive")
+			.openapi({ description: "Job budget" }),
+		date: z
+			.string()
+			.or(z.date())
+			.optional()
+			.openapi({ description: "Job date" }),
+		coverImg: z.string().openapi({ description: "Cover image URL" }),
+	})
+	.openapi("CreateJob");
 
 // Update Job Schema
 export const UpdateJobSchema = z

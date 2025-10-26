@@ -30,31 +30,31 @@ app.use("/uploads", express.static("uploads"));
 app.use(morgan("dev"));
 
 app.use(
-  cors({
-    origin: ["http://localhost:5173", "http://localhost:5173", "*"],
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    credentials: true,
-  })
+	cors({
+		origin: ["http://localhost:5173", "http://localhost:5173", "*"],
+		methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+		credentials: true,
+	}),
 );
 
 app.get("/", (_req, res) => {
-  res.status(200).send("OK");
+	res.status(200).send("OK");
 });
 
 // OpenAPI documentation
 const openApiDocument = generateOpenAPIDocument();
 app.use("/swagger", swaggerUi.serve, swaggerUi.setup(openApiDocument));
 app.use(
-  "/scaler",
-  apiReference({
-    theme: "deepSpace",
-    content: openApiDocument,
-    favicon: "/uploads/logo.png",
-  })
+	"/scaler",
+	apiReference({
+		theme: "deepSpace",
+		content: openApiDocument,
+		favicon: "/uploads/logo.png",
+	}),
 );
 app.get("/api-docs.json", (_req, res) => {
-  res.setHeader("Content-Type", "application/json");
-  res.send(openApiDocument);
+	res.setHeader("Content-Type", "application/json");
+	res.send(openApiDocument);
 });
 
 app.use("/api/auth", auth);
@@ -80,11 +80,11 @@ app.use(errorHandler);
 
 const port = process.env.PORT || 4000;
 app.listen(port, async () => {
-  await connectDB();
+	await connectDB();
 
-  console.log(`🚀 Server is running on port http://localhost:${port}`);
-  console.log(`✨ Server is running on port http://${getLocalIP()}:${port} \n`);
+	console.log(`🚀 Server is running on port http://localhost:${port}`);
+	console.log(`✨ Server is running on port http://${getLocalIP()}:${port} \n`);
 
-  console.log(`✍️ Swagger doc: http://localhost:${port}/swagger`);
-  console.log(`📋 Scaler doc: http://localhost:${port}/scaler \n`);
+	console.log(`✍️ Swagger doc: http://localhost:${port}/swagger`);
+	console.log(`📋 Scaler doc: http://localhost:${port}/scaler \n`);
 });

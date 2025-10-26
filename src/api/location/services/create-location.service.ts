@@ -5,25 +5,25 @@ import type { RequestHandler } from "express";
 
 // Create location
 export const createLocation: RequestHandler<{}, any, CreateLocation> = async (
-  req,
-  res
+	req,
+	res,
 ) => {
-  try {
-    // Check if location already exists
-    const existingLocation = await db.location.findOne({
-      name: req.body.name,
-      state: req.body.state,
-    });
+	try {
+		// Check if location already exists
+		const existingLocation = await db.location.findOne({
+			name: req.body.name,
+			state: req.body.state,
+		});
 
-    if (existingLocation) {
-      return sendError(res, 400, "Location already exists");
-    }
+		if (existingLocation) {
+			return sendError(res, 400, "Location already exists");
+		}
 
-    const location = await db.location.create(req.body);
+		const location = await db.location.create(req.body);
 
-    return sendSuccess(res, 201, "Location created successfully", location);
-  } catch (error) {
-    console.log(error);
-    return sendError(res, 500, "Internal Server Error");
-  }
+		return sendSuccess(res, 201, "Location created successfully", location);
+	} catch (error) {
+		console.log(error);
+		return sendError(res, 500, "Internal Server Error");
+	}
 };

@@ -117,68 +117,68 @@ export const UserDataSchema = z
 
 // Auth Response Schema
 export const AuthResponseSchema = z
-  .object({
-    status: z.number(),
-    message: z.string(),
-    success: z.boolean(),
-    data: z.object({
-      user: UserDataSchema,
-      accessToken: z.string().openapi({ description: "JWT access token" }),
-      refreshToken: z.string().openapi({ description: "JWT refresh token" }),
-    }),
-  })
-  .openapi("AuthResponse");
+	.object({
+		status: z.number(),
+		message: z.string(),
+		success: z.boolean(),
+		data: z.object({
+			user: UserDataSchema,
+			accessToken: z.string().openapi({ description: "JWT access token" }),
+			refreshToken: z.string().openapi({ description: "JWT refresh token" }),
+		}),
+	})
+	.openapi("AuthResponse");
 
 // Token Response Schema
 export const TokenResponseSchema = z
-  .object({
-    status: z.number(),
-    message: z.string(),
-    success: z.boolean(),
-    data: z.object({
-      accessToken: z.string().openapi({ description: "JWT access token" }),
-      refreshToken: z.string().openapi({ description: "JWT refresh token" }),
-    }),
-  })
-  .openapi("TokenResponse");
+	.object({
+		status: z.number(),
+		message: z.string(),
+		success: z.boolean(),
+		data: z.object({
+			accessToken: z.string().openapi({ description: "JWT access token" }),
+			refreshToken: z.string().openapi({ description: "JWT refresh token" }),
+		}),
+	})
+	.openapi("TokenResponse");
 
 // User Response Schema
 export const UserResponseSchema = z
-  .object({
-    status: z.number(),
-    message: z.string(),
-    success: z.boolean(),
-    data: UserDataSchema,
-  })
-  .openapi("UserResponse");
+	.object({
+		status: z.number(),
+		message: z.string(),
+		success: z.boolean(),
+		data: UserDataSchema,
+	})
+	.openapi("UserResponse");
 
 // Success Response Schema
 export const SuccessResponseSchema = z
-  .object({
-    status: z.number(),
-    message: z.string(),
-    success: z.boolean(),
-    data: z.null(),
-  })
-  .openapi("SuccessResponse");
+	.object({
+		status: z.number(),
+		message: z.string(),
+		success: z.boolean(),
+		data: z.null(),
+	})
+	.openapi("SuccessResponse");
 
 // Error Response Schema
 export const ErrorResponseSchema = z
-  .object({
-    status: z.number(),
-    message: z.string(),
-    data: z.null().optional(),
-    success: z.boolean(),
-    errors: z
-      .array(
-        z.object({
-          path: z.string(),
-          message: z.string(),
-        })
-      )
-      .optional(),
-  })
-  .openapi("ErrorResponse");
+	.object({
+		status: z.number(),
+		message: z.string(),
+		data: z.null().optional(),
+		success: z.boolean(),
+		errors: z
+			.array(
+				z.object({
+					path: z.string(),
+					message: z.string(),
+				}),
+			)
+			.optional(),
+	})
+	.openapi("ErrorResponse");
 
 // Type exports
 export type Register = z.infer<typeof RegisterSchema>;

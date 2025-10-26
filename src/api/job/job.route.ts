@@ -1,29 +1,29 @@
 import "./job.openapi";
 
 import {
-  optionalAuth,
-  requireAuth,
-  requireRole,
+	optionalAuth,
+	requireAuth,
+	requireRole,
 } from "@/middleware/auth.middleware";
 import {
-  validateBody,
-  validateParams,
-  validateQuery,
+	validateBody,
+	validateParams,
+	validateQuery,
 } from "@/middleware/validation.middleware";
 import express, { Router } from "express";
 import {
-  CreateJobSchema,
-  JobIdSchema,
-  SearchJobSchema,
-  UpdateJobSchema,
+	CreateJobSchema,
+	JobIdSchema,
+	SearchJobSchema,
+	UpdateJobSchema,
 } from "./job.validation";
 import {
-  createJob,
-  deleteJob,
-  getAllJobs,
-  getJobById,
-  getMyJobs,
-  updateJob,
+	createJob,
+	deleteJob,
+	getAllJobs,
+	getJobById,
+	getMyJobs,
+	updateJob,
 } from "./services";
 
 export const job: Router = express.Router();
@@ -35,19 +35,19 @@ job.get("/:id", validateParams(JobIdSchema), getJobById);
 // Customer routes (authenticated)
 job.get("/my/jobs", requireAuth, requireRole("customer"), getMyJobs);
 job.post(
-  "/",
-  requireAuth,
-  requireRole("customer"),
-  validateBody(CreateJobSchema),
-  createJob
+	"/",
+	requireAuth,
+	requireRole("customer"),
+	validateBody(CreateJobSchema),
+	createJob,
 );
 
 // Owner or Admin routes
 job.put(
-  "/:id",
-  requireAuth,
-  validateParams(JobIdSchema),
-  validateBody(UpdateJobSchema),
-  updateJob
+	"/:id",
+	requireAuth,
+	validateParams(JobIdSchema),
+	validateBody(UpdateJobSchema),
+	updateJob,
 );
 job.delete("/:id", requireAuth, validateParams(JobIdSchema), deleteJob);

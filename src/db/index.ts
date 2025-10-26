@@ -6,10 +6,10 @@ import { Review } from "./models/review.model";
 import { User } from "./models/user.model";
 
 export const db = {
-  user: User,
-  category: Category,
-  job: Job,
-  review: Review,
-  location: Location,
-  jobApplicationRequest: JobApplicationRequest,
+	user: User,
+	category: Category,
+	job: Job,
+	review: Review,
+	location: Location,
+	jobApplicationRequest: JobApplicationRequest,
 };

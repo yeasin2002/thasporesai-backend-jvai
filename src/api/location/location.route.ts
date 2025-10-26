@@ -6,17 +6,17 @@ import {
 } from "@/middleware/validation.middleware";
 import express, { type Router } from "express";
 import {
-  CreateLocationSchema,
-  LocationIdSchema,
-  UpdateLocationSchema,
+	CreateLocationSchema,
+	LocationIdSchema,
+	UpdateLocationSchema,
 } from "./location.validation";
 import {
-  createLocation,
-  deleteLocation,
-  getAllLocations,
-  getLocationById,
-  seedLocations,
-  updateLocation,
+	createLocation,
+	deleteLocation,
+	getAllLocations,
+	getLocationById,
+	seedLocations,
+	updateLocation,
 } from "./services";
 
 export const location: Router = express.Router();
