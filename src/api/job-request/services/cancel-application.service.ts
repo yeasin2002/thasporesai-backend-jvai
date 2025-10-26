@@ -4,7 +4,7 @@ import type { RequestHandler } from "express";
 
 /**
  * Cancel own job application (Contractor only)
- * DELETE /api/job/applications/:applicationId
+ * DELETE /api/job-request/:applicationId
  */
 export const cancelApplication: RequestHandler = async (req, res) => {
   try {

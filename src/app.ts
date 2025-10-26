@@ -7,6 +7,7 @@ import swaggerUi from "swagger-ui-express";
 
 import { auth } from "@/api/auth/auth.route";
 import { category } from "@/api/category/category.route";
+import { jobRequest } from "@/api/job-request/job-request.route";
 import { job } from "@/api/job/job.route";
 import { location } from "@/api/location/location.route";
 
@@ -57,15 +58,16 @@ app.get("/api-docs.json", (_req, res) => {
 });
 
 app.use("/api/auth", auth);
-app.use("/api/category", category);
 app.use("/api/job", job);
-app.use("/api/location", location);
+app.use("/api/job-request", jobRequest);
 
-// Common routes
+app.use("/api/category", category);
+app.use("/api/location", location);
 app.use("/api/common", common);
 
 // Admin routes
 app.use("/api/admin/auth", authAdmin);
+
 // Protected admin routes (require admin authentication)
 app.use("/api/admin/users", requireRole("admin"), adminUser);
 // app.use("/api/admin/dashboard", requireRole("admin"), dashboard);

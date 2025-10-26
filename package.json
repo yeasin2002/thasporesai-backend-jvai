@@ -13,7 +13,8 @@
     "check": "oxlint",
     "ruler:apply": "pnpm dlx @intellectronica/ruler@latest apply --local-only",
     "generate:module": "node script/generate-module.js",
-    "format": "biome format --write ./src"
+    "format": "biome format --write ./src",
+    "lint": "bunx biome lint --write ./src"
   },
   "dependencies": {
     "@asteasolutions/zod-to-openapi": "^8.1.0",

@@ -4,11 +4,11 @@ import type { RequestHandler } from "express";
 
 /**
  * Get all applications for a specific job (Customer only)
- * GET /api/job/:id/applications
+ * GET /api/job-request/job/:jobId
  */
 export const getJobApplications: RequestHandler = async (req, res) => {
   try {
-    const jobId = req.params.id;
+    const jobId = req.params.jobId;
     const userId = req.user?.userId;
 
     if (!userId) {

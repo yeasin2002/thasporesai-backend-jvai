@@ -4,7 +4,7 @@ import type { RequestHandler } from "express";
 
 /**
  * Get contractor's own job applications
- * GET /api/job/my/applications
+ * GET /api/job-request/my
  */
 export const getMyApplications: RequestHandler = async (req, res) => {
   try {
@@ -21,7 +21,7 @@ export const getMyApplications: RequestHandler = async (req, res) => {
       .populate({
         path: "job",
         populate: {
-          path: "customer",
+          path: "customerId",
           select: "full_name email profile_img",
         },
       })

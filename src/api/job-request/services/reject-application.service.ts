@@ -4,7 +4,7 @@ import type { RequestHandler } from "express";
 
 /**
  * Reject a job application (Customer only)
- * PATCH /api/job/applications/:applicationId/reject
+ * PATCH /api/job-request/:applicationId/reject
  */
 export const rejectApplication: RequestHandler = async (req, res) => {
   try {

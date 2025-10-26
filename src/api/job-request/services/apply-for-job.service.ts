@@ -4,11 +4,11 @@ import type { RequestHandler } from "express";
 
 /**
  * Contractor applies for a job
- * POST /api/job/apply/:id
+ * POST /api/job-request/apply/:jobId
  */
-export const RequestForJobByContractor: RequestHandler = async (req, res) => {
+export const applyForJob: RequestHandler = async (req, res) => {
   try {
-    const jobId = req.params.id;
+    const jobId = req.params.jobId;
     const contractorId = req.user?.userId;
     const { message } = req.body;
 

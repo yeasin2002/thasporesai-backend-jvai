@@ -2,6 +2,7 @@ export const openAPITags = {
   authentication: { name: "Authentication", basepath: "/api/auth" },
   user: { name: "user", basepath: "/api/user" },
   job: { name: "job", basepath: "/api/job" },
+  job_request: { name: "Job Application", basepath: "/api/job-request" },
   category: { name: "category", basepath: "/api/category" },
   location: { name: "location", basepath: "/api/location" },
   payment: { name: "payment", basepath: "/api/payment" },
