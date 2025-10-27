@@ -23,6 +23,10 @@ export const JobSchema = z
 			.min(20, "Description must be at least 20 characters")
 			.openapi({ description: "Job description" }),
 		location: objectIdSchema.openapi({ description: "Job location ID" }),
+		address: z
+			.string()
+			.min(5, "Address must be at least 5 characters")
+			.openapi({ description: "Job address" }),
 		budget: z
 			.number()
 			.positive("Budget must be positive")
@@ -65,6 +69,10 @@ export const CreateJobSchema = z
 			.min(20, "Description must be at least 20 characters")
 			.openapi({ description: "Job description" }),
 		location: objectIdSchema.openapi({ description: "Job location ID" }),
+		address: z
+			.string()
+			.min(5, "Address must be at least 5 characters")
+			.openapi({ description: "Job address" }),
 		budget: z
 			.number()
 			.positive("Budget must be positive")
@@ -91,6 +99,10 @@ export const UpdateJobSchema = z
 			.min(20, "Description must be at least 20 characters")
 			.optional(),
 		location: objectIdSchema.optional(),
+		address: z
+			.string()
+			.min(5, "Address must be at least 5 characters")
+			.optional(),
 		budget: z.number().positive("Budget must be positive").optional(),
 		date: z.string().or(z.date()).optional(),
 		coverImg: z.string().url("Invalid image URL").optional(),

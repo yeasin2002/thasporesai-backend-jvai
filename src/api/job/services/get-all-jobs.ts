@@ -1,8 +1,8 @@
 import { db } from "@/db";
 import {
-  exceptionErrorHandler,
-  sendSuccess,
-  validatePagination,
+	exceptionErrorHandler,
+	sendSuccess,
+	validatePagination,
 } from "@/helpers";
 import type { RequestHandler } from "express";
 import type { SearchJob } from "../job.validation";

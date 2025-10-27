@@ -1,10 +1,10 @@
 import { db } from "@/db";
 import {
-  exceptionErrorHandler,
-  sendBadRequest,
-  sendForbidden,
-  sendNotFound,
-  sendSuccess,
+	exceptionErrorHandler,
+	sendBadRequest,
+	sendForbidden,
+	sendNotFound,
+	sendSuccess,
 } from "@/helpers";
 import type { RequestHandler } from "express";
 import type { UpdateJob } from "../job.validation";
