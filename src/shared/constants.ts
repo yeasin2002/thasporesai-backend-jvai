@@ -1,6 +1,8 @@
 export const openAPITags = {
 	authentication: { name: "Authentication", basepath: "/api/auth" },
-	user: { name: "user", basepath: "/api/user" },
+	user: {
+		me: { name: "user", basepath: "/api/user/me" },
+	},
 	job: { name: "job", basepath: "/api/job" },
 	job_request: {
 		name: "Job Application  Request",
@@ -11,6 +13,7 @@ export const openAPITags = {
 	payment: { name: "payment", basepath: "/api/payment" },
 	setting: { name: "setting", basepath: "/api/setting" },
 	common: { imag_upload: { name: "common", basepath: "/api/common/upload" } },
+
 	admin: {
 		auth: {
 			name: "Admin - Authentication",

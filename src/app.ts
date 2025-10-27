@@ -20,6 +20,7 @@ import { connectDB, generateOpenAPIDocument } from "@/lib";
 import { errorHandler, notFoundHandler, requireRole } from "@/middleware";
 import { authAdmin } from "./api/admin/auth-admin/auth-admin.route";
 import { common } from "./api/common/common.route";
+import { users } from "./api/users/users.route";
 import { getLocalIP } from "./lib/get-my-ip";
 
 const app = express();
@@ -68,12 +69,11 @@ app.use("/api/common", common);
 // Admin routes
 app.use("/api/admin/auth", authAdmin);
 
+// normal  routes
+app.use("/api/user", users);
+
 // Protected admin routes (require admin authentication)
 app.use("/api/admin/users", requireRole("admin"), adminUser);
-// app.use("/api/admin/dashboard", requireRole("admin"), dashboard);
-// app.use("/api/admin/job", requireRole("admin"), adminJob);
-// app.use("/api/admin/payments", requireRole("admin"), payments);
-// app.use("/api/admin/settings", requireRole("admin"), settings);
 
 app.use(notFoundHandler);
 app.use(errorHandler);

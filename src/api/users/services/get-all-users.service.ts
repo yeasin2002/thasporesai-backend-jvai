@@ -7,42 +7,42 @@ import type { FilterQuery } from "mongoose";
 
 // Get all users with search and filter
 export const getAllUsers: RequestHandler<
-  unknown,
-  unknown,
-  unknown,
-  UserQuery
+	unknown,
+	unknown,
+	unknown,
+	UserQuery
 > = async (req, res) => {
-  try {
-    const { search, role, location } = req.query;
+	try {
+		const { search, role, location } = req.query;
 
-    // Build query filter with proper typing
-    const filter: FilterQuery<UserDocument> = {};
+		// Build query filter with proper typing
+		const filter: FilterQuery<UserDocument> = {};
 
-    // Search by full name (case-insensitive)
-    if (search) {
-      filter.full_name = { $regex: search, $options: "i" };
-    }
+		// Search by full name (case-insensitive)
+		if (search) {
+			filter.full_name = { $regex: search, $options: "i" };
+		}
 
-    // Filter by role
-    if (role) {
-      filter.role = role;
-    }
+		// Filter by role
+		if (role) {
+			filter.role = role;
+		}
 
-    // Filter by location (user's location array contains the specified location ID)
-    if (location) {
-      filter.location = location;
-    }
+		// Filter by location (user's location array contains the specified location ID)
+		if (location) {
+			filter.location = location;
+		}
 
-    // Fetch users with populated category and location data
-    const users = await db.user
-      .find(filter)
-      .select("-password -refreshTokens -otp")
-      .populate("category", "name icon description")
-      .populate("location", "name state coordinates")
-      .sort({ createdAt: -1 });
+		// Fetch users with populated category and location data
+		const users = await db.user
+			.find(filter)
+			.select("-password -refreshTokens -otp")
+			.populate("category", "name icon description")
+			.populate("location", "name state coordinates")
+			.sort({ createdAt: -1 });
 
-    return sendSuccess(res, 200, "Users fetched successfully", users);
-  } catch (error) {
-    return exceptionErrorHandler(error, res, "Failed to fetch users");
-  }
+		return sendSuccess(res, 200, "Users fetched successfully", users);
+	} catch (error) {
+		return exceptionErrorHandler(error, res, "Failed to fetch users");
+	}
 };
