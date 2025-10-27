@@ -82,32 +82,49 @@ JobSphere uses JWT (JSON Web Tokens) with access and refresh token rotation for 
   5. Invalidate old refresh token
   6. Return new tokens
 
-### me
+### Verify OTP
 
-- **Endpoint**: `POST /api/auth/me`
-- **Required Fields**: accessToken
+- **Endpoint**: `POST /api/auth/verify-otp`
+- **Required Fields**: email, otp
 - **Process**:
-  1. Verify access token validity
-  2. Return user data
+  1. Verify OTP validity and expiration
+  2. Mark OTP as verified
+  3. Return success message (allows user to proceed to reset password)
+
+### Get Current User (Me)
+
+- **Endpoint**: `GET /api/user/me`
+- **Required Fields**: accessToken (in Authorization header)
+- **Middleware**: `requireAuth`
+- **Process**:
+  1. Verify access token validity (handled by middleware)
+  2. Fetch user data from database using `req.user.userId`
+  3. Return user data without sensitive fields
 
 ## Authorization Middleware
 
 ### Role-Based Access Control
 
 ```typescript
-// Protect routes by role
-authMiddleware.requireAuth(); // Any authenticated user
-authMiddleware.requireRole("customer"); // Customer only
-authMiddleware.requireRole("contractor"); // Contractor only
-authMiddleware.requireRole("admin"); // Admin only
+import { requireAuth, requireRole, requireAnyRole, optionalAuth } from "@/middleware/auth.middleware";
+
+// Protect routes by authentication and role
+app.get("/api/protected", requireAuth, handler); // Any authenticated user
+app.get("/api/customer-only", requireAuth, requireRole("customer"), handler); // Customer only
+app.get("/api/contractor-only", requireAuth, requireRole("contractor"), handler); // Contractor only
+app.get("/api/admin-only", requireAuth, requireRole("admin"), handler); // Admin only
+app.get("/api/flexible", requireAuth, requireAnyRole(["customer", "contractor"]), handler); // Multiple roles
+app.get("/api/optional", optionalAuth, handler); // Optional authentication
 ```
 
 ### Route Protection Examples
 
-- **Public Routes**: Registration, Login, Forgot Password
-- **Customer Routes**: Job posting, contractor search, bookings
-- **Contractor Routes**: Profile management, job applications, earnings
-- **Admin Routes**: User management, analytics, dispute resolution
+- **Public Routes**: Registration, Login, Forgot Password, Verify OTP, Browse jobs/categories
+- **Optional Auth Routes**: Job listings (personalized if authenticated), contractor profiles
+- **Customer Routes**: Create jobs, manage bookings, submit reviews
+- **Contractor Routes**: Apply to jobs, manage profile, view earnings
+- **Admin Routes**: User management, job moderation, system settings
+- **Protected Admin Routes**: Use both `requireAuth` and `requireRole("admin")` middleware
 
 ## Security Best Practices
 
@@ -119,7 +136,8 @@ authMiddleware.requireRole("admin"); // Admin only
 6. **HTTPS Only**: Enforce secure connections in production
 7. **Token Rotation**: Rotate refresh tokens on each use
 8. **Token Blacklisting**: Maintain invalidated token list
-9. **Send token as response**: Send access token and refresh token as response in json format, this backend will be use in flutter app
+9. **Send token as response**: Send access token and refresh token as response in JSON format (not in cookies), this backend will be used in Flutter app
+10. **Token Storage**: Tokens are stored in response body, not httpOnly cookies, for mobile app compatibility
 
 ## Database Schema Considerations
 

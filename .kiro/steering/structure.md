@@ -6,23 +6,30 @@
 providus_org/
 ├── src/                    # Source code
 │   ├── db/                 # Database connection and models
-│     ├── models/             # Database connection and models
-│       ├── job.model.ts             
-│       ├── category.model.ts             
-│       ├── location.model.ts             
-│       ├── review.model.ts             
-│       ├── user.model.ts             
-│       ├── job-application-request.model.ts             
-│       ├── [model].model.ts             
+│   │   ├── models/         # Mongoose models
+│   │   │   ├── job.model.ts
+│   │   │   ├── category.model.ts
+│   │   │   ├── location.model.ts
+│   │   │   ├── review.model.ts
+│   │   │   ├── user.model.ts
+│   │   │   ├── job-application-request.model.ts
+│   │   │   └── [model].model.ts
+│   │   └── index.ts        # Database connection and model exports
 │   ├── lib/                # Utility libraries and helpers
-│   ├── helper/             # Helper functions
+│   ├── helpers/            # Helper functions
+│   │   ├── response-handler.ts  # Standard API response helpers
+│   │   ├── mongodb-error-handler.ts
+│   │   └── index.ts
 │   ├── middleware/         # Express middleware
+│   │   ├── auth.middleware.ts
+│   │   ├── validation.middleware.ts
+│   │   ├── error.middleware.ts
+│   │   └── index.ts
 │   ├── common/             # Common constants and utilities
-│     ├── email/             # Common emails 
-│     ├── validation/             # Common zod validation 
-│     ├── service/             # Common service  that can use in multiple module
-│     ├── constants.ts    # Centralized API tags and paths 
-│   ├── schema/             # Shared schemas
+│   │   ├── email/          # Email templates
+│   │   ├── validations/    # Common zod validation schemas
+│   │   ├── service/        # Common services that can be used in multiple modules
+│   │   └── constants.ts    # Centralized API tags and paths
 │   ├── api/                # API route handlers
 │   │   ├── auth/           # Authentication module
 │   │   │   ├── auth.route.ts
@@ -31,12 +38,28 @@ providus_org/
 │   │   │   │   ├── login.service.ts
 │   │   │   │   ├── register.service.ts
 │   │   │   │   ├── forgot-password.service.ts
-│   │   │   │   └── reset-password.service.ts
+│   │   │   │   ├── reset-password.service.ts
+│   │   │   │   └── verify-otp.service.ts
 │   │   │   ├── auth.validation.ts
 │   │   │   └── auth.openapi.ts
-│   │   ├── category/       # Category module
-│   │   ├── job/            # Job module
+│   │   ├── category/       # Category module (uses single service file pattern)
+│   │   │   ├── category.route.ts
+│   │   │   ├── category.service.ts
+│   │   │   ├── category.validation.ts
+│   │   │   └── category.openapi.ts
+│   │   ├── job/            # Job module (uses services folder pattern)
+│   │   │   ├── job.route.ts
+│   │   │   ├── services/
+│   │   │   │   ├── index.ts
+│   │   │   │   ├── create-job.service.ts
+│   │   │   │   ├── get-all-jobs.service.ts
+│   │   │   │   └── [other-services].service.ts
+│   │   │   ├── job.validation.ts
+│   │   │   └── job.openapi.ts
+│   │   ├── job-request/    # Job application request module
 │   │   ├── location/       # Location module
+│   │   ├── users/          # User management module
+│   │   ├── common/         # Common endpoints (e.g., file upload)
 │   │   ├── admin/          # Admin module (nested structure)
 │   │   │   ├── auth-admin/ # Admin authentication sub-module
 │   │   │   │   ├── auth-admin.route.ts
@@ -88,11 +111,15 @@ providus_org/
 
 ### `/src/db/`
 
-- Database connection logic (`connectDB` function)
-- Mongoose models and schemas (to be added)
-- Database utilities and helpers
+- **`index.ts`**: Database connection logic (`connectDB` function) and model exports
+- **`models/`**: Mongoose models and schemas
+  - Each model file exports a Mongoose model (e.g., `User`, `Job`, `Category`)
+  - Models are imported and exported through `db` object in `index.ts`
+  - Example: `export const db = { user: User, job: Job, category: Category }`
 
-### `/src/common/constants.ts` - Centralized Configuration
+### `/src/common/` - Shared Resources
+
+#### `constants.ts` - Centralized Configuration
 
 Contains centralized constants for the entire application:
 
@@ -100,7 +127,28 @@ Contains centralized constants for the entire application:
   - Prevents hardcoded paths throughout the codebase
   - Single source of truth for API documentation
   - Easy to refactor and maintain
+  - Supports nested structures for complex modules
   - Example: `openAPITags.authentication.basepath` → `"/api/auth"`
+  - Example nested: `openAPITags.admin.user_management.basepath` → `"/api/admin/users"`
+- **mediaTypeFormat**: Common media type constants
+  - `json`: "application/json"
+  - `form`: "multipart/form-data"
+
+#### `email/` - Email Templates
+
+- Reusable email templates using nodemailer
+- Examples: `otp-email.ts`, `welcome-email.ts`
+
+#### `validations/` - Common Validation Schemas
+
+- Shared Zod validation schemas used across multiple modules
+- Examples: `mongodb-id.validation.ts`, `param.validation.ts`, `response.validation.ts`
+- Reduces duplication and ensures consistency
+
+#### `service/` - Common Services
+
+- Shared business logic that can be used across multiple modules
+- Example: `get-users.service.ts` for fetching user data from different contexts
 
 ### `/src/api/**/*` - Module Structure
 
@@ -191,6 +239,63 @@ app.use("/api/admin/users", adminUser);
 - Use descriptive names that indicate the parent module
 - Example: `adminUser`, `adminDashboard`, `adminSettings`
 - This prevents naming conflicts with top-level modules
+
+### `/src/helpers/` - Response and Error Handlers
+
+Contains utility functions for consistent API responses:
+
+#### `response-handler.ts`
+
+- **Standard Response Format**: All API responses follow this structure:
+
+  ```typescript
+  {
+    status: number,
+    message: string,
+    data: any | null,
+    success: boolean,
+    errors?: Array<{ path: string; message: string }>
+  }
+  ```
+
+- **Helper Functions**:
+
+  - `sendSuccess(res, statusCode, message, data)` - Success responses
+  - `sendError(res, statusCode, message, errors?)` - Error responses
+  - `sendCreated(res, message, data)` - 201 Created
+  - `sendBadRequest(res, message, errors?)` - 400 Bad Request
+  - `sendUnauthorized(res, message)` - 401 Unauthorized
+  - `sendForbidden(res, message)` - 403 Forbidden
+  - `sendNotFound(res, message)` - 404 Not Found
+  - `sendInternalError(res, message)` - 500 Internal Server Error
+
+- **ResponseHandler Class**: Chainable response handler for cleaner code
+
+#### `mongodb-error-handler.ts`
+
+- Handles MongoDB-specific errors (duplicate keys, validation errors, etc.)
+- Converts MongoDB errors to user-friendly messages
+
+### `/src/middleware/` - Express Middleware
+
+#### `auth.middleware.ts`
+
+- **`requireAuth`**: Verifies JWT access token, adds user to `req.user`
+- **`requireRole(role)`**: Checks if user has specific role (customer, contractor, admin)
+- **`requireAnyRole(roles[])`**: Checks if user has any of the specified roles
+- **`requireOwnership(userIdParam)`**: Ensures user can only access their own resources
+- **`optionalAuth`**: Adds user data if token present, but doesn't require it
+
+#### `validation.middleware.ts`
+
+- **`validateBody(schema)`**: Validates request body against Zod schema
+- **`validateParams(schema)`**: Validates route parameters
+- **`validateQuery(schema)`**: Validates query parameters
+
+#### `error.middleware.ts`
+
+- **`notFoundHandler`**: Handles 404 errors for undefined routes
+- **`errorHandler`**: Global error handler for uncaught errors
 
 ## Configuration Files
 

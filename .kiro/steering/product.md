@@ -1,6 +1,6 @@
 # Product Overview
 
-**JobSphere** is a mobile marketplace backend that connects customers with local freelance contractors (electricians, plumbers, cleaners, carpenters, etc.). Built with the Better-T-Stack (BTS) framework, this TypeScript-first Express.js application provides RESTful API endpoints with MongoDB database integration.
+**Providus Org** (also referred to as JobSphere in documentation) is a mobile marketplace backend that connects customers with local freelance contractors (electricians, plumbers, cleaners, carpenters, etc.). Built with TypeScript and Express.js, this application provides RESTful API endpoints with MongoDB database integration.
 
 ## User Roles
 
