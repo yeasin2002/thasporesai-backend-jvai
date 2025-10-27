@@ -8,11 +8,11 @@ export const getMyJobs: RequestHandler = async (req, res) => {
 		const customerId = req.user?.userId as string;
 
 		const jobs = await db.job
-			.find({ customerId })
-			.populate("category", "name icon")
-			.populate("contractorId", "name email")
-			.populate("location", "name state coordinates")
-			.sort({ createdAt: -1 });
+      .find({ customerId })
+      .populate("category", "name icon")
+      // .populate("contractorId", "name email")
+      .populate("location", "name state coordinates")
+      .sort({ createdAt: -1 });
 
 		return sendSuccess(res, 200, "Your jobs retrieved successfully", jobs);
 	} catch (error) {
