@@ -7,12 +7,7 @@ import {
 } from "@/middleware/validation.middleware";
 import express, { type Router } from "express";
 
-import {
-	deleteUser,
-	getAllUsers,
-	getUserById,
-	suspendUser,
-} from "./user.service";
+import { deleteUser, getAllUsers, getUserById, suspendUser } from "./services";
 import {
 	SuspendUserSchema,
 	UserIdParamSchema,
