@@ -1,4 +1,5 @@
 import { db } from "@/db";
+import { handleMongoError, sendSuccess, validatePagination } from "@/helpers";
 import type { RequestHandler } from "express";
 import type { SearchJob } from "../job.validation";
 
@@ -17,13 +18,16 @@ export const getAllJobs: RequestHandler<
 			minBudget,
 			maxBudget,
 			location,
-			page = "1",
-			limit = "10",
+			page,
+			limit,
 		} = req.query;
 
-		const pageNum = Number.parseInt(page, 10);
-		const limitNum = Number.parseInt(limit, 10);
-		const skip = (pageNum - 1) * limitNum;
+		// Validate and sanitize pagination
+		const {
+			page: pageNum,
+			limit: limitNum,
+			skip,
+		} = validatePagination(page, limit);
 
 		// Build query
 		const query: any = {};
@@ -55,7 +59,7 @@ export const getAllJobs: RequestHandler<
 
 		// Filter by location
 		if (location) {
-			query.location = { $regex: location, $options: "i" };
+			query.location = location;
 		}
 
 		// Get jobs with pagination
@@ -73,23 +77,14 @@ export const getAllJobs: RequestHandler<
 
 		const totalPages = Math.ceil(total / limitNum);
 
-		res.status(200).json({
-			status: 200,
-			message: "Jobs retrieved successfully",
-			data: {
-				jobs,
-				total,
-				page: pageNum,
-				limit: limitNum,
-				totalPages,
-			},
+		return sendSuccess(res, 200, "Jobs retrieved successfully", {
+			jobs,
+			total,
+			page: pageNum,
+			limit: limitNum,
+			totalPages,
 		});
 	} catch (error) {
-		console.error("Get jobs error:", error);
-		res.status(500).json({
-			status: 500,
-			message: "Internal Server Error",
-			data: null,
-		});
+		return handleMongoError(error, res, "Failed to retrieve jobs");
 	}
 };

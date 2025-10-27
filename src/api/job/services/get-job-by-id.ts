@@ -1,4 +1,5 @@
 import { db } from "@/db";
+import { handleMongoError, sendNotFound, sendSuccess } from "@/helpers";
 import type { RequestHandler } from "express";
 
 // Get Job by ID
@@ -13,24 +14,11 @@ export const getJobById: RequestHandler = async (req, res) => {
 			.populate("location", "name state coordinates");
 
 		if (!job) {
-			return res.status(404).json({
-				status: 404,
-				message: "Job not found",
-				data: null,
-			});
+			return sendNotFound(res, "Job not found");
 		}
 
-		res.status(200).json({
-			status: 200,
-			message: "Job retrieved successfully",
-			data: job,
-		});
+		return sendSuccess(res, 200, "Job retrieved successfully", job);
 	} catch (error) {
-		console.error("Get job error:", error);
-		res.status(500).json({
-			status: 500,
-			message: "Internal Server Error",
-			data: null,
-		});
+		return handleMongoError(error, res, "Failed to retrieve job");
 	}
 };

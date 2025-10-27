@@ -10,7 +10,7 @@ import {
 	validateParams,
 	validateQuery,
 } from "@/middleware/validation.middleware";
-import express, { Router } from "express";
+import express, { type Router } from "express";
 import {
 	CreateJobSchema,
 	JobIdSchema,

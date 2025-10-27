@@ -27,29 +27,29 @@ const fileFilter = (
 	file: Express.Multer.File,
 	cb: multer.FileFilterCallback,
 ) => {
-  // Accept images only
-  const allowedMimes = [
-    "image/jpeg",
-    "image/jpg",
-    "image/png",
-    "image/gif",
-    "image/webp",
-    "image/svg+xml",
-  ];
+	// Accept images only
+	const allowedMimes = [
+		"image/jpeg",
+		"image/jpg",
+		"image/png",
+		"image/gif",
+		"image/webp",
+		"image/svg+xml",
+	];
 
-  // Also check file extension as fallback (some browsers send wrong MIME types)
-  const ext = path.extname(file.originalname).toLowerCase();
-  const allowedExtensions = [".jpg", ".jpeg", ".png", ".gif", ".webp", ".svg"];
+	// Also check file extension as fallback (some browsers send wrong MIME types)
+	const ext = path.extname(file.originalname).toLowerCase();
+	const allowedExtensions = [".jpg", ".jpeg", ".png", ".gif", ".webp", ".svg"];
 
-  if (allowedMimes.includes(file.mimetype) || allowedExtensions.includes(ext)) {
-    cb(null, true);
-  } else {
-    cb(
-      new Error(
-        `Invalid file type. Only JPEG, PNG, GIF, WebP, and SVG images are allowed. Received: ${file.mimetype}`
-      )
-    );
-  }
+	if (allowedMimes.includes(file.mimetype) || allowedExtensions.includes(ext)) {
+		cb(null, true);
+	} else {
+		cb(
+			new Error(
+				`Invalid file type. Only JPEG, PNG, GIF, WebP, and SVG images are allowed. Received: ${file.mimetype}`,
+			),
+		);
+	}
 };
 
 // Create multer instance

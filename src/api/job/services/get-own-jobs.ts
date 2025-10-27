@@ -1,4 +1,5 @@
 import { db } from "@/db";
+import { handleMongoError, sendSuccess } from "@/helpers";
 import type { RequestHandler } from "express";
 
 // Get My Jobs (Customer's own jobs)
@@ -13,17 +14,8 @@ export const getMyJobs: RequestHandler = async (req, res) => {
 			.populate("location", "name state coordinates")
 			.sort({ createdAt: -1 });
 
-		res.status(200).json({
-			status: 200,
-			message: "Your jobs retrieved successfully",
-			data: jobs,
-		});
+		return sendSuccess(res, 200, "Your jobs retrieved successfully", jobs);
 	} catch (error) {
-		console.error("Get my jobs error:", error);
-		res.status(500).json({
-			status: 500,
-			message: "Internal Server Error",
-			data: null,
-		});
+		return handleMongoError(error, res, "Failed to retrieve your jobs");
 	}
 };

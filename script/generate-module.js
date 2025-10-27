@@ -53,7 +53,7 @@ const generateRoute = (moduleName) => {
   return `
   import "./${moduleName}.openapi";
 
-  import express, { Router } from "express";
+  import express, { type Router } from "express";
 
 export const ${camelName}: Router = express.Router();
 

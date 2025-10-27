@@ -1,4 +1,5 @@
 import { db } from "@/db";
+import { handleMongoError, sendBadRequest, sendCreated } from "@/helpers";
 import type { RequestHandler } from "express";
 import type { CreateJob } from "../job.validation";
 
@@ -17,11 +18,13 @@ export const createJob: RequestHandler<unknown, unknown, CreateJob> = async (
 		// Validate categories exist
 		const categories = await db.category.find({ _id: { $in: category } });
 		if (categories.length !== category.length) {
-			return res.status(400).json({
-				status: 400,
-				message: "One or more categories not found",
-				data: null,
-			});
+			return sendBadRequest(res, "One or more categories not found");
+		}
+
+		// Validate location exists
+		const locationExists = await db.location.findById(location);
+		if (!locationExists) {
+			return sendBadRequest(res, "Location not found");
 		}
 
 		// Create job
@@ -44,17 +47,8 @@ export const createJob: RequestHandler<unknown, unknown, CreateJob> = async (
 			.populate("customerId", "name email")
 			.populate("location", "name state coordinates");
 
-		res.status(201).json({
-			status: 201,
-			message: "Job created successfully",
-			data: populatedJob,
-		});
+		return sendCreated(res, "Job created successfully", populatedJob);
 	} catch (error) {
-		console.error("Create job error:", error);
-		res.status(500).json({
-			status: 500,
-			message: "Internal Server Error",
-			data: null,
-		});
+		return handleMongoError(error, res, "Failed to create job");
 	}
 };
