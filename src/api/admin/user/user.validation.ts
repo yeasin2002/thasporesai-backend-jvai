@@ -1,4 +1,5 @@
 import { extendZodWithOpenApi } from "@asteasolutions/zod-to-openapi";
+import { isValidObjectId } from "mongoose";
 import { z } from "zod";
 
 // Extend Zod with OpenAPI
@@ -25,6 +26,13 @@ export const UserQuerySchema = z
 			.enum(["contractor", "customer", "admin"])
 			.optional()
 			.openapi({ description: "Filter by user role" }),
+		location: z
+			.string()
+			.refine((val) => !val || isValidObjectId(val), {
+				message: "Invalid location ID format",
+			})
+			.optional()
+			.openapi({ description: "Filter by location ID" }),
 	})
 	.openapi("UserQuery");
 
