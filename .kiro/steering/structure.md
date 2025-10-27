@@ -18,7 +18,10 @@ providus_org/
 │   ├── helper/             # Helper functions
 │   ├── middleware/         # Express middleware
 │   ├── common/             # Common constants and utilities
-│   │   └── constants.ts    # Centralized API tags and paths
+│     ├── email/             # Common emails 
+│     ├── validation/             # Common zod validation 
+│     ├── service/             # Common service  that can use in multiple module
+│     ├── constants.ts    # Centralized API tags and paths 
 │   ├── schema/             # Shared schemas
 │   ├── api/                # API route handlers
 │   │   ├── auth/           # Authentication module
