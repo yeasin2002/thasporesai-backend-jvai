@@ -115,7 +115,7 @@ extendZodWithOpenApi(z);
 const generateOpenAPI = (moduleName, routePath = `/api/${moduleName}`) => {
   return `
 import { registry } from "@/lib/openapi";
-import { mediaTypeFormat, openAPITags } from "@/shared/constants";
+import { mediaTypeFormat, openAPITags } from "@/common/constants";
 
 // registry.register("${moduleName}", ${moduleName}Schema);
 registry.registerPath({

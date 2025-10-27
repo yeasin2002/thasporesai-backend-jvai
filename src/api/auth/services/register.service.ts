@@ -1,3 +1,4 @@
+import { sendWelcomeEmail } from "@/common/email";
 import { db } from "@/db";
 import { sendError, sendSuccess } from "@/helpers";
 import {
@@ -6,7 +7,6 @@ import {
 	signAccessToken,
 	signRefreshToken,
 } from "@/lib/jwt";
-import { sendWelcomeEmail } from "@/shared/email";
 import type { RequestHandler } from "express";
 import type { Register } from "../auth.validation";
 

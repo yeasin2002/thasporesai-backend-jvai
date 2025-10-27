@@ -1,4 +1,4 @@
-import { objectIdSchema } from "@/shared/validations";
+import { objectIdSchema } from "@/common/validations";
 import { extendZodWithOpenApi } from "@asteasolutions/zod-to-openapi";
 import { isValidObjectId } from "mongoose";
 import { z } from "zod";

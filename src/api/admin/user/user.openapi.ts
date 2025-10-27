@@ -1,5 +1,5 @@
 import { registry } from "@/lib/openapi";
-import { openAPITags } from "@/shared/constants";
+import { openAPITags } from "@/common/constants";
 import {
 	ErrorResponseSchema,
 	SuccessResponseSchema,

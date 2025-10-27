@@ -1,7 +1,7 @@
 import { db } from "@/db";
 import { sendError, sendSuccess } from "@/helpers";
 import { generateOTP } from "@/lib/jwt";
-import { sendOTPEmail } from "@/shared/email";
+import { sendOTPEmail } from "@/common/email";
 import type { RequestHandler } from "express";
 import type { ForgotPassword } from "../auth.validation";
 

@@ -1,5 +1,5 @@
+import { mediaTypeFormat, openAPITags } from "@/common/constants";
 import { registry } from "@/lib/openapi";
-import { mediaTypeFormat, openAPITags } from "@/shared/constants";
 import {
 	ErrorResponseSchema,
 	ImageUploadResponseSchema,
