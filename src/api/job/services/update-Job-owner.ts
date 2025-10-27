@@ -1,10 +1,10 @@
 import { db } from "@/db";
 import {
-	handleMongoError,
-	sendBadRequest,
-	sendForbidden,
-	sendNotFound,
-	sendSuccess,
+  exceptionErrorHandler,
+  sendBadRequest,
+  sendForbidden,
+  sendNotFound,
+  sendSuccess,
 } from "@/helpers";
 import type { RequestHandler } from "express";
 import type { UpdateJob } from "../job.validation";
@@ -63,6 +63,6 @@ export const updateJob: RequestHandler<
 
 		return sendSuccess(res, 200, "Job updated successfully", updatedJob);
 	} catch (error) {
-		return handleMongoError(error, res, "Failed to update job");
+		return exceptionErrorHandler(error, res, "Failed to update job");
 	}
 };

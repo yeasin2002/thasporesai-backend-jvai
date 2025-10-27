@@ -1,5 +1,9 @@
 import { db } from "@/db";
-import { handleMongoError, sendSuccess, validatePagination } from "@/helpers";
+import {
+  exceptionErrorHandler,
+  sendSuccess,
+  validatePagination,
+} from "@/helpers";
 import type { RequestHandler } from "express";
 import type { SearchJob } from "../job.validation";
 
@@ -85,6 +89,6 @@ export const getAllJobs: RequestHandler<
 			totalPages,
 		});
 	} catch (error) {
-		return handleMongoError(error, res, "Failed to retrieve jobs");
+		return exceptionErrorHandler(error, res, "Failed to retrieve jobs");
 	}
 };

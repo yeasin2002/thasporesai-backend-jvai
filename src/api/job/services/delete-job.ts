@@ -1,9 +1,9 @@
 import { db } from "@/db";
 import {
-	handleMongoError,
-	sendForbidden,
-	sendNotFound,
-	sendSuccess,
+  exceptionErrorHandler,
+  sendForbidden,
+  sendNotFound,
+  sendSuccess,
 } from "@/helpers";
 import type { RequestHandler } from "express";
 
@@ -29,6 +29,6 @@ export const deleteJob: RequestHandler = async (req, res) => {
 
 		return sendSuccess(res, 200, "Job deleted successfully", null);
 	} catch (error) {
-		return handleMongoError(error, res, "Failed to delete job");
+		return exceptionErrorHandler(error, res, "Failed to delete job");
 	}
 };
