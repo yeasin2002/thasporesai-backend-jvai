@@ -8,50 +8,54 @@ extendZodWithOpenApi(z);
 
 // Base Job Schema
 export const JobSchema = z
-	.object({
-		_id: objectIdSchema.openapi({ description: "Job ID" }),
-		title: z
-			.string()
-			.min(5, "Title must be at least 5 characters")
-			.openapi({ description: "Job title" }),
-		category: z
-			.array(objectIdSchema)
-			.min(1, "At least one category is required")
-			.openapi({ description: "Array of category IDs" }),
-		description: z
-			.string()
-			.min(20, "Description must be at least 20 characters")
-			.openapi({ description: "Job description" }),
-		location: objectIdSchema.openapi({ description: "Job location ID" }),
-		address: z
-			.string()
-			.min(5, "Address must be at least 5 characters")
-			.openapi({ description: "Job address" }),
-		budget: z
-			.number()
-			.positive("Budget must be positive")
-			.openapi({ description: "Job budget" }),
-		date: z.string().or(z.date()).openapi({ description: "Job date" }),
-		coverImg: z
-			.string()
-			.url("Invalid image URL")
-			.openapi({ description: "Cover image URL" }),
-		customerId: objectIdSchema.openapi({
-			description: "Customer ID who posted the job",
-		}),
-		contractorId: objectIdSchema
-			.optional()
-			.openapi({ description: "Assigned contractor ID" }),
-		status: z
-			.enum(["open", "in_progress", "completed", "cancelled"])
-			.openapi({ description: "Job status" }),
-		createdAt: z.string().optional().openapi({ description: "Creation date" }),
-		updatedAt: z
-			.string()
-			.optional()
-			.openapi({ description: "Last update date" }),
-	})
-	.openapi("Job");
+  .object({
+    _id: objectIdSchema.openapi({ description: "Job ID" }),
+    title: z
+      .string()
+      .min(5, "Title must be at least 5 characters")
+      .openapi({ description: "Job title" }),
+    category: z
+      .array(objectIdSchema)
+      .min(1, "At least one category is required")
+      .openapi({ description: "Array of category IDs" }),
+    description: z
+      .string()
+      .min(20, "Description must be at least 20 characters")
+      .openapi({ description: "Job description" }),
+    location: objectIdSchema.openapi({ description: "Job location ID" }),
+    address: z
+      .string()
+      .min(5, "Address must be at least 5 characters")
+      .openapi({ description: "Job address" }),
+    budget: z
+      .number()
+      .positive("Budget must be positive")
+      .openapi({ description: "Job budget" }),
+    date: z.string().or(z.date()).openapi({ description: "Job date" }),
+    coverImg: z
+      .string()
+      .url("Invalid image URL")
+      .openapi({ description: "Cover image URL" }),
+    customerId: objectIdSchema.openapi({
+      description: "Customer ID who posted the job",
+    }),
+    contractorId: objectIdSchema
+      .optional()
+      .openapi({ description: "Assigned contractor ID" }),
+    status: z
+      .enum(["open", "in_progress", "completed", "cancelled"])
+      .openapi({ description: "Job status" }),
+    isApplied: z.boolean().optional().openapi({
+      description:
+        "Indicates if the authenticated contractor has applied to this job",
+    }),
+    createdAt: z.string().optional().openapi({ description: "Creation date" }),
+    updatedAt: z
+      .string()
+      .optional()
+      .openapi({ description: "Last update date" }),
+  })
+  .openapi("Job");
 
 // Create Job Schema (customer creates job)
 export const CreateJobSchema = z

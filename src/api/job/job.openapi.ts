@@ -25,7 +25,8 @@ registry.register("ErrorResponse", ErrorResponseSchema);
 registry.registerPath({
   method: "get",
   path: openAPITags.job.basepath,
-  description: "Get all jobs with optional search and filters",
+  description:
+    "Get all jobs with optional search and filters. If authenticated as a contractor, includes 'isApplied' field indicating whether you've applied to each job.",
   summary: "Get all jobs",
   tags: [openAPITags.job.name],
   request: {
@@ -33,7 +34,8 @@ registry.registerPath({
   },
   responses: {
     200: {
-      description: "Jobs retrieved successfully",
+      description:
+        "Jobs retrieved successfully. Each job includes 'isApplied' field (true/false) for contractors.",
       content: {
         "application/json": {
           schema: JobsResponseSchema,

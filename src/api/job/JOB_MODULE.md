@@ -10,7 +10,8 @@ The Job module provides CRUD operations for managing job postings in JobSphere. 
 - ✅ **Customer Only**: Create jobs (authenticated customers)
 - ✅ **Owner/Admin**: Update and delete jobs
 - ✅ **Search & Filter**: Search by title, category, location, budget, status
-- ✅ **Pagination**: Paginated results
+- ✅ **Pagination**: Paginated results with search/filter support
+- ✅ **Application Status**: Contractors see `isApplied` field indicating if they've applied
 - ✅ **Validation**: Full input validation with Zod
 - ✅ **OpenAPI**: Complete API documentation
 
@@ -34,12 +35,14 @@ interface Job {
   category: string[];        // Array of category IDs
   description: string;
   location: string;
+  address: string;
   budget: number;
   date: Date;
   coverImg: string;          // Cover image URL
   customerId: string;        // User who posted the job
   contractorId?: string;     // Assigned contractor (optional)
   status: "open" | "in_progress" | "completed" | "cancelled";
+  isApplied?: boolean;       // True if authenticated contractor has applied (contractors only)
   createdAt: Date;
   updatedAt: Date;
 }
@@ -57,9 +60,13 @@ interface Job {
 - `status` (optional): Filter by status
 - `minBudget` (optional): Minimum budget
 - `maxBudget` (optional): Maximum budget
-- `location` (optional): Filter by location
+- `location` (optional): Filter by location ID
 - `page` (optional): Page number (default: 1)
 - `limit` (optional): Items per page (default: 10)
+
+**Special Features:**
+- If authenticated as a **contractor**, each job includes an `isApplied` field (boolean) indicating whether you've already applied to that job
+- For non-contractors or unauthenticated users, `isApplied` is always `false`
 
 **Examples:**
 
@@ -115,6 +122,7 @@ GET /api/job?search=repair&category=507f&status=open&page=1&limit=20
         },
         "contractorId": null,
         "status": "open",
+        "isApplied": false,
         "createdAt": "2025-01-18T10:00:00.000Z",
         "updatedAt": "2025-01-18T10:00:00.000Z"
       }
@@ -123,6 +131,35 @@ GET /api/job?search=repair&category=507f&status=open&page=1&limit=20
     "page": 1,
     "limit": 10,
     "totalPages": 3
+  }
+}
+```
+
+**Note for Contractors:**
+If you're authenticated as a contractor, the `isApplied` field will be `true` for jobs you've already applied to:
+
+```json
+{
+  "status": 200,
+  "message": "Jobs retrieved successfully",
+  "data": {
+    "jobs": [
+      {
+        "_id": "507f1f77bcf86cd799439011",
+        "title": "Fix Kitchen Sink",
+        ...
+        "isApplied": true,  // ← You've already applied to this job
+        ...
+      },
+      {
+        "_id": "507f1f77bcf86cd799439022",
+        "title": "Electrical Repair",
+        ...
+        "isApplied": false,  // ← You haven't applied yet
+        ...
+      }
+    ],
+    ...
   }
 }
 ```
