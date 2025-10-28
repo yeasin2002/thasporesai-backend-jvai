@@ -22,13 +22,14 @@ import { authAdmin } from "./api/admin/auth-admin/auth-admin.route";
 import { common } from "./api/common/common.route";
 import { users } from "./api/users/users.route";
 import { getLocalIP } from "./lib/get-my-ip";
+import { morganDevFormat } from "./lib/morgan";
 
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.use("/uploads", express.static("uploads"));
-app.use(morgan("dev"));
+app.use(morgan(morganDevFormat));
 
 app.use(
 	cors({
