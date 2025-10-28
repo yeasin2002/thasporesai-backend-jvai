@@ -39,7 +39,7 @@
 - **Push Notifications**: Mobile notifications for Flutter app
   - Job updates, booking confirmations
   - New messages and payment notifications
-  - Firebase Cloud Messaging (FCM) integration
+  - AWS SNS integration
 
 - **File Upload System**: Local storage with cloud migration planned
   - Profile and portfolio images
