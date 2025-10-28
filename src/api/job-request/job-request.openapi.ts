@@ -1,19 +1,21 @@
 import { openAPITags } from "@/common/constants";
 import { registry } from "@/lib/openapi";
 import {
-	ApplicationIdParamSchema,
-	ApplicationResponseSchema,
-	ApplicationsResponseSchema,
-	ApplyForJobSchema,
-	ErrorResponseSchema,
-	JobIdParamSchema,
-	SuccessResponseSchema,
+  ApplicationIdParamSchema,
+  ApplicationResponseSchema,
+  ApplicationsResponseSchema,
+  ApplyForJobSchema,
+  ErrorResponseSchema,
+  JobIdParamSchema,
+  SearchMyApplicationsSchema,
+  SuccessResponseSchema,
 } from "./job-request.validation";
 
 // Register schemas
 registry.register("ApplyForJob", ApplyForJobSchema);
 registry.register("JobIdParam", JobIdParamSchema);
 registry.register("ApplicationIdParam", ApplicationIdParamSchema);
+registry.register("SearchMyApplications", SearchMyApplicationsSchema);
 registry.register("ApplicationResponse", ApplicationResponseSchema);
 registry.register("ApplicationsResponse", ApplicationsResponseSchema);
 registry.register("JobRequestSuccessResponse", SuccessResponseSchema);
@@ -84,38 +86,43 @@ registry.registerPath({
 
 // GET /api/job-request/my - Get contractor's applications
 registry.registerPath({
-	method: "get",
-	path: `${openAPITags.job_request.basepath}/my`,
-	description: "Get contractor's own job applications",
-	summary: "Get my applications",
-	tags: [openAPITags.job_request.name],
-	security: [{ bearerAuth: [] }],
-	responses: {
-		200: {
-			description: "Applications retrieved successfully",
-			content: {
-				"application/json": {
-					schema: ApplicationsResponseSchema,
-				},
-			},
-		},
-		401: {
-			description: "Unauthorized",
-			content: {
-				"application/json": {
-					schema: ErrorResponseSchema,
-				},
-			},
-		},
-		500: {
-			description: "Internal server error",
-			content: {
-				"application/json": {
-					schema: ErrorResponseSchema,
-				},
-			},
-		},
-	},
+  method: "get",
+  path: `${openAPITags.job_request.basepath}/my`,
+  description:
+    "Get contractor's own job applications with optional search and filters. Supports pagination and filtering by job criteria.",
+  summary: "Get my applications",
+  tags: [openAPITags.job_request.name],
+  security: [{ bearerAuth: [] }],
+  request: {
+    query: SearchMyApplicationsSchema,
+  },
+  responses: {
+    200: {
+      description:
+        "Applications retrieved successfully with pagination information",
+      content: {
+        "application/json": {
+          schema: ApplicationsResponseSchema,
+        },
+      },
+    },
+    401: {
+      description: "Unauthorized",
+      content: {
+        "application/json": {
+          schema: ErrorResponseSchema,
+        },
+      },
+    },
+    500: {
+      description: "Internal server error",
+      content: {
+        "application/json": {
+          schema: ErrorResponseSchema,
+        },
+      },
+    },
+  },
 });
 
 // GET /api/job-request/job/:jobId - Get applications for a job
