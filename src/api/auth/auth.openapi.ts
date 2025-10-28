@@ -125,46 +125,46 @@ registry.registerPath({
 
 // POST /api/auth/forgot-password
 registry.registerPath({
-	method: "post",
-	path: "/api/auth/forgot-password",
-	description: "Request OTP for password reset",
-	summary: "Forgot password",
-	tags: ["Authentication"],
-	request: {
-		body: {
-			content: {
-				"application/json": {
-					schema: ForgotPasswordSchema,
-				},
-			},
-		},
-	},
-	responses: {
-		200: {
-			description: "OTP sent if email exists",
-			content: {
-				"application/json": {
-					schema: SuccessResponseSchema,
-				},
-			},
-		},
-		400: {
-			description: "Validation error",
-			content: {
-				"application/json": {
-					schema: ErrorResponseSchema,
-				},
-			},
-		},
-		500: {
-			description: "Internal server error",
-			content: {
-				"application/json": {
-					schema: ErrorResponseSchema,
-				},
-			},
-		},
-	},
+  method: "post",
+  path: "/api/auth/forgot-password",
+  description: "Request OTP for password reset",
+  summary: "Forgot password",
+  tags: ["Authentication"],
+  request: {
+    body: {
+      content: {
+        "application/json": {
+          schema: ForgotPasswordSchema,
+        },
+      },
+    },
+  },
+  responses: {
+    200: {
+      description: "OTP sent if email exists",
+      content: {
+        "application/json": {
+          schema: SuccessResponseSchema,
+        },
+      },
+    },
+    400: {
+      description: "Validation error",
+      content: {
+        "application/json": {
+          schema: ErrorResponseSchema,
+        },
+      },
+    },
+    500: {
+      description: "Internal server error",
+      content: {
+        "application/json": {
+          schema: ErrorResponseSchema,
+        },
+      },
+    },
+  },
 });
 
 // POST /api/auth/verify-otp

@@ -10,17 +10,17 @@ export const registry = new OpenAPIRegistry();
 export const generateOpenAPIDocument = (): OpenAPIObject => {
 	const generator = new OpenApiGeneratorV3(registry.definitions);
 	return generator.generateDocument({
-		openapi: "3.0.0",
-		info: {
-			title: "Providus Org API",
-			version: "1.0.0",
-			description: "Backend API service for Providus Organization",
-		},
-		servers: [
-			{
-				url: process.env.API_BASE_URL || "http://localhost:4000",
-				description: "Development server",
-			},
-		],
-	});
+    openapi: "3.0.0",
+    info: {
+      title: "JobSphere Org API",
+      version: "1.0.0",
+      description: "Backend API service for JobSphere Organization",
+    },
+    servers: [
+      {
+        url: process.env.API_BASE_URL || "http://localhost:4000",
+        description: "Development server",
+      },
+    ],
+  });
 };
