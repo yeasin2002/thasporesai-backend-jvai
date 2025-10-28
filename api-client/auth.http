@@ -49,7 +49,19 @@ Content-Type: {{contentType}}
 
 
 ###############################################
-# 3.2. Login as Admin
+# 3.2. Login as Contractor
+###############################################
+POST {{baseUrl}}/api/auth/login
+Content-Type: {{contentType}}
+
+{
+  "email": "yeasin2002@gmail.com",
+  "password": "yeasin2002@gmail.com"
+}
+
+
+###############################################
+# 3.3. Login as Admin
 ############################################### 
 POST {{baseUrl}}/api/admin/auth/login
 Content-Type: {{contentType}}
