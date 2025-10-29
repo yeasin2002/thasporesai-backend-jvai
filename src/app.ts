@@ -10,6 +10,7 @@ import { category } from "@/api/category/category.route";
 import { jobRequest } from "@/api/job-request/job-request.route";
 import { job } from "@/api/job/job.route";
 import { location } from "@/api/location/location.route";
+import { review } from "@/api/review/review.route";
 
 // admin- dashboard routes
 import { adminUser } from "@/api/admin/admin-user/admin-user.route";
@@ -32,31 +33,31 @@ app.use("/uploads", express.static("uploads"));
 app.use(morgan(morganDevFormat));
 
 app.use(
-	cors({
-		origin: ["http://localhost:5173", "http://localhost:5173", "*"],
-		methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-		credentials: true,
-	}),
+  cors({
+    origin: ["http://localhost:5173", "http://localhost:5173", "*"],
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    credentials: true,
+  })
 );
 
 app.get("/", (_req, res) => {
-	res.status(200).send("OK");
+  res.status(200).send("OK");
 });
 
 // OpenAPI documentation
 const openApiDocument = generateOpenAPIDocument();
 app.use("/swagger", swaggerUi.serve, swaggerUi.setup(openApiDocument));
 app.use(
-	"/scaler",
-	apiReference({
-		theme: "deepSpace",
-		content: openApiDocument,
-		favicon: "/uploads/logo.png",
-	}),
+  "/scaler",
+  apiReference({
+    theme: "deepSpace",
+    content: openApiDocument,
+    favicon: "/uploads/logo.png",
+  })
 );
 app.get("/api-docs.json", (_req, res) => {
-	res.setHeader("Content-Type", "application/json");
-	res.send(openApiDocument);
+  res.setHeader("Content-Type", "application/json");
+  res.send(openApiDocument);
 });
 
 app.use("/api/auth", auth);
@@ -65,6 +66,7 @@ app.use("/api/job-request", jobRequest);
 
 app.use("/api/category", category);
 app.use("/api/location", location);
+app.use("/api/review", review);
 app.use("/api/common", common);
 
 // Admin routes

@@ -1,4 +1,8 @@
 // Export all service handlers
-// Example:
-// export * from "./login";
-// export * from "./register";
+export * from "./create-review.service";
+export * from "./delete-review.service";
+export * from "./get-all-reviews.service";
+export * from "./get-contractor-reviews.service";
+export * from "./get-my-reviews.service";
+export * from "./update-review.service";
+

@@ -3,37 +3,40 @@ import { Schema, Types, model, type Document } from "mongoose";
 export interface User {
   role: "contractor" | "customer" | "admin";
   full_name: string;
-  profile_img?: string;
-  cover_img?: string;
+  profile_img: string;
+  cover_img: string;
   email: string;
   password: string;
   phone?: string;
-  bio?: string;
-  description?: string;
+  bio: string;
+  description: string;
   location?: Types.ObjectId[];
   availability?: Date;
   is_verified: boolean;
   isSuspend: boolean;
-  category?: Types.ObjectId[];
-  review?: Types.ObjectId[];
+  category: Types.ObjectId[];
+  review: Types.ObjectId[];
 
   // Contractor specific fields
-  skills?: string[];
-  experience?: Array<{
+  skills: string[];
+  experience: Array<{
     company_name: string;
     start_date: Date;
     end_date?: Date;
   }>;
-  work_samples?: Array<{
+  work_samples: Array<{
     name: string;
     img: string;
     description?: string;
   }>;
-  starting_budget?: number;
-  certification?: string;
-  hourly_charge?: number;
+  starting_budget: number;
+  certification: {
+    title: string;
+    img: string;
+  };
+  hourly_charge: number;
   // Auth related
-  refreshTokens: Array<{
+  refreshTokens?: Array<{
     token: string;
     jti: string;
     createdAt: Date;
@@ -55,13 +58,13 @@ const userSchema = new Schema<UserDocument>(
       default: "customer",
     },
     full_name: { type: String, required: true },
-    profile_img: { type: String },
-    cover_img: { type: String },
+    profile_img: { type: String, default: "" },
+    cover_img: { type: String, default: "" },
     email: { type: String, required: true, unique: true, lowercase: true },
     password: { type: String, required: true },
     phone: { type: String },
-    bio: { type: String },
-    description: { type: String },
+    bio: { type: String, default: "" },
+    description: { type: String, default: "" },
     availability: { type: Date },
     is_verified: { type: Boolean, default: false },
     isSuspend: { type: Boolean, default: false },
@@ -86,9 +89,12 @@ const userSchema = new Schema<UserDocument>(
         description: { type: String },
       },
     ],
-    starting_budget: { type: Number },
-    certification: { type: String },
-    hourly_charge: { type: Number },
+    starting_budget: { type: Number, default: 0 },
+    certification: {
+      title: { type: String },
+      img: { type: String },
+    },
+    hourly_charge: { type: Number, default: 0 },
     // Auth related
     refreshTokens: [
       {
