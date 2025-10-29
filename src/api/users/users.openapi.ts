@@ -13,7 +13,7 @@ registry.registerPath({
   method: "get",
   path: openAPITags.user.all_users.basepath,
   description:
-    "Get all users with optional search, filters, and pagination. Supports filtering by role, location, category, and searching by name or email. Returns users with populated location, category, and review details.",
+    "Get all users with optional search, filters, and pagination. Supports filtering by role, location, category, and searching by name or email. Returns users with populated location, category, experience, work_samples, certification, and review statistics (for contractors).",
   summary: "Retrieve all users with pagination",
   tags: [openAPITags.user.all_users.name],
   request: {
@@ -22,7 +22,7 @@ registry.registerPath({
   responses: {
     200: {
       description:
-        "Users retrieved successfully with pagination metadata. Each user includes populated location, category, and review arrays with full details.",
+        "Users retrieved successfully with pagination metadata. Each user includes populated location, category, experience, work_samples, and certification. Contractors include review statistics (total, average, rating distribution, and last 5 reviews).",
       content: {
         [mediaTypeFormat.json]: {
           schema: UsersResponseSchema,
@@ -45,14 +45,14 @@ registry.registerPath({
   method: "get",
   path: openAPITags.user.me.basepath,
   description:
-    "Get current authenticated user with full profile details including populated location, category, and review information",
+    "Get current authenticated user with full profile details including populated location, category, experience, work_samples, certification, and review statistics (for contractors)",
   summary: "Get current user profile",
   tags: [openAPITags.user.me.name],
   security: [{ bearerAuth: [] }],
   responses: {
     200: {
       description:
-        "User retrieved successfully with populated location and category details. For contractors, includes review statistics (total, average rating, and last 5 reviews). Excludes sensitive fields (password, refreshTokens, otp).",
+        "User retrieved successfully with populated location, category, experience, work_samples, and certification. For contractors, includes review statistics (total, average rating, rating distribution, and last 5 reviews). Excludes sensitive fields (password, refreshTokens, otp).",
       content: {
         [mediaTypeFormat.json]: {
           schema: UserResponseSchema,
@@ -107,7 +107,7 @@ registry.registerPath({
   responses: {
     200: {
       description:
-        "Profile updated successfully with populated location, category, and review details",
+        "Profile updated successfully with populated location, category, experience, work_samples, certification, and review statistics (for contractors)",
       content: {
         [mediaTypeFormat.json]: {
           schema: UserResponseSchema,

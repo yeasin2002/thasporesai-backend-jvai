@@ -35,18 +35,36 @@ const ReviewSchema = z.object({
 	createdAt: z.coerce.date().optional(),
 });
 
-// Experience schema
+// Experience schema (populated)
 const ExperienceSchema = z.object({
-	company_name: z.string(),
-	start_date: z.coerce.date(),
-	end_date: z.coerce.date().optional(),
+  _id: z.string(),
+  title: z.string(),
+  subtitle: z.string(),
+  company_name: z.string(),
+  start_date: z.coerce.date(),
+  end_date: z.coerce.date().optional(),
+  createdAt: z.coerce.date().optional(),
+  updatedAt: z.coerce.date().optional(),
 });
 
-// Work sample schema
+// Work sample schema (populated)
 const WorkSampleSchema = z.object({
-	name: z.string(),
-	img: z.string(),
-	description: z.string().optional(),
+  _id: z.string(),
+  name: z.string(),
+  img: z.string(),
+  description: z.string().optional(),
+  createdAt: z.coerce.date().optional(),
+  updatedAt: z.coerce.date().optional(),
+});
+
+// Certification schema (populated)
+const CertificationSchema = z.object({
+  _id: z.string(),
+  title: z.string(),
+  img: z.string(),
+  description: z.string().optional(),
+  createdAt: z.coerce.date().optional(),
+  updatedAt: z.coerce.date().optional(),
 });
 
 // User Response Schema (without password, refreshTokens, otp)
@@ -131,10 +149,9 @@ export const UserDataSchema = z
       .number()
       .optional()
       .openapi({ description: "Starting budget for projects" }),
-    certification: z
-      .string()
-      .optional()
-      .openapi({ description: "Professional certifications" }),
+    certification: CertificationSchema.optional().openapi({
+      description: "Professional certification (populated)",
+    }),
     hourly_charge: z
       .number()
       .optional()

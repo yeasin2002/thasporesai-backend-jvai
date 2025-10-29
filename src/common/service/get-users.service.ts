@@ -76,12 +76,15 @@ export const getUsersService = async (
   // Fetch total count for pagination
   const totalUsers = await db.user.countDocuments(filter);
 
-  // Fetch users with populated category and location data (without review)
+  // Fetch users with populated category, location, experience, work_samples, and certification
   const users = await db.user
     .find(filter)
     .select("-password -refreshTokens -otp")
     .populate("category", "name icon description")
     .populate("location", "name state coordinates")
+    .populate("experience")
+    .populate("work_samples")
+    .populate("certification")
     .sort({ [sortBy]: sortDirection })
     .skip(skip)
     .limit(limit)

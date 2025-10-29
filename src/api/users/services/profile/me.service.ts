@@ -11,7 +11,10 @@ export const me: RequestHandler = async (req, res) => {
       .findById(userId)
       .select("-password -refreshTokens -otp")
       .populate("location")
-      .populate("category");
+      .populate("category")
+      .populate("experience")
+      .populate("work_samples")
+      .populate("certification");
 
     if (!user) return sendError(res, 404, "User not found");
 

@@ -1,5 +1,5 @@
 import { db } from "@/db";
-import { sendError, sendSuccess } from "@/helpers";
+import { getReviewStatsWithReviews, sendError, sendSuccess } from "@/helpers";
 import type { RequestHandler } from "express";
 import type { UpdateProfile } from "../../users.validation";
 
@@ -68,13 +68,31 @@ export const updateProfile: RequestHandler<{}, unknown, UpdateProfile> = async (
       .select("-password -refreshTokens -otp")
       .populate("location", "name state coordinates")
       .populate("category", "name icon description")
-      .populate("review");
+      .populate("experience")
+      .populate("work_samples")
+      .populate("certification");
 
     if (!updatedUser) {
       return sendError(res, 404, "User not found");
     }
 
-    return sendSuccess(res, 200, "Profile updated successfully", updatedUser);
+    // Get review statistics for contractors
+    let reviewStats = null;
+    if (updatedUser.role === "contractor") {
+      reviewStats = await getReviewStatsWithReviews(
+        (updatedUser._id as any).toString(),
+        5
+      );
+    }
+
+    // Convert user to plain object and add review stats
+    const userObj: any = updatedUser.toObject();
+    delete userObj.review; // Remove the review array reference
+
+    return sendSuccess(res, 200, "Profile updated successfully", {
+      ...userObj,
+      ...(reviewStats && { review: reviewStats }),
+    });
   } catch (error) {
     console.error("Update profile error:", error);
     return sendError(res, 500, "Failed to update profile");
