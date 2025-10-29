@@ -12,7 +12,7 @@ import { job } from "@/api/job/job.route";
 import { location } from "@/api/location/location.route";
 
 // admin- dashboard routes
-import { adminUser } from "@/api/admin/user/user.route";
+import { adminUser } from "@/api/admin/admin-user/admin-user.route";
 
 // common routes
 

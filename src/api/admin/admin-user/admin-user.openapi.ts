@@ -8,7 +8,7 @@ import {
   UserQuerySchema,
   UserResponseSchema,
   UsersResponseSchema,
-} from "./user.validation";
+} from "./admin-user.validation";
 
 // Register schemas
 registry.register("UserIdParam", UserIdParamSchema);

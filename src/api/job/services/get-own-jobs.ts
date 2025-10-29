@@ -73,6 +73,7 @@ export const getMyJobs: RequestHandler<
       db.job
         .find(query)
         .populate("category", "name icon")
+        .populate("customerId", "name email full_name profile_img phone")
         .populate("location", "name state coordinates")
         .skip(skip)
         .limit(limitNum)
