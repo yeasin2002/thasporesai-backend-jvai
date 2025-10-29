@@ -19,21 +19,11 @@ export interface User {
 
   // Contractor specific fields
   skills: string[];
-  experience: Array<{
-    company_name: string;
-    start_date: Date;
-    end_date?: Date;
-  }>;
-  work_samples: Array<{
-    name: string;
-    img: string;
-    description?: string;
-  }>;
+  experience: Types.ObjectId[];
+  work_samples: Types.ObjectId[];
+
+  certification: Types.ObjectId;
   starting_budget: number;
-  certification: {
-    title: string;
-    img: string;
-  };
   hourly_charge: number;
   // Auth related
   refreshTokens?: Array<{
@@ -75,26 +65,13 @@ const userSchema = new Schema<UserDocument>(
 
     // Contractor specific fields
     skills: [{ type: String }],
-    experience: [
-      {
-        company_name: { type: String },
-        start_date: { type: Date },
-        end_date: { type: Date },
-      },
-    ],
-    work_samples: [
-      {
-        name: { type: String },
-        img: { type: String },
-        description: { type: String },
-      },
-    ],
+    experience: [{ type: Schema.Types.ObjectId, ref: "Experience" }],
+    work_samples: [{ type: Schema.Types.ObjectId, ref: "WorkSample" }],
+    certification: { type: Schema.Types.ObjectId, ref: "Certification" },
+
     starting_budget: { type: Number, default: 0 },
-    certification: {
-      title: { type: String },
-      img: { type: String },
-    },
     hourly_charge: { type: Number, default: 0 },
+
     // Auth related
     refreshTokens: [
       {

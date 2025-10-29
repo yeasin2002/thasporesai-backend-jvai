@@ -20,6 +20,7 @@ import { adminUser } from "@/api/admin/admin-user/admin-user.route";
 import { connectDB, generateOpenAPIDocument } from "@/lib";
 import { errorHandler, notFoundHandler, requireRole } from "@/middleware";
 import { authAdmin } from "./api/admin/auth-admin/auth-admin.route";
+// import { authAdmin } from "./api/admin/admin-user";
 import { common } from "./api/common/common.route";
 import { users } from "./api/users/users.route";
 import { getLocalIP } from "./lib/get-my-ip";
@@ -72,11 +73,12 @@ app.use("/api/common", common);
 // Admin routes
 app.use("/api/admin/auth", authAdmin);
 
+// Protected admin routes (require admin authentication)
+app.use("/api/admin/users", requireRole("admin"), adminUser);
+
 // normal  routes
 app.use("/api/user", users);
 
-// Protected admin routes (require admin authentication)
-app.use("/api/admin/users", requireRole("admin"), adminUser);
 
 app.use(notFoundHandler);
 app.use(errorHandler);
