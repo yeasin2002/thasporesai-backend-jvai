@@ -53,7 +53,7 @@ export const updateProfile: RequestHandler<{}, unknown, UpdateProfile> = async (
       delete updateData.experience;
       delete updateData.work_samples;
       delete updateData.starting_budget;
-      delete updateData.certification;
+      delete updateData.certifications;
       delete updateData.hourly_charge;
       delete updateData.category;
     }
@@ -70,7 +70,7 @@ export const updateProfile: RequestHandler<{}, unknown, UpdateProfile> = async (
       .populate("category", "name icon description")
       .populate("experience")
       .populate("work_samples")
-      .populate("certification");
+      .populate("certifications");
 
     if (!updatedUser) {
       return sendError(res, 404, "User not found");

@@ -38,6 +38,7 @@ const ReviewSchema = z.object({
 // Experience schema (populated)
 const ExperienceSchema = z.object({
   _id: z.string(),
+  user: z.string().optional(),
   title: z.string(),
   subtitle: z.string(),
   company_name: z.string(),
@@ -50,6 +51,7 @@ const ExperienceSchema = z.object({
 // Work sample schema (populated)
 const WorkSampleSchema = z.object({
   _id: z.string(),
+  user: z.string().optional(),
   name: z.string(),
   img: z.string(),
   description: z.string().optional(),
@@ -60,9 +62,13 @@ const WorkSampleSchema = z.object({
 // Certification schema (populated)
 const CertificationSchema = z.object({
   _id: z.string(),
+  user: z.string().optional(),
   title: z.string(),
   img: z.string(),
   description: z.string().optional(),
+  issue_date: z.coerce.date().optional(),
+  expiry_date: z.coerce.date().optional(),
+  issuing_organization: z.string().optional(),
   createdAt: z.coerce.date().optional(),
   updatedAt: z.coerce.date().optional(),
 });
@@ -149,8 +155,8 @@ export const UserDataSchema = z
       .number()
       .optional()
       .openapi({ description: "Starting budget for projects" }),
-    certification: CertificationSchema.optional().openapi({
-      description: "Professional certification (populated)",
+    certifications: z.array(CertificationSchema).optional().openapi({
+      description: "Professional certifications (populated array)",
     }),
     hourly_charge: z
       .number()
@@ -169,48 +175,48 @@ export const UserDataSchema = z
 
 // User query schema for filtering with pagination
 export const UserQuerySchema = z
-	.object({
-		search: z.string().optional().openapi({
-			description: "Search by full name or email (case-insensitive)",
-		}),
-		role: z
-			.enum(["contractor", "customer", "admin"])
-			.optional()
-			.openapi({ description: "Filter by user role" }),
-		location: z
-			.string()
-			.refine((val) => !val || isValidObjectId(val), {
-				message: "Invalid location ID format",
-			})
-			.optional()
-			.openapi({ description: "Filter by location ID" }),
-		category: z
-			.string()
-			.refine((val) => !val || isValidObjectId(val), {
-				message: "Invalid category ID format",
-			})
-			.optional()
-			.openapi({ description: "Filter by category ID" }),
-		page: z
-			.string()
-			.optional()
-			.transform((val) => (val ? Number.parseInt(val, 10) : 1))
-			.openapi({ description: "Page number (default: 1)" }),
-		limit: z
-			.string()
-			.optional()
-			.transform((val) => (val ? Number.parseInt(val, 10) : 10))
-			.openapi({ description: "Items per page (default: 10)" }),
-		sortBy: z
-			.string()
-			.optional()
-			.openapi({ description: "Sort field (default: createdAt)" }),
-		sortOrder: z
-			.enum(["asc", "desc"])
-			.optional()
-			.openapi({ description: "Sort order (default: desc)" }),
-	})
-	.openapi("UserQuery");
+  .object({
+    search: z.string().optional().openapi({
+      description: "Search by full name or email (case-insensitive)",
+    }),
+    role: z
+      .enum(["contractor", "customer", "admin"])
+      .optional()
+      .openapi({ description: "Filter by user role" }),
+    location: z
+      .string()
+      .refine((val) => !val || isValidObjectId(val), {
+        message: "Invalid location ID format",
+      })
+      .optional()
+      .openapi({ description: "Filter by location ID" }),
+    category: z
+      .string()
+      .refine((val) => !val || isValidObjectId(val), {
+        message: "Invalid category ID format",
+      })
+      .optional()
+      .openapi({ description: "Filter by category ID" }),
+    page: z
+      .string()
+      .optional()
+      .transform((val) => (val ? Number.parseInt(val, 10) : 1))
+      .openapi({ description: "Page number (default: 1)" }),
+    limit: z
+      .string()
+      .optional()
+      .transform((val) => (val ? Number.parseInt(val, 10) : 10))
+      .openapi({ description: "Items per page (default: 10)" }),
+    sortBy: z
+      .string()
+      .optional()
+      .openapi({ description: "Sort field (default: createdAt)" }),
+    sortOrder: z
+      .enum(["asc", "desc"])
+      .optional()
+      .openapi({ description: "Sort order (default: desc)" }),
+  })
+  .openapi("UserQuery");
 
 // Update Profile Schema
 export const UpdateProfileSchema = z
@@ -283,10 +289,10 @@ export const UpdateProfileSchema = z
     starting_budget: z.number().positive().optional().openapi({
       description: "Starting budget for projects (for contractors)",
     }),
-    certification: z
-      .string()
-      .optional()
-      .openapi({ description: "Certification name/URL (for contractors)" }),
+    certifications: z.array(z.string()).optional().openapi({
+      description:
+        "Array of certification IDs (for contractors) - MongoDB ObjectIds",
+    }),
     hourly_charge: z
       .number()
       .positive()

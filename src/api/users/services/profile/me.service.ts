@@ -14,7 +14,7 @@ export const me: RequestHandler = async (req, res) => {
       .populate("category")
       .populate("experience")
       .populate("work_samples")
-      .populate("certification");
+      .populate("certifications");
 
     if (!user) return sendError(res, 404, "User not found");
 

@@ -84,7 +84,7 @@ export const getUsersService = async (
     .populate("location", "name state coordinates")
     .populate("experience")
     .populate("work_samples")
-    .populate("certification")
+    .populate("certifications")
     .sort({ [sortBy]: sortDirection })
     .skip(skip)
     .limit(limit)

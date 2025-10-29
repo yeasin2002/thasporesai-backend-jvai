@@ -21,8 +21,7 @@ export interface User {
   skills: string[];
   experience: Types.ObjectId[];
   work_samples: Types.ObjectId[];
-
-  certification: Types.ObjectId;
+  certifications: Types.ObjectId[]; // Changed to array - contractors can have multiple certifications
   starting_budget: number;
   hourly_charge: number;
   // Auth related
@@ -67,8 +66,7 @@ const userSchema = new Schema<UserDocument>(
     skills: [{ type: String }],
     experience: [{ type: Schema.Types.ObjectId, ref: "Experience" }],
     work_samples: [{ type: Schema.Types.ObjectId, ref: "WorkSample" }],
-    certification: { type: Schema.Types.ObjectId, ref: "Certification" },
-
+    certifications: [{ type: Schema.Types.ObjectId, ref: "Certification" }], // Changed to array
     starting_budget: { type: Number, default: 0 },
     hourly_charge: { type: Number, default: 0 },
 
