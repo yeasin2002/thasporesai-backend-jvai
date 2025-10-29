@@ -148,10 +148,20 @@ export const ReviewsResponseSchema = z
       page: z.number().openapi({ description: "Current page" }),
       limit: z.number().openapi({ description: "Items per page" }),
       totalPages: z.number().openapi({ description: "Total pages" }),
-      averageRating: z
+      average: z
         .number()
         .optional()
-        .openapi({ description: "Average rating" }),
+        .openapi({ description: "Average rating (0-5)" }),
+      ratingDistribution: z
+        .object({
+          "5": z.number(),
+          "4": z.number(),
+          "3": z.number(),
+          "2": z.number(),
+          "1": z.number(),
+        })
+        .optional()
+        .openapi({ description: "Distribution of ratings (count per star)" }),
     }),
   })
   .openapi("ReviewsResponse");

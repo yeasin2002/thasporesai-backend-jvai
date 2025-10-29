@@ -66,31 +66,26 @@ export const getAllReviews: RequestHandler<
 			db.review.countDocuments(query),
 		]);
 
-		// Calculate average rating if filtering by contractor
-		let averageRating: number | undefined;
-		if (contractor_id) {
-			const ratingStats = await db.review.aggregate([
-				{ $match: query },
-				{
-					$group: {
-						_id: null,
-						avgRating: { $avg: "$rating" },
-					},
-				},
-			]);
-			averageRating = ratingStats[0]?.avgRating || 0;
-		}
-
 		const totalPages = Math.ceil(total / limitNum);
 
-		return sendSuccess(res, 200, "Reviews retrieved successfully", {
-			reviews,
-			total,
-			page: pageNum,
-			limit: limitNum,
-			totalPages,
-			averageRating,
-		});
+    // Calculate statistics if filtering by contractor
+    let stats = null;
+    if (contractor_id) {
+      const { calculateReviewStats } = await import("@/helpers");
+      stats = await calculateReviewStats(contractor_id);
+    }
+
+    return sendSuccess(res, 200, "Reviews retrieved successfully", {
+      reviews,
+      total,
+      page: pageNum,
+      limit: limitNum,
+      totalPages,
+      ...(stats && {
+        average: stats.average,
+        ratingDistribution: stats.ratingDistribution,
+      }),
+    });
 	} catch (error) {
 		return exceptionErrorHandler(error, res, "Failed to retrieve reviews");
 	}
