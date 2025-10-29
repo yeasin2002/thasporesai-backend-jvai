@@ -1,4 +1,6 @@
+import { objectIdSchema } from "@/common/validations";
 import { extendZodWithOpenApi } from "@asteasolutions/zod-to-openapi";
+import { isValidObjectId } from "mongoose";
 import { z } from "zod";
 
 // Extend Zod with OpenAPI
@@ -7,23 +9,24 @@ extendZodWithOpenApi(z);
 // Base Job Schema
 export const JobSchema = z
 	.object({
-		_id: z.string().openapi({ description: "Job ID" }),
+		_id: objectIdSchema.openapi({ description: "Job ID" }),
 		title: z
 			.string()
 			.min(5, "Title must be at least 5 characters")
 			.openapi({ description: "Job title" }),
 		category: z
-			.array(z.string())
+			.array(objectIdSchema)
 			.min(1, "At least one category is required")
 			.openapi({ description: "Array of category IDs" }),
 		description: z
 			.string()
 			.min(20, "Description must be at least 20 characters")
 			.openapi({ description: "Job description" }),
-		location: z
+		location: objectIdSchema.openapi({ description: "Job location ID" }),
+		address: z
 			.string()
-			.min(3, "Location is required")
-			.openapi({ description: "Job location" }),
+			.min(5, "Address must be at least 5 characters")
+			.openapi({ description: "Job address" }),
 		budget: z
 			.number()
 			.positive("Budget must be positive")
@@ -33,16 +36,19 @@ export const JobSchema = z
 			.string()
 			.url("Invalid image URL")
 			.openapi({ description: "Cover image URL" }),
-		customerId: z
-			.string()
-			.openapi({ description: "Customer ID who posted the job" }),
-		contractorId: z
-			.string()
+		customerId: objectIdSchema.openapi({
+			description: "Customer ID who posted the job",
+		}),
+		contractorId: objectIdSchema
 			.optional()
 			.openapi({ description: "Assigned contractor ID" }),
 		status: z
 			.enum(["open", "in_progress", "completed", "cancelled"])
 			.openapi({ description: "Job status" }),
+		isApplied: z.boolean().optional().openapi({
+			description:
+				"Indicates if the authenticated contractor has applied to this job",
+		}),
 		createdAt: z.string().optional().openapi({ description: "Creation date" }),
 		updatedAt: z
 			.string()
@@ -59,17 +65,18 @@ export const CreateJobSchema = z
 			.min(5, "Title must be at least 5 characters")
 			.openapi({ description: "Job title" }),
 		category: z
-			.array(z.string())
+			.array(objectIdSchema)
 			.min(1, "At least one category is required")
 			.openapi({ description: "Array of category IDs" }),
 		description: z
 			.string()
 			.min(20, "Description must be at least 20 characters")
 			.openapi({ description: "Job description" }),
-		location: z
+		location: objectIdSchema.openapi({ description: "Job location ID" }),
+		address: z
 			.string()
-			.min(3, "Location is required")
-			.openapi({ description: "Job location" }),
+			.min(5, "Address must be at least 5 characters")
+			.openapi({ description: "Job address" }),
 		budget: z
 			.number()
 			.positive("Budget must be positive")
@@ -88,14 +95,18 @@ export const UpdateJobSchema = z
 	.object({
 		title: z.string().min(5, "Title must be at least 5 characters").optional(),
 		category: z
-			.array(z.string())
+			.array(objectIdSchema)
 			.min(1, "At least one category is required")
 			.optional(),
 		description: z
 			.string()
 			.min(20, "Description must be at least 20 characters")
 			.optional(),
-		location: z.string().min(3, "Location is required").optional(),
+		location: objectIdSchema.optional(),
+		address: z
+			.string()
+			.min(5, "Address must be at least 5 characters")
+			.optional(),
 		budget: z.number().positive("Budget must be positive").optional(),
 		date: z.string().or(z.date()).optional(),
 		coverImg: z.string().url("Invalid image URL").optional(),
@@ -108,10 +119,7 @@ export const UpdateJobSchema = z
 // Job ID Param Schema
 export const JobIdSchema = z
 	.object({
-		id: z
-			.string()
-			.min(1, "Job ID is required")
-			.openapi({ description: "Job ID" }),
+		id: objectIdSchema.openapi({ description: "Job ID" }),
 	})
 	.openapi("JobIdParam");
 
@@ -124,6 +132,9 @@ export const SearchJobSchema = z
 			.openapi({ description: "Search term for title or description" }),
 		category: z
 			.string()
+			.refine((val) => !val || isValidObjectId(val), {
+				message: "Invalid category ID format",
+			})
 			.optional()
 			.openapi({ description: "Filter by category ID" }),
 		status: z
@@ -142,8 +153,11 @@ export const SearchJobSchema = z
 			.openapi({ description: "Maximum budget" }),
 		location: z
 			.string()
+			.refine((val) => !val || isValidObjectId(val), {
+				message: "Invalid location ID format",
+			})
 			.optional()
-			.openapi({ description: "Filter by location" }),
+			.openapi({ description: "Filter by location ID" }),
 		page: z
 			.string()
 			.regex(/^\d+$/, "Page must be a number")

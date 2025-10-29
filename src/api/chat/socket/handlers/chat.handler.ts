@@ -1,6 +1,6 @@
 import { db } from "@/db";
 import type { Server, Socket } from "socket.io";
-import { createRoomId } from "../utils/room.utils";
+// import { createRoomId } from "../utils/room.utils";
 
 /**
  * Chat Event Handlers

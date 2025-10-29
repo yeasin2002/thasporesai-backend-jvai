@@ -10,7 +10,7 @@ import {
 	validateParams,
 	validateQuery,
 } from "@/middleware/validation.middleware";
-import express, { Router } from "express";
+import express, { type Router } from "express";
 import {
 	CreateJobSchema,
 	JobIdSchema,
@@ -33,7 +33,13 @@ job.get("/", optionalAuth, validateQuery(SearchJobSchema), getAllJobs);
 job.get("/:id", validateParams(JobIdSchema), getJobById);
 
 // Customer routes (authenticated)
-job.get("/my/jobs", requireAuth, requireRole("customer"), getMyJobs);
+job.get(
+	"/my/jobs",
+	requireAuth,
+	requireRole("customer"),
+	validateQuery(SearchJobSchema),
+	getMyJobs,
+);
 job.post(
 	"/",
 	requireAuth,

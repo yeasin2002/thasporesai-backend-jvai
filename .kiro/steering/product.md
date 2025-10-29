@@ -1,6 +1,6 @@
 # Product Overview
 
-**JobSphere** is a mobile marketplace backend that connects customers with local freelance contractors (electricians, plumbers, cleaners, carpenters, etc.). Built with the Better-T-Stack (BTS) framework, this TypeScript-first Express.js application provides RESTful API endpoints with MongoDB database integration.
+**JobSphere**  is a mobile marketplace backend that connects customers with local freelance contractors (electricians, plumbers, cleaners, carpenters, etc.). Built with TypeScript and Express.js, this application provides RESTful API endpoints with MongoDB database integration.
 
 ## User Roles
 
@@ -39,7 +39,7 @@
 - **Push Notifications**: Mobile notifications for Flutter app
   - Job updates, booking confirmations
   - New messages and payment notifications
-  - Firebase Cloud Messaging (FCM) integration
+  - AWS SNS integration
 
 - **File Upload System**: Local storage with cloud migration planned
   - Profile and portfolio images

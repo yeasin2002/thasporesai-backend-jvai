@@ -1,4 +1,9 @@
 import { db } from "@/db";
+import {
+	exceptionErrorHandler,
+	sendSuccess,
+	validatePagination,
+} from "@/helpers";
 import type { RequestHandler } from "express";
 import type { SearchJob } from "../job.validation";
 
@@ -17,13 +22,16 @@ export const getAllJobs: RequestHandler<
 			minBudget,
 			maxBudget,
 			location,
-			page = "1",
-			limit = "10",
+			page,
+			limit,
 		} = req.query;
 
-		const pageNum = Number.parseInt(page, 10);
-		const limitNum = Number.parseInt(limit, 10);
-		const skip = (pageNum - 1) * limitNum;
+		// Validate and sanitize pagination
+		const {
+			page: pageNum,
+			limit: limitNum,
+			skip,
+		} = validatePagination(page, limit);
 
 		// Build query
 		const query: any = {};
@@ -55,7 +63,7 @@ export const getAllJobs: RequestHandler<
 
 		// Filter by location
 		if (location) {
-			query.location = { $regex: location, $options: "i" };
+			query.location = location;
 		}
 
 		// Get jobs with pagination
@@ -71,25 +79,49 @@ export const getAllJobs: RequestHandler<
 			db.job.countDocuments(query),
 		]);
 
+		// If user is authenticated and is a contractor, check which jobs they've applied to
+		let jobsWithApplicationStatus: any[];
+		if (req.user?.role === "contractor") {
+			const contractorId = req.user.userId;
+			const jobIds = jobs.map((job) => job._id);
+
+			// Get all applications by this contractor for these jobs
+			const applications = await db.jobApplicationRequest.find({
+				job: { $in: jobIds },
+				contractor: contractorId,
+			});
+
+			// Create a Set of job IDs the contractor has applied to
+			const appliedJobIds = new Set(
+				applications.map((app) => app.job.toString()),
+			);
+
+			// Add isApplied field to each job
+			jobsWithApplicationStatus = jobs.map((job) => {
+				const jobObj = job.toObject();
+				return {
+					...jobObj,
+					isApplied: appliedJobIds.has((job._id as any).toString()),
+				};
+			});
+		} else {
+			// For non-contractors, add isApplied: false to all jobs
+			jobsWithApplicationStatus = jobs.map((job) => ({
+				...job.toObject(),
+				isApplied: false,
+			}));
+		}
+
 		const totalPages = Math.ceil(total / limitNum);
 
-		res.status(200).json({
-			status: 200,
-			message: "Jobs retrieved successfully",
-			data: {
-				jobs,
-				total,
-				page: pageNum,
-				limit: limitNum,
-				totalPages,
-			},
+		return sendSuccess(res, 200, "Jobs retrieved successfully", {
+			jobs: jobsWithApplicationStatus,
+			total,
+			page: pageNum,
+			limit: limitNum,
+			totalPages,
 		});
 	} catch (error) {
-		console.error("Get jobs error:", error);
-		res.status(500).json({
-			status: 500,
-			message: "Internal Server Error",
-			data: null,
-		});
+		return exceptionErrorHandler(error, res, "Failed to retrieve jobs");
 	}
 };

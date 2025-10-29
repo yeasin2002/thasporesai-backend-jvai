@@ -14,7 +14,7 @@ import { job } from "@/api/job/job.route";
 import { location } from "@/api/location/location.route";
 
 // admin- dashboard routes
-import { adminUser } from "@/api/admin/user/user.route";
+import { adminUser } from "@/api/admin/admin-user/admin-user.route";
 
 // common routes
 
@@ -23,7 +23,9 @@ import { errorHandler, notFoundHandler, requireRole } from "@/middleware";
 import { authAdmin } from "./api/admin/auth-admin/auth-admin.route";
 import { initializeSocketIO } from "./api/chat/socket";
 import { common } from "./api/common/common.route";
+import { users } from "./api/users/users.route";
 import { getLocalIP } from "./lib/get-my-ip";
+import { morganDevFormat } from "./lib/morgan";
 
 const app = express();
 const httpServer = createServer(app);
@@ -31,7 +33,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.use("/uploads", express.static("uploads"));
-app.use(morgan("dev"));
+app.use(morgan(morganDevFormat));
 
 app.use(
   cors({
@@ -73,12 +75,11 @@ app.use("/api/chat", chat);
 // Admin routes
 app.use("/api/admin/auth", authAdmin);
 
+// normal  routes
+app.use("/api/user", users);
+
 // Protected admin routes (require admin authentication)
 app.use("/api/admin/users", requireRole("admin"), adminUser);
-// app.use("/api/admin/dashboard", requireRole("admin"), dashboard);
-// app.use("/api/admin/job", requireRole("admin"), adminJob);
-// app.use("/api/admin/payments", requireRole("admin"), payments);
-// app.use("/api/admin/settings", requireRole("admin"), settings);
 
 app.use(notFoundHandler);
 app.use(errorHandler);

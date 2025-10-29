@@ -1,5 +1,5 @@
+import { openAPITags } from "@/common/constants";
 import { registry } from "@/lib/openapi";
-import { openAPITags } from "@/shared/constants";
 import {
 	CreateJobSchema,
 	ErrorResponseSchema,
@@ -25,7 +25,8 @@ registry.register("ErrorResponse", ErrorResponseSchema);
 registry.registerPath({
 	method: "get",
 	path: openAPITags.job.basepath,
-	description: "Get all jobs with optional search and filters",
+	description:
+		"Get all jobs with optional search and filters. If authenticated as a contractor, includes 'isApplied' field indicating whether you've applied to each job.",
 	summary: "Get all jobs",
 	tags: [openAPITags.job.name],
 	request: {
@@ -33,7 +34,8 @@ registry.registerPath({
 	},
 	responses: {
 		200: {
-			description: "Jobs retrieved successfully",
+			description:
+				"Jobs retrieved successfully. Each job includes 'isApplied' field (true/false) for contractors.",
 			content: {
 				"application/json": {
 					schema: JobsResponseSchema,
@@ -89,14 +91,18 @@ registry.registerPath({
 	},
 });
 
-// GET /api/job/my/jobs - Get customer's own jobs
+// GET /api/job/my/jobs - Get customer's own jobs with search and filters
 registry.registerPath({
 	method: "get",
 	path: `${openAPITags.job.basepath}/my/jobs`,
-	description: "Get all jobs posted by the authenticated customer",
+	description:
+		"Get all jobs posted by the authenticated customer with optional search and filters",
 	summary: "Get my jobs",
 	tags: [openAPITags.job.name],
 	security: [{ bearerAuth: [] }],
+	request: {
+		query: SearchJobSchema,
+	},
 	responses: {
 		200: {
 			description: "Jobs retrieved successfully",

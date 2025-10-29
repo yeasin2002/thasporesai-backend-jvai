@@ -6,6 +6,7 @@ export interface Job {
 	jobApplicationRequest: Types.ObjectId[]; // Array of category IDs
 	description: string;
 	location: Types.ObjectId;
+	address: string;
 	budget: number;
 	date: Date;
 	coverImg: string;
@@ -30,6 +31,10 @@ export const JobSchema = new Schema<JobDocument>(
 		location: {
 			type: Schema.Types.ObjectId,
 			ref: "location",
+			required: true,
+		},
+		address: {
+			type: String,
 			required: true,
 		},
 		budget: {
@@ -69,6 +74,7 @@ export const JobSchema = new Schema<JobDocument>(
 			ref: "User",
 			required: true,
 		},
+
 		// contractorId: {
 		//   type: Schema.Types.ObjectId,
 		//   ref: "User",

@@ -37,12 +37,16 @@ const fileFilter = (
 		"image/svg+xml",
 	];
 
-	if (allowedMimes.includes(file.mimetype)) {
+	// Also check file extension as fallback (some browsers send wrong MIME types)
+	const ext = path.extname(file.originalname).toLowerCase();
+	const allowedExtensions = [".jpg", ".jpeg", ".png", ".gif", ".webp", ".svg"];
+
+	if (allowedMimes.includes(file.mimetype) || allowedExtensions.includes(ext)) {
 		cb(null, true);
 	} else {
 		cb(
 			new Error(
-				"Invalid file type. Only JPEG, PNG, GIF, WebP, and SVG images are allowed.",
+				`Invalid file type. Only JPEG, PNG, GIF, WebP, and SVG images are allowed. Received: ${file.mimetype}`,
 			),
 		);
 	}

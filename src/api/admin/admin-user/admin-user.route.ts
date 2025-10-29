@@ -1,4 +1,4 @@
-import "./user.openapi";
+import "./admin-user.openapi";
 
 import {
 	validateBody,
@@ -8,16 +8,11 @@ import {
 import express, { type Router } from "express";
 
 import {
-	deleteUser,
-	getAllUsers,
-	getUserById,
-	suspendUser,
-} from "./user.service";
-import {
 	SuspendUserSchema,
 	UserIdParamSchema,
 	UserQuerySchema,
-} from "./user.validation";
+} from "./admin-user.validation";
+import { deleteUser, getAllUsers, getUserById, suspendUser } from "./services";
 
 export const adminUser: Router = express.Router();
 

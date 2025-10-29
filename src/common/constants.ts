@@ -1,14 +1,20 @@
 export const openAPITags = {
   authentication: { name: "Authentication", basepath: "/api/auth" },
-  user: { name: "user", basepath: "/api/user" },
+  user: {
+    me: { name: "user", basepath: "/api/user/me" },
+    all_users: { name: "user", basepath: "/api/user/" },
+  },
   job: { name: "job", basepath: "/api/job" },
-  job_request: { name: "Job Application", basepath: "/api/job-request" },
+  job_request: {
+    name: "Job Application  Request",
+    basepath: "/api/job-request",
+  },
   category: { name: "category", basepath: "/api/category" },
   location: { name: "location", basepath: "/api/location" },
   payment: { name: "payment", basepath: "/api/payment" },
   setting: { name: "setting", basepath: "/api/setting" },
-  chat: { name: "Chat", basepath: "/api/chat" },
   common: { imag_upload: { name: "common", basepath: "/api/common/upload" } },
+
   admin: {
     auth: {
       name: "Admin - Authentication",
@@ -38,6 +44,6 @@ export const openAPITags = {
 };
 
 export const mediaTypeFormat = {
-	json: "application/json",
-	form: "multipart/form-data",
+  json: "application/json",
+  form: "multipart/form-data",
 };

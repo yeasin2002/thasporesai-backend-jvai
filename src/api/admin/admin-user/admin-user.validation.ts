@@ -1,4 +1,5 @@
 import { extendZodWithOpenApi } from "@asteasolutions/zod-to-openapi";
+import { isValidObjectId } from "mongoose";
 import { z } from "zod";
 
 // Extend Zod with OpenAPI
@@ -14,17 +15,48 @@ export const UserIdParamSchema = z
 	})
 	.openapi("UserIdParam");
 
-// User query schema for filtering
+// User query schema for filtering with pagination
 export const UserQuerySchema = z
 	.object({
-		search: z
-			.string()
-			.optional()
-			.openapi({ description: "Search by full name (case-insensitive)" }),
+		search: z.string().optional().openapi({
+			description: "Search by full name or email (case-insensitive)",
+		}),
 		role: z
 			.enum(["contractor", "customer", "admin"])
 			.optional()
 			.openapi({ description: "Filter by user role" }),
+		location: z
+			.string()
+			.refine((val) => !val || isValidObjectId(val), {
+				message: "Invalid location ID format",
+			})
+			.optional()
+			.openapi({ description: "Filter by location ID" }),
+		category: z
+			.string()
+			.refine((val) => !val || isValidObjectId(val), {
+				message: "Invalid category ID format",
+			})
+			.optional()
+			.openapi({ description: "Filter by category ID" }),
+		page: z
+			.string()
+			.optional()
+			.transform((val) => (val ? Number.parseInt(val, 10) : 1))
+			.openapi({ description: "Page number (default: 1)" }),
+		limit: z
+			.string()
+			.optional()
+			.transform((val) => (val ? Number.parseInt(val, 10) : 10))
+			.openapi({ description: "Items per page (default: 10)" }),
+		sortBy: z
+			.string()
+			.optional()
+			.openapi({ description: "Sort field (default: createdAt)" }),
+		sortOrder: z
+			.enum(["asc", "desc"])
+			.optional()
+			.openapi({ description: "Sort order (default: desc)" }),
 	})
 	.openapi("UserQuery");
 
@@ -77,6 +109,16 @@ export const UserDataSchema = z.object({
 	updatedAt: z.coerce.date().optional(),
 });
 
+// Pagination metadata schema
+export const PaginationSchema = z.object({
+	currentPage: z.number(),
+	totalPages: z.number(),
+	totalUsers: z.number(),
+	limit: z.number(),
+	hasNextPage: z.boolean(),
+	hasPrevPage: z.boolean(),
+});
+
 // Response schemas
 export const UserResponseSchema = z
 	.object({
@@ -90,7 +132,10 @@ export const UsersResponseSchema = z
 	.object({
 		status: z.number(),
 		message: z.string(),
-		data: z.array(UserDataSchema),
+		data: z.object({
+			users: z.array(UserDataSchema),
+			pagination: PaginationSchema,
+		}),
 	})
 	.openapi("UsersResponse");
 

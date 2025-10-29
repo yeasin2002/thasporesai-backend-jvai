@@ -13,30 +13,31 @@ export const authMiddleware = async (
 	next: (err?: Error) => void,
 ) => {
 	try {
-		// Extract token from handshake auth or headers
-		const token =
-			socket.handshake.auth.token ||
-			socket.handshake.headers.authorization?.split(" ")[1];
+    // Extract token from handshake auth or headers
+    const token =
+      socket.handshake.auth.token ||
+      socket.handshake.headers.authorization?.split(" ")[1];
 
-		// Check if token exists
-		if (!token) {
-			return next(new Error("Authentication token required"));
-		}
+    // Check if token exists
+    if (!token) {
+      return next(new Error("Authentication token required"));
+    }
 
-		// Verify JWT token
-		const decoded = jwt.verify(token, process.env.JWT_SECRET!) as {
-			userId: string;
-			role: string;
-		};
+    // Verify JWT token
+    const decoded = jwt.verify(token, process.env.JWT_SECRET as string) as {
+      userId: string;
+      role: string;
+    };
 
-		// Attach user data to socket for use in handlers
-		socket.data.userId = decoded.userId;
-		socket.data.role = decoded.role;
+    // Attach user data to socket for use in handlers
+    socket.data.userId = decoded.userId;
+    socket.data.role = decoded.role;
 
-		// Allow connection
-		next();
-	} catch (error) {
-		// Reject connection with error
-		next(new Error("Invalid authentication token"));
-	}
+    // Allow connection
+    next();
+    // oxlint-disable-next-line no-unused-vars
+  } catch (_error) {
+    // Reject connection with error
+    next(new Error("Invalid authentication token"));
+  }
 };

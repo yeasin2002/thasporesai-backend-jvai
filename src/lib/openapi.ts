@@ -12,9 +12,9 @@ export const generateOpenAPIDocument = (): OpenAPIObject => {
 	return generator.generateDocument({
 		openapi: "3.0.0",
 		info: {
-			title: "Providus Org API",
+			title: "JobSphere Org API",
 			version: "1.0.0",
-			description: "Backend API service for Providus Organization",
+			description: "Backend API service for JobSphere Organization",
 		},
 		servers: [
 			{

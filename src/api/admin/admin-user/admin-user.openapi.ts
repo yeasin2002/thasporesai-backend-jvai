@@ -1,5 +1,5 @@
+import { openAPITags } from "@/common/constants";
 import { registry } from "@/lib/openapi";
-import { openAPITags } from "@/shared/constants";
 import {
 	ErrorResponseSchema,
 	SuccessResponseSchema,
@@ -8,7 +8,7 @@ import {
 	UserQuerySchema,
 	UserResponseSchema,
 	UsersResponseSchema,
-} from "./user.validation";
+} from "./admin-user.validation";
 
 // Register schemas
 registry.register("UserIdParam", UserIdParamSchema);
@@ -19,19 +19,20 @@ registry.register("AdminUsersResponse", UsersResponseSchema);
 registry.register("AdminSuccessResponse", SuccessResponseSchema);
 registry.register("AdminErrorResponse", ErrorResponseSchema);
 
-// GET /api/admin/users - Get all users
+// GET /api/admin/users - Get all users with pagination
 registry.registerPath({
 	method: "get",
 	path: `${openAPITags.admin.user_management.basepath}s`,
-	description: "Get all users with optional search and role filter",
-	summary: "Retrieve all users",
+	description:
+		"Get all users with optional search, filters, and pagination. Supports filtering by role, location, category, and searching by name or email.",
+	summary: "Retrieve all users with pagination",
 	tags: [openAPITags.admin.user_management.name],
 	request: {
 		query: UserQuerySchema,
 	},
 	responses: {
 		200: {
-			description: "Users retrieved successfully",
+			description: "Users retrieved successfully with pagination metadata",
 			content: {
 				"application/json": {
 					schema: UsersResponseSchema,

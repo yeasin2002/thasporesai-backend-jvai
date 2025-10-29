@@ -20,7 +20,7 @@
 
 ### Push Notifications
 
-- Mobile push notifications for Flutter app
+- Mobile push notifications for Flutter app - Backend AWS SNS (aws-sdk)
 - Notification triggers:
   - New job posted (for contractors)
   - Job application received (for customers)
@@ -166,9 +166,28 @@ STRIPE_PUBLISHABLE_KEY=pk_test_...
 STRIPE_WEBHOOK_SECRET=whsec_...
 STRIPE_COMMISSION_PERCENT=10
 
-# Push Notifications
-FCM_SERVER_KEY=...
-FCM_PROJECT_ID=...
+# ------------------------------
+# AWS SNS Configuration
+# ------------------------------
+
+# Your AWS Access Credentials (from IAM)
+AWS_ACCESS_KEY_ID=your_aws_access_key_id
+AWS_SECRET_ACCESS_KEY=your_aws_secret_access_key
+
+# The region your SNS app is created in (e.g., us-east-1, ap-south-1)
+AWS_REGION=us-east-1
+
+# ------------------------------
+# SNS Platform Application ARNs
+# ------------------------------
+# These are created in AWS SNS console when you set up
+# push notification platforms for Android (FCM) or iOS (APNs).
+
+SNS_PLATFORM_APPLICATION_ARN_ANDROID=arn:aws:sns:us-east-1:123456789012:app/GCM/YourAndroidApp
+SNS_PLATFORM_APPLICATION_ARN_IOS=arn:aws:sns:us-east-1:123456789012:app/APNS/YouriOSApp
+
+
+
 ```
 
 ## Dependencies to Add

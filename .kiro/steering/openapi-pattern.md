@@ -223,11 +223,27 @@ All API paths and tags are defined in `src/common/constants.ts`:
 ```typescript
 export const openAPITags = {
   authentication: { name: "Authentication", basepath: "/api/auth" },
-  user: { name: "user", basepath: "/api/user" },
+  user: {
+    me: { name: "user", basepath: "/api/user/me" },
+    all_users: { name: "user", basepath: "/api/user/" },
+  },
   job: { name: "job", basepath: "/api/job" },
+  job_request: {
+    name: "Job Application Request",
+    basepath: "/api/job-request",
+  },
   category: { name: "category", basepath: "/api/category" },
   location: { name: "location", basepath: "/api/location" },
+  payment: { name: "payment", basepath: "/api/payment" },
+  setting: { name: "setting", basepath: "/api/setting" },
+  common: { 
+    imag_upload: { name: "common", basepath: "/api/common/upload" } 
+  },
   admin: {
+    auth: {
+      name: "Admin - Authentication",
+      basepath: "/api/admin/auth",
+    },
     dashboard: {
       name: "Admin - Dashboard",
       basepath: "/api/admin/dashboard",
@@ -240,8 +256,20 @@ export const openAPITags = {
       name: "Admin - Job Management",
       basepath: "/api/admin/jobs",
     },
-    // ... other admin modules
+    payment_management: {
+      name: "Admin - Payment Management",
+      basepath: "/api/admin/payments",
+    },
+    setting_management: {
+      name: "Admin - Settings",
+      basepath: "/api/admin/settings",
+    },
   },
+};
+
+export const mediaTypeFormat = {
+  json: "application/json",
+  form: "multipart/form-data",
 };
 ```
 
@@ -253,11 +281,13 @@ export const openAPITags = {
 - Prevents typos and inconsistencies
 
 **Usage:**
-- Import: `import { openAPITags } from "@/common/constants";`
-- Base path: `path: openAPITags.user.basepath`
-- With params: `path: \`\${openAPITags.user.basepath}/{id}\``
-- Tags: `tags: [openAPITags.user.name]`
-- Nested modules: `openAPITags.admin.user_management.basepath`
+- Import: `import { openAPITags, mediaTypeFormat } from "@/common/constants";`
+- Simple base path: `path: openAPITags.job.basepath`
+- Nested base path: `path: openAPITags.user.all_users.basepath`
+- With params: `path: \`\${openAPITags.job.basepath}/{id}\``
+- Tags: `tags: [openAPITags.job.name]`
+- Admin modules: `openAPITags.admin.user_management.basepath`
+- Media types: `mediaTypeFormat.json` or `mediaTypeFormat.form`
 
 ### 3. Import in `[module].route.ts`
 

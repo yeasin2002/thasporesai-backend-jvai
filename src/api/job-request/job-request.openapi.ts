@@ -1,5 +1,5 @@
+import { openAPITags } from "@/common/constants";
 import { registry } from "@/lib/openapi";
-import { openAPITags } from "@/shared/constants";
 import {
 	ApplicationIdParamSchema,
 	ApplicationResponseSchema,
@@ -7,6 +7,7 @@ import {
 	ApplyForJobSchema,
 	ErrorResponseSchema,
 	JobIdParamSchema,
+	SearchMyApplicationsSchema,
 	SuccessResponseSchema,
 } from "./job-request.validation";
 
@@ -14,6 +15,7 @@ import {
 registry.register("ApplyForJob", ApplyForJobSchema);
 registry.register("JobIdParam", JobIdParamSchema);
 registry.register("ApplicationIdParam", ApplicationIdParamSchema);
+registry.register("SearchMyApplications", SearchMyApplicationsSchema);
 registry.register("ApplicationResponse", ApplicationResponseSchema);
 registry.register("ApplicationsResponse", ApplicationsResponseSchema);
 registry.register("JobRequestSuccessResponse", SuccessResponseSchema);
@@ -86,13 +88,18 @@ registry.registerPath({
 registry.registerPath({
 	method: "get",
 	path: `${openAPITags.job_request.basepath}/my`,
-	description: "Get contractor's own job applications",
+	description:
+		"Get contractor's own job applications with optional search and filters. Supports pagination and filtering by job criteria.",
 	summary: "Get my applications",
 	tags: [openAPITags.job_request.name],
 	security: [{ bearerAuth: [] }],
+	request: {
+		query: SearchMyApplicationsSchema,
+	},
 	responses: {
 		200: {
-			description: "Applications retrieved successfully",
+			description:
+				"Applications retrieved successfully with pagination information",
 			content: {
 				"application/json": {
 					schema: ApplicationsResponseSchema,

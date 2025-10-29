@@ -4,12 +4,14 @@ import { requireAuth, requireRole } from "@/middleware/auth.middleware";
 import {
 	validateBody,
 	validateParams,
+	validateQuery,
 } from "@/middleware/validation.middleware";
 import express, { type Router } from "express";
 import {
 	ApplicationIdParamSchema,
 	ApplyForJobSchema,
 	JobIdParamSchema,
+	SearchMyApplicationsSchema,
 } from "./job-request.validation";
 import {
 	acceptApplication,
@@ -38,6 +40,7 @@ jobRequest.get(
 	"/my",
 	requireAuth,
 	requireRole("contractor"),
+	validateQuery(SearchMyApplicationsSchema),
 	getMyApplications,
 );
 

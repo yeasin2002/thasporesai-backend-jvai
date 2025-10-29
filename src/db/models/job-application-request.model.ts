@@ -1,4 +1,5 @@
-import { Document, Schema, Types, model } from "mongoose";
+import type { Document, Types } from "mongoose";
+import { model, Schema } from "mongoose";
 
 export interface JobApplicationRequest {
 	job: Types.ObjectId;

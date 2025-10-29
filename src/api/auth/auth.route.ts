@@ -1,6 +1,5 @@
 import "./auth.openapi";
 
-import { requireAuth } from "@/middleware/auth.middleware";
 import { validateBody } from "@/middleware/validation.middleware";
 import express, { type Router } from "express";
 import {
@@ -14,7 +13,6 @@ import {
 import {
 	forgotPassword,
 	login,
-	me,
 	refresh,
 	register,
 	resetPassword,
@@ -37,4 +35,4 @@ auth.post("/reset-password", validateBody(ResetPasswordSchema), resetPassword);
 auth.post("/refresh", validateBody(RefreshTokenSchema), refresh);
 
 // Protected routes
-auth.get("/me", requireAuth, me);
+// auth.get("/me", requireAuth, me);

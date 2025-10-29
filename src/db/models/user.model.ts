@@ -63,7 +63,7 @@ const userSchema = new Schema<UserDocument>(
 		is_verified: { type: Boolean, default: false },
 		isSuspend: { type: Boolean, default: false },
 
-		location: [{ type: Types.ObjectId, ref: "Location" }],
+		location: [{ type: Types.ObjectId, ref: "location" }],
 		category: [{ type: Schema.Types.ObjectId, ref: "Category" }],
 
 		// Contractor specific fields
