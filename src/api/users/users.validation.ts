@@ -93,9 +93,18 @@ export const UserDataSchema = z
       .optional()
       .openapi({ description: "Populated category details" }),
     review: z
-      .array(ReviewSchema)
+      .object({
+        total: z.number().openapi({ description: "Total number of reviews" }),
+        average: z.number().openapi({ description: "Average rating (0-5)" }),
+        reviews: z
+          .array(ReviewSchema)
+          .openapi({ description: "Last 5 reviews" }),
+      })
       .optional()
-      .openapi({ description: "Populated review details" }),
+      .openapi({
+        description:
+          "Review statistics (for contractors only) - includes total, average rating, and last 5 reviews",
+      }),
     // Contractor specific fields
     skills: z
       .array(z.string())

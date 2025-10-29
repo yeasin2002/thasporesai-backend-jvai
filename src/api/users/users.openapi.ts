@@ -52,7 +52,7 @@ registry.registerPath({
   responses: {
     200: {
       description:
-        "User retrieved successfully with populated location, category, and review details. Excludes sensitive fields (password, refreshTokens, otp).",
+        "User retrieved successfully with populated location and category details. For contractors, includes review statistics (total, average rating, and last 5 reviews). Excludes sensitive fields (password, refreshTokens, otp).",
       content: {
         [mediaTypeFormat.json]: {
           schema: UserResponseSchema,
