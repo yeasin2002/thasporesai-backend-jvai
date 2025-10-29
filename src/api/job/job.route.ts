@@ -34,11 +34,11 @@ job.get("/:id", validateParams(JobIdSchema), getJobById);
 
 // Customer routes (authenticated)
 job.get(
-  "/my/jobs",
-  requireAuth,
-  requireRole("customer"),
-  validateQuery(SearchJobSchema),
-  getMyJobs
+	"/my/jobs",
+	requireAuth,
+	requireRole("customer"),
+	validateQuery(SearchJobSchema),
+	getMyJobs,
 );
 job.post(
 	"/",

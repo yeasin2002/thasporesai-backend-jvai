@@ -97,36 +97,36 @@ export const ApplicationResponseSchema = z
 	.openapi("ApplicationResponse");
 
 export const ApplicationsResponseSchema = z
-  .object({
-    status: z.number(),
-    message: z.string(),
-    data: z.object({
-      applications: z.array(ApplicationDataSchema),
-      total: z
-        .number()
-        .openapi({ description: "Total number of applications" }),
-      page: z.number().openapi({ description: "Current page" }),
-      limit: z.number().openapi({ description: "Items per page" }),
-      totalPages: z.number().openapi({ description: "Total pages" }),
-    }),
-  })
-  .openapi("ApplicationsResponse");
+	.object({
+		status: z.number(),
+		message: z.string(),
+		data: z.object({
+			applications: z.array(ApplicationDataSchema),
+			total: z
+				.number()
+				.openapi({ description: "Total number of applications" }),
+			page: z.number().openapi({ description: "Current page" }),
+			limit: z.number().openapi({ description: "Items per page" }),
+			totalPages: z.number().openapi({ description: "Total pages" }),
+		}),
+	})
+	.openapi("ApplicationsResponse");
 
 export const SuccessResponseSchema = z
-  .object({
-    status: z.number(),
-    message: z.string(),
-    data: z.null(),
-  })
-  .openapi("SuccessResponse");
+	.object({
+		status: z.number(),
+		message: z.string(),
+		data: z.null(),
+	})
+	.openapi("SuccessResponse");
 
 export const ErrorResponseSchema = z
-  .object({
-    status: z.number(),
-    message: z.string(),
-    data: z.null(),
-  })
-  .openapi("ErrorResponse");
+	.object({
+		status: z.number(),
+		message: z.string(),
+		data: z.null(),
+	})
+	.openapi("ErrorResponse");
 
 // Type exports
 export type ApplyForJob = z.infer<typeof ApplyForJobSchema>;

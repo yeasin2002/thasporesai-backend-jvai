@@ -46,60 +46,60 @@ export interface User {
 export interface UserDocument extends User, Document {}
 
 const userSchema = new Schema<UserDocument>(
-  {
-    role: {
-      type: String,
-      enum: ["contractor", "customer", "admin"],
-      default: "customer",
-    },
-    full_name: { type: String, required: true },
-    profile_img: { type: String },
-    cover_img: { type: String },
-    email: { type: String, required: true, unique: true, lowercase: true },
-    password: { type: String, required: true },
-    phone: { type: String },
-    bio: { type: String },
-    availability: { type: Date },
-    is_verified: { type: Boolean, default: false },
-    isSuspend: { type: Boolean, default: false },
+	{
+		role: {
+			type: String,
+			enum: ["contractor", "customer", "admin"],
+			default: "customer",
+		},
+		full_name: { type: String, required: true },
+		profile_img: { type: String },
+		cover_img: { type: String },
+		email: { type: String, required: true, unique: true, lowercase: true },
+		password: { type: String, required: true },
+		phone: { type: String },
+		bio: { type: String },
+		availability: { type: Date },
+		is_verified: { type: Boolean, default: false },
+		isSuspend: { type: Boolean, default: false },
 
-    location: [{ type: Types.ObjectId, ref: "location" }],
-    category: [{ type: Schema.Types.ObjectId, ref: "Category" }],
+		location: [{ type: Types.ObjectId, ref: "location" }],
+		category: [{ type: Schema.Types.ObjectId, ref: "Category" }],
 
-    // Contractor specific fields
-    skills: [{ type: String }],
-    experience: [
-      {
-        company_name: { type: String },
-        start_date: { type: Date },
-        end_date: { type: Date },
-      },
-    ],
-    work_samples: [
-      {
-        name: { type: String },
-        img: { type: String },
-        description: { type: String },
-      },
-    ],
-    starting_budget: { type: Number },
-    certification: { type: String },
-    hourly_charge: { type: Number },
-    // Auth related
-    refreshTokens: [
-      {
-        token: { type: String, required: true },
-        jti: { type: String, required: true },
-        createdAt: { type: Date, default: Date.now },
-      },
-    ],
-    otp: {
-      code: { type: String },
-      expiresAt: { type: Date },
-      used: { type: Boolean, default: false },
-    },
-  },
-  { timestamps: true }
+		// Contractor specific fields
+		skills: [{ type: String }],
+		experience: [
+			{
+				company_name: { type: String },
+				start_date: { type: Date },
+				end_date: { type: Date },
+			},
+		],
+		work_samples: [
+			{
+				name: { type: String },
+				img: { type: String },
+				description: { type: String },
+			},
+		],
+		starting_budget: { type: Number },
+		certification: { type: String },
+		hourly_charge: { type: Number },
+		// Auth related
+		refreshTokens: [
+			{
+				token: { type: String, required: true },
+				jti: { type: String, required: true },
+				createdAt: { type: Date, default: Date.now },
+			},
+		],
+		otp: {
+			code: { type: String },
+			expiresAt: { type: Date },
+			used: { type: Boolean, default: false },
+		},
+	},
+	{ timestamps: true },
 );
 
 export const User = model<UserDocument>("User", userSchema);

@@ -1,41 +1,41 @@
 import { mediaTypeFormat, openAPITags } from "@/common/constants";
 import { registry } from "@/lib/openapi";
 import {
-  ErrorResponseSchema,
-  UserQuerySchema,
-  UserResponseSchema,
-  UsersResponseSchema,
+	ErrorResponseSchema,
+	UserQuerySchema,
+	UserResponseSchema,
+	UsersResponseSchema,
 } from "./users.validation";
 
 // GET /api/users - Get all users with pagination
 registry.registerPath({
-  method: "get",
-  path: openAPITags.user.all_users.basepath,
-  description:
-    "Get all users with optional search, filters, and pagination. Supports filtering by role, location, category, and searching by name or email.",
-  summary: "Retrieve all users with pagination",
-  tags: [openAPITags.user.all_users.name],
-  request: {
-    query: UserQuerySchema,
-  },
-  responses: {
-    200: {
-      description: "Users retrieved successfully with pagination metadata",
-      content: {
-        [mediaTypeFormat.json]: {
-          schema: UsersResponseSchema,
-        },
-      },
-    },
-    500: {
-      description: "Internal server error",
-      content: {
-        [mediaTypeFormat.json]: {
-          schema: ErrorResponseSchema,
-        },
-      },
-    },
-  },
+	method: "get",
+	path: openAPITags.user.all_users.basepath,
+	description:
+		"Get all users with optional search, filters, and pagination. Supports filtering by role, location, category, and searching by name or email.",
+	summary: "Retrieve all users with pagination",
+	tags: [openAPITags.user.all_users.name],
+	request: {
+		query: UserQuerySchema,
+	},
+	responses: {
+		200: {
+			description: "Users retrieved successfully with pagination metadata",
+			content: {
+				[mediaTypeFormat.json]: {
+					schema: UsersResponseSchema,
+				},
+			},
+		},
+		500: {
+			description: "Internal server error",
+			content: {
+				[mediaTypeFormat.json]: {
+					schema: ErrorResponseSchema,
+				},
+			},
+		},
+	},
 });
 
 // GET /api/auth/me
