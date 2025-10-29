@@ -9,6 +9,7 @@ export interface User {
   password: string;
   phone?: string;
   bio?: string;
+  description?: string;
   location?: Types.ObjectId[];
   availability?: Date;
   is_verified: boolean;
@@ -60,6 +61,7 @@ const userSchema = new Schema<UserDocument>(
     password: { type: String, required: true },
     phone: { type: String },
     bio: { type: String },
+    description: { type: String },
     availability: { type: Date },
     is_verified: { type: Boolean, default: false },
     isSuspend: { type: Boolean, default: false },

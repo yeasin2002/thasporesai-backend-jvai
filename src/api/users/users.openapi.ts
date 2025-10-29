@@ -2,6 +2,7 @@ import { mediaTypeFormat, openAPITags } from "@/common/constants";
 import { registry } from "@/lib/openapi";
 import {
   ErrorResponseSchema,
+  UpdateProfileSchema,
   UserQuerySchema,
   UserResponseSchema,
   UsersResponseSchema,
@@ -85,10 +86,73 @@ registry.registerPath({
   },
 });
 
+// PATCH /api/user/me - Update profile
+registry.registerPath({
+  method: "patch",
+  path: openAPITags.user.me.basepath,
+  description:
+    "Update current user profile. Customers can update basic info (name, phone, bio, location, images). Contractors can additionally update skills, experience, work samples, certifications, hourly rate, and categories. All fields are optional - only send fields you want to update.",
+  summary: "Update user profile",
+  tags: [openAPITags.user.me.name],
+  security: [{ bearerAuth: [] }],
+  request: {
+    body: {
+      content: {
+        [mediaTypeFormat.json]: {
+          schema: UpdateProfileSchema,
+        },
+      },
+    },
+  },
+  responses: {
+    200: {
+      description:
+        "Profile updated successfully with populated location, category, and review details",
+      content: {
+        [mediaTypeFormat.json]: {
+          schema: UserResponseSchema,
+        },
+      },
+    },
+    400: {
+      description: "Validation error or invalid category/location IDs",
+      content: {
+        [mediaTypeFormat.json]: {
+          schema: ErrorResponseSchema,
+        },
+      },
+    },
+    401: {
+      description: "Unauthorized - Invalid or missing access token",
+      content: {
+        [mediaTypeFormat.json]: {
+          schema: ErrorResponseSchema,
+        },
+      },
+    },
+    404: {
+      description: "User not found",
+      content: {
+        [mediaTypeFormat.json]: {
+          schema: ErrorResponseSchema,
+        },
+      },
+    },
+    500: {
+      description: "Internal server error",
+      content: {
+        [mediaTypeFormat.json]: {
+          schema: ErrorResponseSchema,
+        },
+      },
+    },
+  },
+});
+
 // Register security scheme for bearer auth
 registry.registerComponent("securitySchemes", "bearerAuth", {
-	type: "http",
-	scheme: "bearer",
-	bearerFormat: "JWT",
-	description: "JWT access token",
+  type: "http",
+  scheme: "bearer",
+  bearerFormat: "JWT",
+  description: "JWT access token",
 });

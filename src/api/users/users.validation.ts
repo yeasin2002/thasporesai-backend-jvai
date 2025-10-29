@@ -71,6 +71,10 @@ export const UserDataSchema = z
       .optional()
       .openapi({ description: "User's phone number" }),
     bio: z.string().optional().openapi({ description: "User biography" }),
+    description: z
+      .string()
+      .optional()
+      .openapi({ description: "User description / about me" }),
     location: z
       .array(LocationSchema)
       .optional()
@@ -173,6 +177,89 @@ export const UserQuerySchema = z
 	})
 	.openapi("UserQuery");
 
+// Update Profile Schema
+export const UpdateProfileSchema = z
+  .object({
+    full_name: z
+      .string()
+      .min(2, "Name must be at least 2 characters")
+      .optional()
+      .openapi({ description: "User's full name" }),
+    profile_img: z
+      .string()
+      .optional()
+      .openapi({ description: "Profile image URL (uploaded as string)" }),
+    cover_img: z
+      .string()
+      .optional()
+      .openapi({ description: "Cover image URL (uploaded as string)" }),
+    phone: z.string().optional().openapi({ description: "Phone number" }),
+    bio: z.string().optional().openapi({ description: "User biography" }),
+    description: z
+      .string()
+      .optional()
+      .openapi({ description: "User description / about me" }),
+    location: z
+      .array(
+        z.string().refine((val) => isValidObjectId(val), {
+          message: "Invalid location ID format",
+        })
+      )
+      .optional()
+      .openapi({ description: "Array of location IDs" }),
+    category: z
+      .array(
+        z.string().refine((val) => isValidObjectId(val), {
+          message: "Invalid category ID format",
+        })
+      )
+      .optional()
+      .openapi({ description: "Array of category IDs (for contractors)" }),
+    availability: z
+      .string()
+      .or(z.coerce.date())
+      .optional()
+      .openapi({ description: "Availability date" }),
+    // Contractor specific fields
+    skills: z
+      .array(z.string())
+      .optional()
+      .openapi({ description: "Skills (for contractors)" }),
+    experience: z
+      .array(
+        z.object({
+          company_name: z.string(),
+          start_date: z.string().or(z.coerce.date()),
+          end_date: z.string().or(z.coerce.date()).optional(),
+        })
+      )
+      .optional()
+      .openapi({ description: "Work experience (for contractors)" }),
+    work_samples: z
+      .array(
+        z.object({
+          name: z.string(),
+          img: z.string(),
+          description: z.string().optional(),
+        })
+      )
+      .optional()
+      .openapi({ description: "Portfolio work samples (for contractors)" }),
+    starting_budget: z.number().positive().optional().openapi({
+      description: "Starting budget for projects (for contractors)",
+    }),
+    certification: z
+      .string()
+      .optional()
+      .openapi({ description: "Certification name/URL (for contractors)" }),
+    hourly_charge: z
+      .number()
+      .positive()
+      .optional()
+      .openapi({ description: "Hourly rate (for contractors)" }),
+  })
+  .openapi("UpdateProfile");
+
 // Pagination metadata schema
 export const PaginationSchema = z.object({
 	currentPage: z.number(),
@@ -225,3 +312,4 @@ export const ErrorResponseSchema = z
 
 // Type exports
 export type UserQuery = z.infer<typeof UserQuerySchema>;
+export type UpdateProfile = z.infer<typeof UpdateProfileSchema>;
