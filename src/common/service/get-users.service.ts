@@ -76,17 +76,40 @@ export const getUsersService = async (
   // Fetch total count for pagination
   const totalUsers = await db.user.countDocuments(filter);
 
-  // Fetch users with populated category, location, and review data
+  // Fetch users with populated category and location data (without review)
   const users = await db.user
     .find(filter)
     .select("-password -refreshTokens -otp")
     .populate("category", "name icon description")
     .populate("location", "name state coordinates")
-    .populate("review")
     .sort({ [sortBy]: sortDirection })
     .skip(skip)
     .limit(limit)
     .lean<UserDocument[]>();
+
+  // Process users to add review statistics for contractors
+  const { getReviewStatsWithReviews } = await import("@/helpers");
+  const processedUsers = await Promise.all(
+    users.map(async (user: any) => {
+      // Remove the review field from user object
+      const { _review, ...userWithoutReview } = user;
+
+      // Add review statistics only for contractors
+      if (user.role === "contractor") {
+        const reviewStats = await getReviewStatsWithReviews(
+          user._id.toString(),
+          5
+        );
+        return {
+          ...userWithoutReview,
+          review: reviewStats,
+        };
+      }
+
+      // For non-contractors, don't include review field
+      return userWithoutReview;
+    })
+  );
 
   // Calculate pagination metadata
   const totalPages = Math.ceil(totalUsers / limit);
@@ -94,7 +117,7 @@ export const getUsersService = async (
   const hasPrevPage = page > 1;
 
   return {
-    users,
+    users: processedUsers as UserDocument[],
     pagination: {
       currentPage: page,
       totalPages,
