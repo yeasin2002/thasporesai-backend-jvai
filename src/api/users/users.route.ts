@@ -19,8 +19,8 @@ users.get("/me", requireAuth, me);
 
 // PATCH /api/user/me - Update current user profile
 users.patch(
-  "/me",
-  requireAuth,
-  validateBody(UpdateProfileSchema),
-  updateProfile
+	"/me",
+	requireAuth,
+	validateBody(UpdateProfileSchema),
+	updateProfile,
 );

@@ -9,13 +9,13 @@ import { User } from "./models/user.model";
 import { WorkSample } from "./models/work-samples.model";
 
 export const db = {
-  user: User,
-  category: Category,
-  job: Job,
-  review: Review,
-  location: Location,
-  jobApplicationRequest: JobApplicationRequest,
-  experience: Experience,
-  workSample: WorkSample,
-  certification: Certification,
+	user: User,
+	category: Category,
+	job: Job,
+	review: Review,
+	location: Location,
+	jobApplicationRequest: JobApplicationRequest,
+	experience: Experience,
+	workSample: WorkSample,
+	certification: Certification,
 };

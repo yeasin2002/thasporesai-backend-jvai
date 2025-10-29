@@ -6,7 +6,10 @@ import type { RequestHandler } from "express";
  * Delete a review (only by the review author)
  * DELETE /api/review/:id
  */
-export const deleteReview: RequestHandler<{ id: string }> = async (req, res) => {
+export const deleteReview: RequestHandler<{ id: string }> = async (
+	req,
+	res,
+) => {
 	try {
 		const userId = req.user?.userId;
 		const { id } = req.params;

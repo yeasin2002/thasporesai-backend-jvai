@@ -41,31 +41,31 @@ export const refresh: RequestHandler<{}, unknown, RefreshToken> = async (
 
 		// Verify refresh token exists in database
 		const tokenIndex = user?.refreshTokens?.findIndex(
-      (rt) => rt.jti === decoded.jti
-    );
+			(rt) => rt.jti === decoded.jti,
+		);
 
-    if (tokenIndex === -1) {
-      return sendError(res, 401, "Refresh token has been revoked");
-    }
+		if (tokenIndex === -1) {
+			return sendError(res, 401, "Refresh token has been revoked");
+		}
 
-    // Generate new tokens
-    const tokenPayload = {
-      userId: user._id as string,
-      email: user.email,
-      role: user.role as "customer" | "contractor" | "admin",
-    };
+		// Generate new tokens
+		const tokenPayload = {
+			userId: user._id as string,
+			email: user.email,
+			role: user.role as "customer" | "contractor" | "admin",
+		};
 
-    const accessToken = signAccessToken(tokenPayload);
-    const { token: newRefreshToken, jti } = signRefreshToken(tokenPayload);
+		const accessToken = signAccessToken(tokenPayload);
+		const { token: newRefreshToken, jti } = signRefreshToken(tokenPayload);
 
-    // Remove old refresh token and add new one
-    user?.refreshTokens?.splice(tokenIndex || 0, 1);
-    const hashedRefreshToken = await hashToken(newRefreshToken);
-    user?.refreshTokens?.push({
-      token: hashedRefreshToken,
-      jti,
-      createdAt: new Date(),
-    });
+		// Remove old refresh token and add new one
+		user?.refreshTokens?.splice(tokenIndex || 0, 1);
+		const hashedRefreshToken = await hashToken(newRefreshToken);
+		user?.refreshTokens?.push({
+			token: hashedRefreshToken,
+			jti,
+			createdAt: new Date(),
+		});
 		await user.save();
 
 		return sendSuccess(res, 200, "Tokens refreshed successfully", {

@@ -50,10 +50,10 @@ export const loginAdmin: RequestHandler<{}, any, LoginAdmin> = async (
 		// Store hashed refresh token
 		const hashedRefreshToken = await hashToken(refreshToken);
 		user?.refreshTokens?.push({
-      token: hashedRefreshToken,
-      jti,
-      createdAt: new Date(),
-    });
+			token: hashedRefreshToken,
+			jti,
+			createdAt: new Date(),
+		});
 		await user.save();
 
 		// Remove sensitive data from response

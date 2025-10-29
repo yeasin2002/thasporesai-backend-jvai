@@ -1,8 +1,8 @@
 import { db } from "@/db";
 import {
-    exceptionErrorHandler,
-    sendSuccess,
-    validatePagination,
+	exceptionErrorHandler,
+	sendSuccess,
+	validatePagination,
 } from "@/helpers";
 import type { RequestHandler } from "express";
 import type { SearchReview } from "../review.validation";
@@ -18,8 +18,15 @@ export const getAllReviews: RequestHandler<
 	SearchReview
 > = async (req, res) => {
 	try {
-		const { contractor_id, user_id, job_id, minRating, maxRating, page, limit } =
-			req.query;
+		const {
+			contractor_id,
+			user_id,
+			job_id,
+			minRating,
+			maxRating,
+			page,
+			limit,
+		} = req.query;
 
 		// Validate and sanitize pagination
 		const {
@@ -68,24 +75,24 @@ export const getAllReviews: RequestHandler<
 
 		const totalPages = Math.ceil(total / limitNum);
 
-    // Calculate statistics if filtering by contractor
-    let stats = null;
-    if (contractor_id) {
-      const { calculateReviewStats } = await import("@/helpers");
-      stats = await calculateReviewStats(contractor_id);
-    }
+		// Calculate statistics if filtering by contractor
+		let stats = null;
+		if (contractor_id) {
+			const { calculateReviewStats } = await import("@/helpers");
+			stats = await calculateReviewStats(contractor_id);
+		}
 
-    return sendSuccess(res, 200, "Reviews retrieved successfully", {
-      reviews,
-      total,
-      page: pageNum,
-      limit: limitNum,
-      totalPages,
-      ...(stats && {
-        average: stats.average,
-        ratingDistribution: stats.ratingDistribution,
-      }),
-    });
+		return sendSuccess(res, 200, "Reviews retrieved successfully", {
+			reviews,
+			total,
+			page: pageNum,
+			limit: limitNum,
+			totalPages,
+			...(stats && {
+				average: stats.average,
+				ratingDistribution: stats.ratingDistribution,
+			}),
+		});
 	} catch (error) {
 		return exceptionErrorHandler(error, res, "Failed to retrieve reviews");
 	}

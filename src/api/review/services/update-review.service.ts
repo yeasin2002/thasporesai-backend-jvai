@@ -33,7 +33,11 @@ export const updateReview: RequestHandler<
 
 		// Update the review
 		const updatedReview = await db.review
-			.findByIdAndUpdate(id, { $set: req.body }, { new: true, runValidators: true })
+			.findByIdAndUpdate(
+				id,
+				{ $set: req.body },
+				{ new: true, runValidators: true },
+			)
 			.populate("contractor_id", "full_name profile_img email role")
 			.populate("user_id", "full_name profile_img email")
 			.populate("job_id", "title budget status");

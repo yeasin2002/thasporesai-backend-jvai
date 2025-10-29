@@ -74,7 +74,12 @@ export const createReview: RequestHandler<{}, unknown, CreateReview> = async (
 			.populate("user_id", "full_name profile_img email")
 			.populate("job_id", "title budget status");
 
-		return sendSuccess(res, 201, "Review created successfully", populatedReview);
+		return sendSuccess(
+			res,
+			201,
+			"Review created successfully",
+			populatedReview,
+		);
 	} catch (error) {
 		return exceptionErrorHandler(error, res, "Failed to create review");
 	}
