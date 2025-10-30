@@ -72,8 +72,8 @@ const userSchema = new Schema<UserDocument>(
     certifications: [{ type: Schema.Types.ObjectId, ref: "Certification" }], // Changed to array
     job: [{ type: Schema.Types.ObjectId, ref: "Job" }],
 
-    starting_budget: { type: Number, default: 0 },
-    hourly_charge: { type: Number, default: 0 },
+    starting_budget: { type: Number, default: 5 },
+    hourly_charge: { type: Number, default: 5 },
 
     // Auth related
     refreshTokens: [
