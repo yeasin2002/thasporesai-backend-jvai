@@ -3,6 +3,7 @@ import { registry } from "@/lib/openapi";
 import {
   ErrorResponseSchema,
   UpdateProfileSchema,
+  UserIdParamSchema,
   UserQuerySchema,
   UserResponseSchema,
   UsersResponseSchema,
@@ -26,6 +27,46 @@ registry.registerPath({
 			content: {
 				[mediaTypeFormat.json]: {
 					schema: UsersResponseSchema,
+				},
+			},
+		},
+		500: {
+			description: "Internal server error",
+			content: {
+				[mediaTypeFormat.json]: {
+					schema: ErrorResponseSchema,
+				},
+			},
+		},
+	},
+});
+
+// GET /api/user/:id - Get single user by ID
+registry.registerPath({
+	method: "get",
+	path: `${openAPITags.user.all_users.basepath}{id}`,
+	description:
+		"Get a single user by ID with full profile details including populated location, category, experience, work_samples, certifications, and jobs. For contractors, includes review statistics (total, average rating, rating distribution, and last 5 reviews).",
+	summary: "Get user by ID",
+	tags: [openAPITags.user.all_users.name],
+	request: {
+		params: UserIdParamSchema,
+	},
+	responses: {
+		200: {
+			description:
+				"User retrieved successfully with all populated fields. Contractors include review statistics.",
+			content: {
+				[mediaTypeFormat.json]: {
+					schema: UserResponseSchema,
+				},
+			},
+		},
+		404: {
+			description: "User not found",
+			content: {
+				[mediaTypeFormat.json]: {
+					schema: ErrorResponseSchema,
 				},
 			},
 		},

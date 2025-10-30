@@ -177,50 +177,63 @@ export const UserDataSchema = z
   })
   .openapi("UserData");
 
+// User ID parameter schema
+export const UserIdParamSchema = z
+  .object({
+    id: z
+      .string()
+      .min(1, "User ID is required")
+      .refine((val) => isValidObjectId(val), {
+        message: "Invalid user ID format",
+      })
+      .openapi({ description: "User ID" }),
+  })
+  .openapi("UserIdParam");
+
 // User query schema for filtering with pagination
 export const UserQuerySchema = z
-	.object({
-		search: z.string().optional().openapi({
-			description: "Search by full name or email (case-insensitive)",
-		}),
-		role: z
-			.enum(["contractor", "customer", "admin"])
-			.optional()
-			.openapi({ description: "Filter by user role" }),
-		location: z
-			.string()
-			.refine((val) => !val || isValidObjectId(val), {
-				message: "Invalid location ID format",
-			})
-			.optional()
-			.openapi({ description: "Filter by location ID" }),
-		category: z
-			.string()
-			.refine((val) => !val || isValidObjectId(val), {
-				message: "Invalid category ID format",
-			})
-			.optional()
-			.openapi({ description: "Filter by category ID" }),
-		page: z
-			.string()
-			.optional()
-			.transform((val) => (val ? Number.parseInt(val, 10) : 1))
-			.openapi({ description: "Page number (default: 1)" }),
-		limit: z
-			.string()
-			.optional()
-			.transform((val) => (val ? Number.parseInt(val, 10) : 10))
-			.openapi({ description: "Items per page (default: 10)" }),
-		sortBy: z
-			.string()
-			.optional()
-			.openapi({ description: "Sort field (default: createdAt)" }),
-		sortOrder: z
-			.enum(["asc", "desc"])
-			.optional()
-			.openapi({ description: "Sort order (default: desc)" }),
-	})
-	.openapi("UserQuery");
+  .object({
+    search: z.string().optional().openapi({
+      description: "Search by full name or email (case-insensitive)",
+    }),
+    role: z
+      .enum(["contractor", "customer", "admin"])
+      .optional()
+      .openapi({ description: "Filter by user role" }),
+    location: z
+      .string()
+      .refine((val) => !val || isValidObjectId(val), {
+        message: "Invalid location ID format",
+      })
+      .optional()
+      .openapi({ description: "Filter by location ID" }),
+    category: z
+      .string()
+      .refine((val) => !val || isValidObjectId(val), {
+        message: "Invalid category ID format",
+      })
+      .optional()
+      .openapi({ description: "Filter by category ID" }),
+    page: z
+      .string()
+      .optional()
+      .transform((val) => (val ? Number.parseInt(val, 10) : 1))
+      .openapi({ description: "Page number (default: 1)" }),
+    limit: z
+      .string()
+      .optional()
+      .transform((val) => (val ? Number.parseInt(val, 10) : 10))
+      .openapi({ description: "Items per page (default: 10)" }),
+    sortBy: z
+      .string()
+      .optional()
+      .openapi({ description: "Sort field (default: createdAt)" }),
+    sortOrder: z
+      .enum(["asc", "desc"])
+      .optional()
+      .openapi({ description: "Sort order (default: desc)" }),
+  })
+  .openapi("UserQuery");
 
 // Update Profile Schema
 export const UpdateProfileSchema = z
@@ -308,54 +321,55 @@ export const UpdateProfileSchema = z
 
 // Pagination metadata schema
 export const PaginationSchema = z.object({
-	currentPage: z.number(),
-	totalPages: z.number(),
-	totalUsers: z.number(),
-	limit: z.number(),
-	hasNextPage: z.boolean(),
-	hasPrevPage: z.boolean(),
+  currentPage: z.number(),
+  totalPages: z.number(),
+  totalUsers: z.number(),
+  limit: z.number(),
+  hasNextPage: z.boolean(),
+  hasPrevPage: z.boolean(),
 });
 
 // Response schemas
 export const UserResponseSchema = z
-	.object({
-		status: z.number(),
-		message: z.string(),
-		success: z.boolean(),
-		data: UserDataSchema,
-	})
-	.openapi("UserResponse");
+  .object({
+    status: z.number(),
+    message: z.string(),
+    success: z.boolean(),
+    data: UserDataSchema,
+  })
+  .openapi("UserResponse");
 
 export const UsersResponseSchema = z
-	.object({
-		status: z.number(),
-		message: z.string(),
-		success: z.boolean(),
-		data: z.object({
-			users: z.array(UserDataSchema),
-			pagination: PaginationSchema,
-		}),
-	})
-	.openapi("UsersResponse");
+  .object({
+    status: z.number(),
+    message: z.string(),
+    success: z.boolean(),
+    data: z.object({
+      users: z.array(UserDataSchema),
+      pagination: PaginationSchema,
+    }),
+  })
+  .openapi("UsersResponse");
 
 // Error Response Schema
 export const ErrorResponseSchema = z
-	.object({
-		status: z.number(),
-		message: z.string(),
-		data: z.null().optional(),
-		success: z.boolean(),
-		errors: z
-			.array(
-				z.object({
-					path: z.string(),
-					message: z.string(),
-				}),
-			)
-			.optional(),
-	})
-	.openapi("ErrorResponse");
+  .object({
+    status: z.number(),
+    message: z.string(),
+    data: z.null().optional(),
+    success: z.boolean(),
+    errors: z
+      .array(
+        z.object({
+          path: z.string(),
+          message: z.string(),
+        })
+      )
+      .optional(),
+  })
+  .openapi("ErrorResponse");
 
 // Type exports
+export type UserIdParam = z.infer<typeof UserIdParamSchema>;
 export type UserQuery = z.infer<typeof UserQuerySchema>;
 export type UpdateProfile = z.infer<typeof UpdateProfileSchema>;
