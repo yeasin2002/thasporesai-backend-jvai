@@ -1,7 +1,6 @@
-import { db } from "@/db";
 import {
   exceptionErrorHandler,
-  getReviewStatsWithReviews,
+  getUserProfile,
   sendError,
   sendSuccess,
 } from "@/helpers";
@@ -18,38 +17,13 @@ export const getSingleUser: RequestHandler<{ id: string }> = async (
   try {
     const { id } = req.params;
 
-    // Find user with populated fields
-    const user = await db.user
-      .findById(id)
-      .select("-password -refreshTokens -otp")
-      .populate("category", "name icon description")
-      .populate("location", "name state coordinates")
-      .populate("experience")
-      .populate("work_samples")
-      .populate("certifications")
-      .populate("job", "title budget status");
+    const userProfile = await getUserProfile(id, 5);
 
-    if (!user) {
+    if (!userProfile) {
       return sendError(res, 404, "User not found");
     }
 
-    // Get review statistics for contractors
-    let reviewStats = null;
-    if (user.role === "contractor") {
-      reviewStats = await getReviewStatsWithReviews(
-        (user._id as any).toString(),
-        5
-      );
-    }
-
-    // Convert user to plain object and add review stats
-    const userObj: any = user.toObject();
-    delete userObj.review; // Remove the review array reference
-
-    return sendSuccess(res, 200, "User retrieved successfully", {
-      ...userObj,
-      ...(reviewStats && { review: reviewStats }),
-    });
+    return sendSuccess(res, 200, "User retrieved successfully", userProfile);
   } catch (error) {
     return exceptionErrorHandler(error, res, "Failed to retrieve user");
   }
