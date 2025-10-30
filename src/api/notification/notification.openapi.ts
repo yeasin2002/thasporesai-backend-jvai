@@ -1,4 +1,5 @@
 import { registry } from "@/lib/openapi";
+import { z } from "zod";
 import {
   ErrorResponseSchema,
   FcmTokenResponseSchema,
@@ -85,7 +86,12 @@ registry.registerPath({
     body: {
       content: {
         "application/json": {
-          schema: RegisterFcmTokenSchema.pick({ token: true }),
+          schema: z.object({
+            token: z
+              .string()
+              .min(1)
+              .openapi({ description: "FCM device token" }),
+          }),
         },
       },
     },

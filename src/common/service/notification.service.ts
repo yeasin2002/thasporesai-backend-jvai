@@ -88,7 +88,7 @@ export class NotificationService {
         },
         data: {
           type,
-          notificationId: notification._id.toString(),
+          notificationId: String(notification._id),
           ...data,
         },
         tokens,
@@ -201,7 +201,7 @@ export class NotificationService {
     try {
       // Get all users with the specified role
       const users = await db.user.find({ role, isSuspend: false });
-      const userIds = users.map((user) => user._id);
+      const userIds = users.map((user) => user._id) as (Types.ObjectId | string)[];
 
       if (userIds.length === 0) {
         return {

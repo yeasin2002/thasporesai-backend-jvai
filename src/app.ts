@@ -96,7 +96,8 @@ app.listen(port, async () => {
   // Initialize Firebase Admin SDK for push notifications
   try {
     initializeFirebase();
-  } catch (error) {
+    // oxlint-disable-next-line no-unused-vars
+  } catch (_error) {
     console.warn(
       "⚠️ Firebase initialization failed. Push notifications will not work."
     );

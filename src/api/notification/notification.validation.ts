@@ -24,7 +24,7 @@ export const NotificationSchema = z.object({
     ])
     .openapi({ description: "Notification type" }),
   data: z
-    .record(z.any())
+    .record(z.string(), z.any())
     .optional()
     .openapi({ description: "Additional data" }),
   isRead: z.boolean().openapi({ description: "Read status" }),
@@ -70,7 +70,7 @@ export const SendNotificationSchema = z
       .optional()
       .openapi({ description: "Notification type" }),
     data: z
-      .record(z.any())
+      .record(z.string(), z.any())
       .optional()
       .openapi({ description: "Additional data" }),
   })
