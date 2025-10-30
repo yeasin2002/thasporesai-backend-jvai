@@ -14,11 +14,6 @@ import { UpdateProfileSchema, UserIdParamSchema } from "./users.validation";
 
 export const users: Router = express.Router();
 
-// GET /api/user - Get all users with pagination
-users.get("/", getAllUsers);
-
-// GET /api/user/:id - Get single user by ID
-users.get("/:id", validateParams(UserIdParamSchema), getSingleUser);
 
 // Profiles
 // GET /api/user/me - Get current authenticated user
@@ -31,3 +26,11 @@ users.patch(
   validateBody(UpdateProfileSchema),
   updateProfile
 );
+
+
+
+// GET /api/user - Get all users with pagination
+users.get("/", getAllUsers);
+
+// GET /api/user/:id - Get single user by ID
+users.get("/:id", validateParams(UserIdParamSchema), getSingleUser);
