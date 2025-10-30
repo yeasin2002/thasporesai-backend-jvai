@@ -1,0 +1,35 @@
+### Test Notification API
+### Base URL
+@baseUrl = http://localhost:4000
+@accessToken = YOUR_ACCESS_TOKEN_HERE
+
+### Send Test Notification
+POST {{baseUrl}}/api/test-notification
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "userId": "USER_ID_HERE",
+  "title": "Test Notification",
+  "body": "This is a test notification from JobSphere backend"
+}
+
+### Send Test Notification with Custom Message
+POST {{baseUrl}}/api/test-notification
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "userId": "USER_ID_HERE",
+  "title": "Custom Test Title",
+  "body": "Custom test message to verify push notifications are working correctly"
+}
+
+### Send Test Notification (Minimal - uses defaults)
+POST {{baseUrl}}/api/test-notification
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "userId": "USER_ID_HERE"
+}

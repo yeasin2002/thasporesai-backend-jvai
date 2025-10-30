@@ -12,6 +12,7 @@ import { job } from "@/api/job/job.route";
 import { location } from "@/api/location/location.route";
 import { notification } from "@/api/notification/notification.route";
 import { review } from "@/api/review/review.route";
+import { testNotification } from "@/api/test-notification/test-notification.route";
 
 // admin- dashboard routes
 import { adminUser } from "@/api/admin/admin-user/admin-user.route";
@@ -76,6 +77,7 @@ app.use("/api/location", location);
 app.use("/api/review", review);
 app.use("/api/common", common);
 app.use("/api/notification", notification);
+app.use("/api/test-notification", testNotification);
 
 // Admin routes
 app.use("/api/admin/auth", authAdmin);
