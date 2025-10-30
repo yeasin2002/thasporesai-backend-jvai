@@ -12,6 +12,7 @@ import { chat } from "@/api/chat/chat.route";
 import { jobRequest } from "@/api/job-request/job-request.route";
 import { job } from "@/api/job/job.route";
 import { location } from "@/api/location/location.route";
+import { review } from "@/api/review/review.route";
 
 // admin- dashboard routes
 import { adminUser } from "@/api/admin/admin-user/admin-user.route";
@@ -19,9 +20,15 @@ import { adminUser } from "@/api/admin/admin-user/admin-user.route";
 // common routes
 
 import { connectDB, generateOpenAPIDocument } from "@/lib";
-import { errorHandler, notFoundHandler, requireRole } from "@/middleware";
+import {
+  errorHandler,
+  notFoundHandler,
+  requireAuth,
+  requireRole,
+} from "@/middleware";
 import { authAdmin } from "./api/admin/auth-admin/auth-admin.route";
 import { initializeSocketIO } from "./api/chat/socket";
+// import { authAdmin } from "./api/admin/admin-user";
 import { common } from "./api/common/common.route";
 import { users } from "./api/users/users.route";
 import { getLocalIP } from "./lib/get-my-ip";
@@ -69,17 +76,18 @@ app.use("/api/job-request", jobRequest);
 
 app.use("/api/category", category);
 app.use("/api/location", location);
+app.use("/api/review", review);
 app.use("/api/common", common);
 app.use("/api/chat", chat);
 
 // Admin routes
 app.use("/api/admin/auth", authAdmin);
 
+// Protected admin routes (require admin authentication)
+app.use("/api/admin/users", requireAuth, requireRole("admin"), adminUser);
+
 // normal  routes
 app.use("/api/user", users);
-
-// Protected admin routes (require admin authentication)
-app.use("/api/admin/users", requireRole("admin"), adminUser);
 
 app.use(notFoundHandler);
 app.use(errorHandler);

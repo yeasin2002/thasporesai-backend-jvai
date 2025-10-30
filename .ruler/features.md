@@ -20,7 +20,7 @@
 
 ### Push Notifications
 
-- Mobile push notifications for Flutter app - Backend AWS SNS (aws-sdk)
+- Mobile push notifications for Flutter app - Backend Firebase
 - Notification triggers:
   - New job posted (for contractors)
   - Job application received (for customers)

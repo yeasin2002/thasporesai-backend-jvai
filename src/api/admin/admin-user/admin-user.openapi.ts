@@ -22,7 +22,7 @@ registry.register("AdminErrorResponse", ErrorResponseSchema);
 // GET /api/admin/users - Get all users with pagination
 registry.registerPath({
 	method: "get",
-	path: `${openAPITags.admin.user_management.basepath}s`,
+	path: `${openAPITags.admin.user_management.basepath}`,
 	description:
 		"Get all users with optional search, filters, and pagination. Supports filtering by role, location, category, and searching by name or email.",
 	summary: "Retrieve all users with pagination",
@@ -53,7 +53,7 @@ registry.registerPath({
 // GET /api/admin/users/{id} - Get single user
 registry.registerPath({
 	method: "get",
-	path: `${openAPITags.admin.user_management.basepath}s/{id}`,
+	path: `${openAPITags.admin.user_management.basepath}/{id}`,
 	description: "Get a single user by ID with full details",
 	summary: "Retrieve user by ID",
 	tags: [openAPITags.admin.user_management.name],
@@ -91,7 +91,7 @@ registry.registerPath({
 // DELETE /api/admin/users/{id} - Delete user
 registry.registerPath({
 	method: "delete",
-	path: `${openAPITags.admin.user_management.basepath}s/{id}`,
+	path: `${openAPITags.admin.user_management.basepath}/{id}`,
 	description: "Permanently delete a user account",
 	summary: "Delete user account",
 	tags: [openAPITags.admin.user_management.name],
@@ -129,7 +129,7 @@ registry.registerPath({
 // PATCH /api/admin/users/{id}/suspend - Suspend/unsuspend user
 registry.registerPath({
 	method: "patch",
-	path: `${openAPITags.admin.user_management.basepath}s/{id}/suspend`,
+	path: `${openAPITags.admin.user_management.basepath}/{id}/suspend`,
 	description: "Suspend or unsuspend a user account",
 	summary: "Suspend/unsuspend user",
 	tags: [openAPITags.admin.user_management.name],

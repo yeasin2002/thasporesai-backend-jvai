@@ -11,6 +11,7 @@ export const openAPITags = {
   },
   category: { name: "category", basepath: "/api/category" },
   location: { name: "location", basepath: "/api/location" },
+  review: { name: "review", basepath: "/api/review" },
   payment: { name: "payment", basepath: "/api/payment" },
   setting: { name: "setting", basepath: "/api/setting" },
   common: { imag_upload: { name: "common", basepath: "/api/common/upload" } },

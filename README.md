@@ -19,7 +19,7 @@ Backend API for JobSphere - a mobile marketplace connecting customers with local
 - JWT authentication with access/refresh tokens
 - Role-based access (Customer, Contractor, Admin)
 - Real-time chat between users
-- Push notifications for mobile app with AWS SNS (aws-sdk)
+- Push notifications for mobile app with Firebase
 - Stripe payment processing with escrow
 - File upload system
 - OTP-based password recovery

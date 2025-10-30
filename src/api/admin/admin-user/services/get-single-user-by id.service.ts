@@ -9,7 +9,9 @@ export const getUserById: RequestHandler<{ id: string }> = async (req, res) => {
 		const user = await db.user
 			.findById(id)
 			.select("-password -refreshTokens -otp")
-			.populate("category", "message icon description");
+			.populate("location", "name state coordinates")
+			.populate("category", "name icon description")
+			.populate("review");
 
 		if (!user) {
 			return res.status(404).json({

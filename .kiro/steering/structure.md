@@ -68,8 +68,8 @@ providus_org/
 │   │   │   │   │   └── login.service.ts
 │   │   │   │   ├── auth-admin.validation.ts
 │   │   │   │   └── auth-admin.openapi.ts
-│   │   │   ├── user/       # Admin user management sub-module
-│   │   │   │   ├── user.route.ts
+│   │   │   ├── admin-user/       # Admin user management sub-module
+│   │   │   │   ├── admin-user.route.ts
 │   │   │   │   ├── services/
 │   │   │   │   │   ├── index.ts
 │   │   │   │   │   ├── get-all-users.service.ts

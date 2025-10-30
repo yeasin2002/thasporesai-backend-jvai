@@ -40,7 +40,7 @@ export const refresh: RequestHandler<{}, unknown, RefreshToken> = async (
 		// }
 
 		// Verify refresh token exists in database
-		const tokenIndex = user.refreshTokens.findIndex(
+		const tokenIndex = user?.refreshTokens?.findIndex(
 			(rt) => rt.jti === decoded.jti,
 		);
 
@@ -59,9 +59,9 @@ export const refresh: RequestHandler<{}, unknown, RefreshToken> = async (
 		const { token: newRefreshToken, jti } = signRefreshToken(tokenPayload);
 
 		// Remove old refresh token and add new one
-		user.refreshTokens.splice(tokenIndex, 1);
+		user?.refreshTokens?.splice(tokenIndex || 0, 1);
 		const hashedRefreshToken = await hashToken(newRefreshToken);
-		user.refreshTokens.push({
+		user?.refreshTokens?.push({
 			token: hashedRefreshToken,
 			jti,
 			createdAt: new Date(),
