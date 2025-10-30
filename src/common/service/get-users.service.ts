@@ -78,17 +78,18 @@ export const getUsersService = async (
 
 	// Fetch users with populated category, location, experience, work_samples, and certification
 	const users = await db.user
-		.find(filter)
-		.select("-password -refreshTokens -otp")
-		.populate("category", "name icon description")
-		.populate("location", "name state coordinates")
-		.populate("experience")
-		.populate("work_samples")
-		.populate("certifications")
-		.sort({ [sortBy]: sortDirection })
-		.skip(skip)
-		.limit(limit)
-		.lean<UserDocument[]>();
+    .find(filter)
+    .select("-password -refreshTokens -otp")
+    .populate("category", "name icon description")
+    .populate("location", "name state coordinates")
+    .populate("experience")
+    .populate("work_samples")
+    .populate("certifications")
+    .populate("job")
+    .sort({ [sortBy]: sortDirection })
+    .skip(skip)
+    .limit(limit)
+    .lean<UserDocument[]>();
 
 	// Process users to add review statistics for contractors
 	const { getReviewStatsWithReviews } = await import("@/helpers");

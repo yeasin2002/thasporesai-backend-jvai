@@ -9,7 +9,7 @@
 @refreshToken =eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OGYzMjVmOTI1NzRkNTY4OTgwZTA0YzUiLCJlbWFpbCI6Im1ka2F3c2FyaXNsYW0yMDAyQGdtYWlsLmNvbSIsInJvbGUiOiJjdXN0b21lciIsImp0aSI6ImM5M2ExZTY3N2UyY2ZmYTZhMDY2YmE0Nzk4MjA3MGE1IiwiaWF0IjoxNzYwODAwMDc0LCJleHAiOjE3NjMzOTIwNzR9.FkaCRdeQxDopuTD-vtxhAPpmJpM-g8HJBzL8GeiKLV0
 
 ###############################################
-# 1. Register New User (Customer)
+# 1. Register New User (Admin)
 ###############################################
 POST {{baseUrl}}/api/auth/register
 Content-Type: {{contentType}}
@@ -18,7 +18,7 @@ Content-Type: {{contentType}}
   "full_name": "Md Kawsar Islam",
   "email": "mdkawsarislam2002@gmail.com",
   "password": "yeasin2002",
-  "role": "customer",
+  "role": "admin",
   "phone": "+1234567890"
 }
 
@@ -67,8 +67,8 @@ POST {{baseUrl}}/api/admin/auth/login
 Content-Type: {{contentType}}
 
 {
-  "email": "yeasin.dev2002@gmail.com",
-  "password": "yeasin.dev2002@gmail.com"
+  "email": "mdkawsarislam2002@gmail.com",
+  "password": "yeasin2002"
 }
 
 

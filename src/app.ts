@@ -18,7 +18,12 @@ import { adminUser } from "@/api/admin/admin-user/admin-user.route";
 // common routes
 
 import { connectDB, generateOpenAPIDocument } from "@/lib";
-import { errorHandler, notFoundHandler, requireRole } from "@/middleware";
+import {
+	errorHandler,
+	notFoundHandler,
+	requireAuth,
+	requireRole,
+} from "@/middleware";
 import { authAdmin } from "./api/admin/auth-admin/auth-admin.route";
 // import { authAdmin } from "./api/admin/admin-user";
 import { common } from "./api/common/common.route";
@@ -74,7 +79,7 @@ app.use("/api/common", common);
 app.use("/api/admin/auth", authAdmin);
 
 // Protected admin routes (require admin authentication)
-app.use("/api/admin/users", requireRole("admin"), adminUser);
+app.use("/api/admin/users", requireAuth, requireRole("admin"), adminUser);
 
 // normal  routes
 app.use("/api/user", users);
