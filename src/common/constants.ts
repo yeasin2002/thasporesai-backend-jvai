@@ -42,6 +42,10 @@ export const openAPITags = {
       basepath: "/api/admin/settings",
     },
   },
+  chat: {
+    name: "chat",
+    basepath: "/api/chat",
+  },
 };
 
 export const mediaTypeFormat = {
