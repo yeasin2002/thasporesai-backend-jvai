@@ -1,7 +1,7 @@
 import { db } from "@/db";
 import { getUserProfile, sendError, sendSuccess } from "@/helpers";
 import type { RequestHandler } from "express";
-import type { UpdateProfile } from "../../users.validation";
+import type { UpdateProfile } from "../profile.validation";
 
 /**
  * Update user profile

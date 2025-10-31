@@ -1,8 +1,8 @@
 import {
-	exceptionErrorHandler,
-	getUserProfile,
-	sendError,
-	sendSuccess,
+    exceptionErrorHandler,
+    getUserProfile,
+    sendError,
+    sendSuccess,
 } from "@/helpers";
 import type { RequestHandler } from "express";
 
