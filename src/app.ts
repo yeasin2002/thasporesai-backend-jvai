@@ -30,7 +30,6 @@ import { authAdmin } from "./api/admin/auth-admin/auth-admin.route";
 import { initializeSocketIO } from "./api/chat/socket";
 // import { authAdmin } from "./api/admin/admin-user";
 import { common } from "./api/common/common.route";
-import { users } from "./api/users/users.route";
 import { getLocalIP } from "./lib/get-my-ip";
 import { morganDevFormat } from "./lib/morgan";
 
@@ -86,8 +85,19 @@ app.use("/api/admin/auth", authAdmin);
 // Protected admin routes (require admin authentication)
 app.use("/api/admin/users", requireAuth, requireRole("admin"), adminUser);
 
-// normal  routes
-app.use("/api/user", users);
+// User routes
+import { certifications } from "./api/users/certifications/certifications.route";
+import { experience } from "./api/users/experience/experience.route";
+import { profile } from "./api/users/profile/profile.route";
+import { workSamples } from "./api/users/work_samples/work_samples.route";
+
+// Profile routes (main user endpoints)
+app.use("/api/user", profile);
+
+// User sub-modules (nested routes)
+app.use("/api/user/certifications", certifications);
+app.use("/api/user/experience", experience);
+app.use("/api/user/work-samples", workSamples);
 
 app.use(notFoundHandler);
 app.use(errorHandler);

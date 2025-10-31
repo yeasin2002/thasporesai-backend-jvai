@@ -1,4 +1,4 @@
-import { Schema, Types, model, type Document } from "mongoose";
+import { model, Schema, type Document, type Types } from "mongoose";
 
 export interface WorkSample {
 	user: Types.ObjectId; // Reference to the user who owns this work sample

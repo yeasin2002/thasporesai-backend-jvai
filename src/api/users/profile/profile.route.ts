@@ -1,4 +1,4 @@
-import "./users.openapi";
+import "./profile.openapi";
 
 import { requireAuth } from "@/middleware";
 import {
@@ -6,31 +6,27 @@ import {
   validateParams,
 } from "@/middleware/validation.middleware";
 import express, { type Router } from "express";
+import { UpdateProfileSchema, UserIdParamSchema } from "./profile.validation";
 import { getAllUsers } from "./services/get-all-users.service";
-import { getSingleUser } from "./services/get-single-user";
-import { updateProfile } from "./services/profile/edit-profile.service";
-import { me } from "./services/profile/me.service";
-import { UpdateProfileSchema, UserIdParamSchema } from "./users.validation";
+import { getSingleUser } from "./services/get-single-user.service";
+import { me } from "./services/me.service";
+import { updateProfile } from "./services/update-profile.service";
 
-export const users: Router = express.Router();
+export const profile: Router = express.Router();
 
-
-// Profiles
 // GET /api/user/me - Get current authenticated user
-users.get("/me", requireAuth, me);
+profile.get("/me", requireAuth, me);
 
 // PATCH /api/user/me - Update current user profile
-users.patch(
+profile.patch(
   "/me",
   requireAuth,
   validateBody(UpdateProfileSchema),
   updateProfile
 );
 
-
-
 // GET /api/user - Get all users with pagination
-users.get("/", getAllUsers);
+profile.get("/", getAllUsers);
 
 // GET /api/user/:id - Get single user by ID
-users.get("/:id", validateParams(UserIdParamSchema), getSingleUser);
+profile.get("/:id", validateParams(UserIdParamSchema), getSingleUser);
