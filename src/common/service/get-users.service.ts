@@ -117,8 +117,7 @@ export const getUsersService = async (
 	const processedUsers = await Promise.all(
 		users.map(async (user: any) => {
 			// Remove the review field from user object
-			// biome-ignore lint/correctness/noUnusedVariables: review field is intentionally removed
-			const { review, ...userWithoutReview } = user;
+			const { _review, ...userWithoutReview } = user;
 
 			// Get job count from map (O(1) lookup)
 			const total_jobs = jobCountMap.get(user._id.toString()) || 0;
