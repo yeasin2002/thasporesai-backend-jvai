@@ -174,6 +174,10 @@ export const UserDataSchema = z
       .date()
       .optional()
       .openapi({ description: "Last update date" }),
+    total_jobs: z.number().optional().openapi({
+      description:
+        "Total number of jobs posted by this user (aggregated from Job collection)",
+    }),
   })
   .openapi("UserData");
 
@@ -245,19 +249,30 @@ export const UpdateProfileSchema = z
       .openapi({ description: "User's full name" }),
     profile_img: z
       .string()
+      .url("Must be a valid URL")
       .optional()
-      .openapi({ description: "Profile image URL (uploaded as string)" }),
+      .openapi({ description: "Profile image URL" }),
     cover_img: z
       .string()
+      .url("Must be a valid URL")
       .optional()
-      .openapi({ description: "Cover image URL (uploaded as string)" }),
-    phone: z.string().optional().openapi({ description: "Phone number" }),
+      .openapi({ description: "Cover image URL" }),
+    phone: z
+      .string()
+      .min(10, "Phone number must be at least 10 characters")
+      .optional()
+      .openapi({ description: "Phone number" }),
     address: z.string().optional().openapi({ description: "Physical address" }),
-    bio: z.string().optional().openapi({ description: "User biography" }),
+    bio: z
+      .string()
+      .max(500, "Bio must not exceed 500 characters")
+      .optional()
+      .openapi({ description: "User biography (max 500 chars)" }),
     description: z
       .string()
+      .max(2000, "Description must not exceed 2000 characters")
       .optional()
-      .openapi({ description: "User description / about me" }),
+      .openapi({ description: "User description / about me (max 2000 chars)" }),
     location: z
       .array(
         z.string().refine((val) => isValidObjectId(val), {
@@ -265,7 +280,7 @@ export const UpdateProfileSchema = z
         })
       )
       .optional()
-      .openapi({ description: "Array of location IDs" }),
+      .openapi({ description: "Array of location IDs (MongoDB ObjectIds)" }),
     category: z
       .array(
         z.string().refine((val) => isValidObjectId(val), {
@@ -273,7 +288,10 @@ export const UpdateProfileSchema = z
         })
       )
       .optional()
-      .openapi({ description: "Array of category IDs (for contractors)" }),
+      .openapi({
+        description:
+          "Array of category IDs (for contractors) - MongoDB ObjectIds",
+      }),
     availability: z
       .string()
       .or(z.coerce.date())
@@ -281,39 +299,52 @@ export const UpdateProfileSchema = z
       .openapi({ description: "Availability date" }),
     // Contractor specific fields
     skills: z
-      .array(z.string())
+      .array(z.string().min(1, "Skill cannot be empty"))
       .optional()
-      .openapi({ description: "Skills (for contractors)" }),
+      .openapi({ description: "Array of skills (for contractors)" }),
     experience: z
       .array(
-        z.object({
-          company_name: z.string(),
-          start_date: z.string().or(z.coerce.date()),
-          end_date: z.string().or(z.coerce.date()).optional(),
+        z.string().refine((val) => isValidObjectId(val), {
+          message: "Invalid experience ID format",
         })
       )
       .optional()
-      .openapi({ description: "Work experience (for contractors)" }),
+      .openapi({
+        description:
+          "Array of experience IDs (for contractors) - MongoDB ObjectIds",
+      }),
     work_samples: z
       .array(
-        z.object({
-          name: z.string(),
-          img: z.string(),
-          description: z.string().optional(),
+        z.string().refine((val) => isValidObjectId(val), {
+          message: "Invalid work sample ID format",
         })
       )
       .optional()
-      .openapi({ description: "Portfolio work samples (for contractors)" }),
-    starting_budget: z.number().positive().optional().openapi({
-      description: "Starting budget for projects (for contractors)",
-    }),
-    certifications: z.array(z.string()).optional().openapi({
-      description:
-        "Array of certification IDs (for contractors) - MongoDB ObjectIds",
-    }),
+      .openapi({
+        description:
+          "Array of work sample IDs (for contractors) - MongoDB ObjectIds",
+      }),
+    starting_budget: z
+      .number()
+      .positive("Starting budget must be positive")
+      .optional()
+      .openapi({
+        description: "Starting budget for projects (for contractors)",
+      }),
+    certifications: z
+      .array(
+        z.string().refine((val) => isValidObjectId(val), {
+          message: "Invalid certification ID format",
+        })
+      )
+      .optional()
+      .openapi({
+        description:
+          "Array of certification IDs (for contractors) - MongoDB ObjectIds",
+      }),
     hourly_charge: z
       .number()
-      .positive()
+      .positive("Hourly charge must be positive")
       .optional()
       .openapi({ description: "Hourly rate (for contractors)" }),
   })

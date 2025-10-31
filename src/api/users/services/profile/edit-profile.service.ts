@@ -1,5 +1,5 @@
 import { db } from "@/db";
-import { getReviewStatsWithReviews, sendError, sendSuccess } from "@/helpers";
+import { getUserProfile, sendError, sendSuccess } from "@/helpers";
 import type { RequestHandler } from "express";
 import type { UpdateProfile } from "../../users.validation";
 
@@ -7,94 +7,152 @@ import type { UpdateProfile } from "../../users.validation";
  * Update user profile
  * PATCH /api/user/me
  * Allows customers and contractors to update their profile information
+ * Supports partial updates - only send fields you want to update
  */
 export const updateProfile: RequestHandler<{}, unknown, UpdateProfile> = async (
-	req,
-	res,
+  req,
+  res
 ) => {
-	try {
-		const userId = req.user?.userId;
+  try {
+    const userId = req.user?.userId;
 
-		if (!userId) {
-			return sendError(res, 401, "Unauthorized");
-		}
+    if (!userId) {
+      return sendError(res, 401, "Unauthorized");
+    }
 
-		// Get current user to check role
-		const currentUser = await db.user.findById(userId);
-		if (!currentUser) {
-			return sendError(res, 404, "User not found");
-		}
+    // Get current user to check role
+    const currentUser = await db.user.findById(userId).select("role");
+    if (!currentUser) {
+      return sendError(res, 404, "User not found");
+    }
 
-		const updateData = req.body;
+    const updateData: Record<string, any> = { ...req.body };
 
-		// Validate category and location IDs if provided
-		if (updateData.category && updateData.category.length > 0) {
-			const categories = await db.category.find({
-				_id: { $in: updateData.category },
-			});
-			if (categories.length !== updateData.category.length) {
-				return sendError(res, 400, "One or more categories not found");
-			}
-		}
+    // Remove empty or undefined fields to support partial updates
+    for (const key of Object.keys(updateData)) {
+      if (
+        updateData[key] === undefined ||
+        updateData[key] === null ||
+        updateData[key] === ""
+      ) {
+        delete updateData[key];
+      }
+    }
 
-		if (updateData.location && updateData.location.length > 0) {
-			const locations = await db.location.find({
-				_id: { $in: updateData.location },
-			});
-			if (locations.length !== updateData.location.length) {
-				return sendError(res, 400, "One or more locations not found");
-			}
-		}
+    // If no fields to update, return error
+    if (Object.keys(updateData).length === 0) {
+      return sendError(res, 400, "No fields to update");
+    }
 
-		// Contractor-specific field validation
-		if (currentUser.role !== "contractor") {
-			// Remove contractor-specific fields if user is not a contractor
-			delete updateData.skills;
-			delete updateData.experience;
-			delete updateData.work_samples;
-			delete updateData.starting_budget;
-			delete updateData.certifications;
-			delete updateData.hourly_charge;
-			delete updateData.category;
-		}
+    // Validate category and location IDs if provided
+    if (updateData.category && updateData.category.length > 0) {
+      const categories = await db.category.find({
+        _id: { $in: updateData.category },
+      });
+      if (categories.length !== updateData.category.length) {
+        return sendError(res, 400, "One or more categories not found");
+      }
+    }
 
-		// Update user profile
-		const updatedUser = await db.user
-			.findByIdAndUpdate(
-				userId,
-				{ $set: updateData },
-				{ new: true, runValidators: true },
-			)
-			.select("-password -refreshTokens -otp")
-			.populate("location", "name state coordinates")
-			.populate("category", "name icon description")
-			.populate("experience")
-			.populate("work_samples")
-			.populate("certifications");
+    if (updateData.location && updateData.location.length > 0) {
+      const locations = await db.location.find({
+        _id: { $in: updateData.location },
+      });
+      if (locations.length !== updateData.location.length) {
+        return sendError(res, 400, "One or more locations not found");
+      }
+    }
 
-		if (!updatedUser) {
-			return sendError(res, 404, "User not found");
-		}
+    // Validate experience IDs if provided
+    if (updateData.experience && updateData.experience.length > 0) {
+      const experiences = await db.experience.find({
+        _id: { $in: updateData.experience },
+      });
+      if (experiences.length !== updateData.experience.length) {
+        return sendError(res, 400, "One or more experiences not found");
+      }
+    }
 
-		// Get review statistics for contractors
-		let reviewStats = null;
-		if (updatedUser.role === "contractor") {
-			reviewStats = await getReviewStatsWithReviews(
-				(updatedUser._id as any).toString(),
-				5,
-			);
-		}
+    // Validate work sample IDs if provided
+    if (updateData.work_samples && updateData.work_samples.length > 0) {
+      const workSamples = await db.workSample.find({
+        _id: { $in: updateData.work_samples },
+      });
+      if (workSamples.length !== updateData.work_samples.length) {
+        return sendError(res, 400, "One or more work samples not found");
+      }
+    }
 
-		// Convert user to plain object and add review stats
-		const userObj: any = updatedUser.toObject();
-		delete userObj.review; // Remove the review array reference
+    // Validate certification IDs if provided
+    if (updateData.certifications && updateData.certifications.length > 0) {
+      const certifications = await db.certification.find({
+        _id: { $in: updateData.certifications },
+      });
+      if (certifications.length !== updateData.certifications.length) {
+        return sendError(res, 400, "One or more certifications not found");
+      }
+    }
 
-		return sendSuccess(res, 200, "Profile updated successfully", {
-			...userObj,
-			...(reviewStats && { review: reviewStats }),
-		});
-	} catch (error) {
-		console.error("Update profile error:", error);
-		return sendError(res, 500, "Failed to update profile");
-	}
+    // Contractor-specific field validation
+    if (currentUser.role !== "contractor") {
+      // Remove contractor-specific fields if user is not a contractor
+      const contractorFields = [
+        "skills",
+        "experience",
+        "work_samples",
+        "starting_budget",
+        "certifications",
+        "hourly_charge",
+        "category",
+      ];
+      for (const field of contractorFields) {
+        delete updateData[field];
+      }
+
+      // If all fields were contractor-specific, return error
+      if (Object.keys(updateData).length === 0) {
+        return sendError(res, 403, "Only contractors can update these fields");
+      }
+    }
+
+    // Prevent updating sensitive fields
+    const protectedFields = [
+      "password",
+      "refreshTokens",
+      "otp",
+      "role",
+      "is_verified",
+      "isSuspend",
+      "_id",
+      "createdAt",
+      "updatedAt",
+    ];
+    for (const field of protectedFields) {
+      delete updateData[field];
+    }
+
+    // Update user profile
+    await db.user.findByIdAndUpdate(
+      userId,
+      { $set: updateData },
+      { new: true, runValidators: true }
+    );
+
+    // Fetch updated profile using the shared helper
+    const updatedProfile = await getUserProfile(userId, 5);
+
+    if (!updatedProfile) {
+      return sendError(res, 404, "User not found after update");
+    }
+
+    return sendSuccess(
+      res,
+      200,
+      "Profile updated successfully",
+      updatedProfile
+    );
+  } catch (error) {
+    console.error("Update profile error:", error);
+    return sendError(res, 500, "Failed to update profile");
+  }
 };

@@ -132,8 +132,8 @@ registry.registerPath({
   method: "patch",
   path: openAPITags.user.me.basepath,
   description:
-    "Update current user profile. Customers can update basic info (name, phone, address, bio, location, images). Contractors can additionally update skills, experience, work samples, certifications, hourly rate, and categories. All fields are optional - only send fields you want to update.",
-  summary: "Update user profile",
+    "Update current user profile with partial updates support. Only send the fields you want to update - all fields are optional. Customers can update: full_name, profile_img, cover_img, phone, address, bio, description, location, availability. Contractors can additionally update: skills, experience (IDs), work_samples (IDs), certifications (IDs), starting_budget, hourly_charge, category. Protected fields (password, role, is_verified, isSuspend) cannot be updated through this endpoint. Returns updated profile with populated fields, review statistics (for contractors), and total job count.",
+  summary: "Update user profile (partial updates)",
   tags: [openAPITags.user.me.name],
   security: [{ bearerAuth: [] }],
   request: {
@@ -148,7 +148,7 @@ registry.registerPath({
   responses: {
     200: {
       description:
-        "Profile updated successfully with populated location, category, experience, work_samples, certification, and review statistics (for contractors)",
+        "Profile updated successfully with all populated fields (location, category, experience, work_samples, certifications), review statistics (for contractors), and total job count",
       content: {
         [mediaTypeFormat.json]: {
           schema: UserResponseSchema,
@@ -156,7 +156,8 @@ registry.registerPath({
       },
     },
     400: {
-      description: "Validation error or invalid category/location IDs",
+      description:
+        "Validation error, invalid IDs (category/location/experience/work_samples/certifications), or no fields to update",
       content: {
         [mediaTypeFormat.json]: {
           schema: ErrorResponseSchema,
@@ -165,6 +166,15 @@ registry.registerPath({
     },
     401: {
       description: "Unauthorized - Invalid or missing access token",
+      content: {
+        [mediaTypeFormat.json]: {
+          schema: ErrorResponseSchema,
+        },
+      },
+    },
+    403: {
+      description:
+        "Forbidden - Attempting to update contractor-specific fields as a customer",
       content: {
         [mediaTypeFormat.json]: {
           schema: ErrorResponseSchema,
