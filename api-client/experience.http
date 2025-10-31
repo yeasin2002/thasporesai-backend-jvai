@@ -1,0 +1,49 @@
+@baseUrl = http://localhost:4000
+@token = YOUR_ACCESS_TOKEN_HERE
+
+### Get all experiences for current user
+GET {{baseUrl}}/api/user/experience
+Authorization: Bearer {{token}}
+
+### Get single experience
+GET {{baseUrl}}/api/user/experience/EXPERIENCE_ID_HERE
+Authorization: Bearer {{token}}
+
+### Create new experience
+POST {{baseUrl}}/api/user/experience
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "company_name": "Tech Solutions Inc",
+  "title": "Senior Full Stack Developer",
+  "description": "Led development of microservices architecture using Node.js and React. Managed a team of 5 developers and delivered multiple high-impact projects.",
+  "start_date": "2020-06-01T00:00:00.000Z",
+  "end_date": "2023-12-31T00:00:00.000Z"
+}
+
+### Create current job (no end_date)
+POST {{baseUrl}}/api/user/experience
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "company_name": "Innovative Startups LLC",
+  "title": "Lead Software Engineer",
+  "description": "Building scalable cloud-native applications with TypeScript, AWS, and MongoDB.",
+  "start_date": "2024-01-15T00:00:00.000Z"
+}
+
+### Update experience
+PUT {{baseUrl}}/api/user/experience/EXPERIENCE_ID_HERE
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "title": "Principal Software Engineer",
+  "description": "Promoted to principal engineer. Leading architecture decisions and mentoring junior developers."
+}
+
+### Delete experience
+DELETE {{baseUrl}}/api/user/experience/EXPERIENCE_ID_HERE
+Authorization: Bearer {{token}}

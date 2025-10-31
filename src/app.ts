@@ -84,6 +84,15 @@ app.use("/api/admin/users", requireAuth, requireRole("admin"), adminUser);
 // normal  routes
 app.use("/api/user", users);
 
+// User sub-modules (nested routes)
+import { certifications } from "./api/users/certifications/certifications.route";
+import { experience } from "./api/users/experience/experience.route";
+import { workSamples } from "./api/users/work_samples/work_samples.route";
+
+app.use("/api/user/certifications", certifications);
+app.use("/api/user/experience", experience);
+app.use("/api/user/work-samples", workSamples);
+
 app.use(notFoundHandler);
 app.use(errorHandler);
 

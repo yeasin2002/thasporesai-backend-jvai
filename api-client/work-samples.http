@@ -1,0 +1,46 @@
+@baseUrl = http://localhost:4000
+@token = YOUR_ACCESS_TOKEN_HERE
+
+### Get all work samples for current user
+GET {{baseUrl}}/api/user/work-samples
+Authorization: Bearer {{token}}
+
+### Get single work sample
+GET {{baseUrl}}/api/user/work-samples/WORK_SAMPLE_ID_HERE
+Authorization: Bearer {{token}}
+
+### Create new work sample
+POST {{baseUrl}}/api/user/work-samples
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "name": "E-commerce Platform",
+  "img": "https://example.com/portfolio/ecommerce.jpg",
+  "description": "Full-stack e-commerce platform built with MERN stack. Features include user authentication, payment integration, and real-time inventory management."
+}
+
+### Create another work sample
+POST {{baseUrl}}/api/user/work-samples
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "name": "Mobile Banking App",
+  "img": "https://example.com/portfolio/banking-app.jpg",
+  "description": "Secure mobile banking application with biometric authentication and real-time transaction notifications."
+}
+
+### Update work sample
+PUT {{baseUrl}}/api/user/work-samples/WORK_SAMPLE_ID_HERE
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "name": "E-commerce Platform v2.0",
+  "description": "Updated with AI-powered product recommendations and advanced analytics dashboard."
+}
+
+### Delete work sample
+DELETE {{baseUrl}}/api/user/work-samples/WORK_SAMPLE_ID_HERE
+Authorization: Bearer {{token}}
