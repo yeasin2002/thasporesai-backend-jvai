@@ -5,33 +5,33 @@ extendZodWithOpenApi(z);
 
 // Base Certification Schema
 export const CertificationSchema = z
-	.object({
-		_id: z.string().openapi({ description: "Certification ID" }),
-		user: z.string().openapi({ description: "User ID" }),
-		title: z.string().min(1).openapi({ description: "Certification title" }),
-		img: z.string().url().openapi({ description: "Certification image URL" }),
-		description: z
-			.string()
-			.optional()
-			.openapi({ description: "Certification description" }),
-		issue_date: z
-			.string()
-			.datetime()
-			.optional()
-			.openapi({ description: "Issue date" }),
-		expiry_date: z
-			.string()
-			.datetime()
-			.optional()
-			.openapi({ description: "Expiry date" }),
-		issuing_organization: z
-			.string()
-			.optional()
-			.openapi({ description: "Issuing organization" }),
-		createdAt: z.string().datetime().optional(),
-		updatedAt: z.string().datetime().optional(),
-	})
-	.openapi("Certification");
+  .object({
+    _id: z.string().openapi({ description: "Certification ID" }),
+    user: z.string().openapi({ description: "User ID" }),
+    title: z.string().min(1).openapi({ description: "Certification title" }),
+    img: z.string().openapi({ description: "Certification image URL" }),
+    description: z
+      .string()
+      .optional()
+      .openapi({ description: "Certification description" }),
+    issue_date: z
+      .string()
+      .datetime()
+      .optional()
+      .openapi({ description: "Issue date" }),
+    expiry_date: z
+      .string()
+      .datetime()
+      .optional()
+      .openapi({ description: "Expiry date" }),
+    issuing_organization: z
+      .string()
+      .optional()
+      .openapi({ description: "Issuing organization" }),
+    createdAt: z.string().datetime().optional(),
+    updatedAt: z.string().datetime().optional(),
+  })
+  .openapi("Certification");
 
 // Create Certification Schema
 export const CreateCertificationSchema = CertificationSchema.omit({

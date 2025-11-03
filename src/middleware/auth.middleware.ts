@@ -4,15 +4,16 @@ import type { NextFunction, Request, Response } from "express";
 
 // Extend Express Request type to include user
 declare global {
-	namespace Express {
-		interface Request {
-			user?: {
-				userId: string;
-				email: string;
-				role: "customer" | "contractor" | "admin";
-			};
-		}
-	}
+  namespace Express {
+    interface Request {
+      user?: {
+        id: string; // User ID (also available as userId for backward compatibility)
+        userId: string;
+        email: string;
+        role: "customer" | "contractor" | "admin";
+      };
+    }
+  }
 }
 
 /**
@@ -20,40 +21,41 @@ declare global {
  * Adds user data to req.user if token is valid
  */
 export const requireAuth = (
-	req: Request,
-	res: Response,
-	next: NextFunction,
+  req: Request,
+  res: Response,
+  next: NextFunction
 ) => {
-	try {
-		// Get token from Authorization header
-		const authHeader = req.headers.authorization;
-		if (!authHeader || !authHeader.startsWith("Bearer ")) {
-			return sendUnauthorized(res, "Unauthorized - No token provided");
-		}
+  try {
+    // Get token from Authorization header
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      return sendUnauthorized(res, "Unauthorized - No token provided");
+    }
 
-		// Extract token
-		const token = authHeader.substring(7);
+    // Extract token
+    const token = authHeader.substring(7);
 
-		// Verify token
-		try {
-			const decoded = verifyAccessToken(token);
+    // Verify token
+    try {
+      const decoded = verifyAccessToken(token);
 
-			// Add user data to request
-			req.user = {
-				userId: decoded.userId,
-				email: decoded.email,
-				role: decoded.role,
-			};
+      // Add user data to request
+      req.user = {
+        id: decoded.userId, // Primary ID field
+        userId: decoded.userId, // Backward compatibility
+        email: decoded.email,
+        role: decoded.role,
+      };
 
-			next();
-			// oxlint-disable-next-line no-unused-vars
-		} catch (_error) {
-			return sendUnauthorized(res, "Unauthorized - Invalid or expired token");
-		}
-	} catch (error) {
-		console.error("Auth middleware error:", error);
-		return sendInternalError(res, "Internal Server Error");
-	}
+      next();
+      // oxlint-disable-next-line no-unused-vars
+    } catch (_error) {
+      return sendUnauthorized(res, "Unauthorized - Invalid or expired token");
+    }
+  } catch (error) {
+    console.error("Auth middleware error:", error);
+    return sendInternalError(res, "Internal Server Error");
+  }
 };
 
 /**
@@ -165,10 +167,11 @@ export const optionalAuth = (
 			try {
 				const decoded = verifyAccessToken(token);
 				req.user = {
-					userId: decoded.userId,
-					email: decoded.email,
-					role: decoded.role,
-				};
+          id: decoded.userId,
+          userId: decoded.userId,
+          email: decoded.email,
+          role: decoded.role,
+        };
 				// oxlint-disable-next-line no-unused-vars
 			} catch (_error) {
 				// Token invalid, but we don't fail - just continue without user

@@ -34,7 +34,7 @@ export const ApplicationIdParamSchema = z
 	})
 	.openapi("ApplicationIdParam");
 
-// Search/Filter Query Schema for My Applications
+// Search/Filter Query Schema for My Applications (Contractor)
 export const SearchMyApplicationsSchema = z
 	.object({
 		search: z
@@ -75,6 +75,30 @@ export const SearchMyApplicationsSchema = z
 			.openapi({ description: "Items per page" }),
 	})
 	.openapi("SearchMyApplications");
+
+// Search/Filter Query Schema for Customer's Received Applications
+export const SearchCustomerApplicationsSchema = z
+	.object({
+		jobId: z
+			.string()
+			.optional()
+			.openapi({ description: "Filter by specific job ID" }),
+		status: z
+			.enum(["pending", "accepted", "rejected"])
+			.optional()
+			.openapi({ description: "Filter by application status" }),
+		page: z
+			.string()
+			.regex(/^\d+$/, "Page must be a number")
+			.optional()
+			.openapi({ description: "Page number" }),
+		limit: z
+			.string()
+			.regex(/^\d+$/, "Limit must be a number")
+			.optional()
+			.openapi({ description: "Items per page" }),
+	})
+	.openapi("SearchCustomerApplications");
 
 // Application data schema
 const ApplicationDataSchema = z.object({
@@ -133,6 +157,9 @@ export type ApplyForJob = z.infer<typeof ApplyForJobSchema>;
 export type JobIdParam = z.infer<typeof JobIdParamSchema>;
 export type ApplicationIdParam = z.infer<typeof ApplicationIdParamSchema>;
 export type SearchMyApplications = z.infer<typeof SearchMyApplicationsSchema>;
+export type SearchCustomerApplications = z.infer<
+  typeof SearchCustomerApplicationsSchema
+>;
 export type ApplicationResponse = z.infer<typeof ApplicationResponseSchema>;
 export type ApplicationsResponse = z.infer<typeof ApplicationsResponseSchema>;
 export type SuccessResponse = z.infer<typeof SuccessResponseSchema>;

@@ -1,8 +1,8 @@
 export const openAPITags = {
   authentication: { name: "Authentication", basepath: "/api/auth" },
   user: {
-    me: { name: "User - Profile", basepath: "/api/user/me" },
-    all_users: { name: "User - All", basepath: "/api/user/" },
+    me: { name: "user", basepath: "/api/user/me" },
+    all_users: { name: "user", basepath: "/api/user/" },
   },
   job: { name: "job", basepath: "/api/job" },
   job_request: {
@@ -42,9 +42,13 @@ export const openAPITags = {
       basepath: "/api/admin/settings",
     },
   },
+  chat: {
+    name: "chat",
+    basepath: "/api/chat",
+  },
 };
 
 export const mediaTypeFormat = {
-	json: "application/json",
-	form: "multipart/form-data",
+  json: "application/json",
+  form: "multipart/form-data",
 };

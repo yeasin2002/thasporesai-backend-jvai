@@ -3,10 +3,12 @@ import cors from "cors";
 import "dotenv/config";
 import express from "express";
 import morgan from "morgan";
+import { createServer } from "node:http";
 import swaggerUi from "swagger-ui-express";
 
 import { auth } from "@/api/auth/auth.route";
 import { category } from "@/api/category/category.route";
+import { chat } from "@/api/chat/chat.route";
 import { jobRequest } from "@/api/job-request/job-request.route";
 import { job } from "@/api/job/job.route";
 import { location } from "@/api/location/location.route";
@@ -25,11 +27,14 @@ import {
   requireRole,
 } from "@/middleware";
 import { authAdmin } from "./api/admin/auth-admin/auth-admin.route";
+import { initializeSocketIO } from "./api/chat/socket";
+// import { authAdmin } from "./api/admin/admin-user";
 import { common } from "./api/common/common.route";
 import { getLocalIP } from "./lib/get-my-ip";
 import { morganDevFormat } from "./lib/morgan";
 
 const app = express();
+const httpServer = createServer(app);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -37,31 +42,31 @@ app.use("/uploads", express.static("uploads"));
 app.use(morgan(morganDevFormat));
 
 app.use(
-	cors({
-		origin: ["http://localhost:5173", "http://localhost:5173", "*"],
-		methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-		credentials: true,
-	}),
+  cors({
+    origin: ["http://localhost:5173", "http://localhost:5173", "*"],
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    credentials: true,
+  })
 );
 
 app.get("/", (_req, res) => {
-	res.status(200).send("OK");
+  res.status(200).send("OK");
 });
 
 // OpenAPI documentation
 const openApiDocument = generateOpenAPIDocument();
 app.use("/swagger", swaggerUi.serve, swaggerUi.setup(openApiDocument));
 app.use(
-	"/scaler",
-	apiReference({
-		theme: "deepSpace",
-		content: openApiDocument,
-		favicon: "/uploads/logo.png",
-	}),
+  "/scaler",
+  apiReference({
+    theme: "deepSpace",
+    content: openApiDocument,
+    favicon: "/uploads/logo.png",
+  })
 );
 app.get("/api-docs.json", (_req, res) => {
-	res.setHeader("Content-Type", "application/json");
-	res.send(openApiDocument);
+  res.setHeader("Content-Type", "application/json");
+  res.send(openApiDocument);
 });
 
 app.use("/api/auth", auth);
@@ -72,6 +77,7 @@ app.use("/api/category", category);
 app.use("/api/location", location);
 app.use("/api/review", review);
 app.use("/api/common", common);
+app.use("/api/chat", chat);
 
 // Admin routes
 app.use("/api/admin/auth", authAdmin);
@@ -97,12 +103,17 @@ app.use(notFoundHandler);
 app.use(errorHandler);
 
 const port = process.env.PORT || 4000;
-app.listen(port, async () => {
-	await connectDB();
 
-	console.log(`🚀 Server is running on port http://localhost:${port}`);
-	console.log(`✨ Server is running on port http://${getLocalIP()}:${port} \n`);
+// Initialize Socket.IO for real-time chat
+initializeSocketIO(httpServer);
 
-	console.log(`✍️ Swagger doc: http://localhost:${port}/swagger`);
-	console.log(`📋 Scaler doc: http://localhost:${port}/scaler \n`);
+httpServer.listen(port, async () => {
+  await connectDB();
+
+  console.log(`🚀 Server is running on port http://localhost:${port}`);
+  console.log(`✨ Server is running on port http://${getLocalIP()}:${port} \n`);
+
+  console.log(`✍️ Swagger doc: http://localhost:${port}/swagger`);
+  console.log(`📋 Scaler doc: http://localhost:${port}/scaler`);
+  console.log(`💬 Socket.IO chat enabled \n`);
 });

@@ -249,12 +249,10 @@ export const UpdateProfileSchema = z
       .openapi({ description: "User's full name" }),
     profile_img: z
       .string()
-      .url("Must be a valid URL")
       .optional()
       .openapi({ description: "Profile image URL" }),
     cover_img: z
       .string()
-      .url("Must be a valid URL")
       .optional()
       .openapi({ description: "Cover image URL" }),
     phone: z
