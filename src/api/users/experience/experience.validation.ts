@@ -5,22 +5,26 @@ extendZodWithOpenApi(z);
 
 // Base Experience Schema
 export const ExperienceSchema = z
-	.object({
-		_id: z.string().openapi({ description: "Experience ID" }),
-		user: z.string().openapi({ description: "User ID" }),
-		company_name: z.string().min(1).openapi({ description: "Company name" }),
-		title: z.string().min(1).openapi({ description: "Job title" }),
-		description: z.string().min(1).openapi({ description: "Job description" }),
-		start_date: z.string().datetime().openapi({ description: "Start date" }),
-		end_date: z
-			.string()
-			.datetime()
-			.optional()
-			.openapi({ description: "End date (optional for current job)" }),
-		createdAt: z.string().datetime().optional(),
-		updatedAt: z.string().datetime().optional(),
-	})
-	.openapi("Experience");
+  .object({
+    _id: z.string().openapi({ description: "Experience ID" }),
+    user: z.string().openapi({ description: "User ID" }),
+    company_name: z.string().min(1).openapi({ description: "Company name" }),
+    title: z.string().min(1).openapi({ description: "Job title" }),
+    description: z.string().min(1).openapi({ description: "Job description" }),
+    start_date: z
+      .string()
+      .datetime()
+      .optional()
+      .openapi({ description: "Start date" }),
+    end_date: z
+      .string()
+      .datetime()
+      .optional()
+      .openapi({ description: "End date (optional for current job)" }),
+    createdAt: z.string().datetime().optional(),
+    updatedAt: z.string().datetime().optional(),
+  })
+  .openapi("Experience");
 
 // Create Experience Schema
 export const CreateExperienceSchema = ExperienceSchema.omit({
