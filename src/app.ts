@@ -1,4 +1,5 @@
 import { apiReference } from "@scalar/express-api-reference";
+import consola from "consola";
 import cors from "cors";
 import "dotenv/config";
 import express from "express";
@@ -110,10 +111,11 @@ initializeSocketIO(httpServer);
 httpServer.listen(port, async () => {
   await connectDB();
 
-  console.log(`🚀 Server is running on port http://localhost:${port}`);
-  console.log(`✨ Server is running on port http://${getLocalIP()}:${port} \n`);
-
-  console.log(`✍️ Swagger doc: http://localhost:${port}/swagger`);
-  console.log(`📋 Scaler doc: http://localhost:${port}/scaler`);
-  console.log(`💬 Socket.IO chat enabled \n`);
+  consola.warn(`🚀 Server is running on port http://localhost:${port}`);
+  consola.warn(
+    `✨ Server is running on port http://${getLocalIP()}:${port} \n`
+  );
+  consola.log(` ✍️ Swagger doc: http://localhost:${port}/swagger`);
+  consola.log(` 📋 Scaler doc: http://localhost:${port}/scaler`);
+  consola.log(` 💬 Socket.IO chat enabled \n`);
 });
