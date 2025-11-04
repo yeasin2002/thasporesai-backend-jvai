@@ -5,19 +5,19 @@ extendZodWithOpenApi(z);
 
 // Base WorkSample Schema
 export const WorkSampleSchema = z
-  .object({
-    _id: z.string().openapi({ description: "Work sample ID" }),
-    user: z.string().openapi({ description: "User ID" }),
-    name: z.string().min(1).openapi({ description: "Work sample name" }),
-    img: z.string().openapi({ description: "Work sample image URL" }),
-    description: z
-      .string()
-      .optional()
-      .openapi({ description: "Work sample description" }),
-    createdAt: z.string().datetime().optional(),
-    updatedAt: z.string().datetime().optional(),
-  })
-  .openapi("WorkSample");
+	.object({
+		_id: z.string().openapi({ description: "Work sample ID" }),
+		user: z.string().openapi({ description: "User ID" }),
+		name: z.string().min(1).openapi({ description: "Work sample name" }),
+		img: z.string().openapi({ description: "Work sample image URL" }),
+		description: z
+			.string()
+			.optional()
+			.openapi({ description: "Work sample description" }),
+		createdAt: z.string().datetime().optional(),
+		updatedAt: z.string().datetime().optional(),
+	})
+	.openapi("WorkSample");
 
 // Create WorkSample Schema
 export const CreateWorkSampleSchema = WorkSampleSchema.omit({

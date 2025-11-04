@@ -23,10 +23,10 @@ import { adminUser } from "@/api/admin/admin-user/admin-user.route";
 // common routes
 import { connectDB, generateOpenAPIDocument, initializeFirebase } from "@/lib";
 import {
-  errorHandler,
-  notFoundHandler,
-  requireAuth,
-  requireRole,
+	errorHandler,
+	notFoundHandler,
+	requireAuth,
+	requireRole,
 } from "@/middleware";
 import { authAdmin } from "./api/admin/auth-admin/auth-admin.route";
 import { initializeSocketIO } from "./api/chat/socket";
@@ -44,31 +44,31 @@ app.use("/uploads", express.static("uploads"));
 app.use(morgan(morganDevFormat));
 
 app.use(
-  cors({
-    origin: ["http://localhost:5173", "*"],
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    credentials: true,
-  })
+	cors({
+		origin: ["http://localhost:5173", "*"],
+		methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+		credentials: true,
+	}),
 );
 
 app.get("/", (_req, res) => {
-  res.status(200).send("OK");
+	res.status(200).send("OK");
 });
 
 // OpenAPI documentation
 const openApiDocument = generateOpenAPIDocument();
 app.use("/swagger", swaggerUi.serve, swaggerUi.setup(openApiDocument));
 app.use(
-  "/scaler",
-  apiReference({
-    theme: "deepSpace",
-    content: openApiDocument,
-    favicon: "/uploads/logo.png",
-  })
+	"/scaler",
+	apiReference({
+		theme: "deepSpace",
+		content: openApiDocument,
+		favicon: "/uploads/logo.png",
+	}),
 );
 app.get("/api-docs.json", (_req, res) => {
-  res.setHeader("Content-Type", "application/json");
-  res.send(openApiDocument);
+	res.setHeader("Content-Type", "application/json");
+	res.send(openApiDocument);
 });
 
 // API Routes
@@ -111,20 +111,20 @@ const port = process.env.PORT || 4000;
 initializeSocketIO(httpServer);
 
 httpServer.listen(port, async () => {
-  await connectDB();
+	await connectDB();
 
-  // Initialize Firebase Admin SDK for push notifications
-  try {
-    initializeFirebase();
-  } catch (_error) {
-    consola.warn(
-      "⚠️ Firebase initialization failed. Push notifications will not work."
-    );
-  }
+	// Initialize Firebase Admin SDK for push notifications
+	try {
+		initializeFirebase();
+	} catch (_error) {
+		consola.warn(
+			"⚠️ Firebase initialization failed. Push notifications will not work.",
+		);
+	}
 
-  consola.warn(`🚀 Server is running on http://localhost:${port}`);
-  consola.warn(`✨ Server is running on http://${getLocalIP()}:${port} \n`);
-  consola.log(`✍️ Swagger doc: http://localhost:${port}/swagger`);
-  consola.log(`📋 Scaler doc: http://localhost:${port}/scaler`);
-  consola.log(`💬 Socket.IO chat enabled\n`);
+	consola.warn(`🚀 Server is running on http://localhost:${port}`);
+	consola.warn(`✨ Server is running on http://${getLocalIP()}:${port} \n`);
+	consola.log(`✍️ Swagger doc: http://localhost:${port}/swagger`);
+	consola.log(`📋 Scaler doc: http://localhost:${port}/scaler`);
+	consola.log(`💬 Socket.IO chat enabled\n`);
 });

@@ -2,8 +2,8 @@ import "./profile.openapi";
 
 import { requireAuth } from "@/middleware";
 import {
-  validateBody,
-  validateParams,
+	validateBody,
+	validateParams,
 } from "@/middleware/validation.middleware";
 import express, { type Router } from "express";
 import { UpdateProfileSchema, UserIdParamSchema } from "./profile.validation";
@@ -19,10 +19,10 @@ profile.get("/me", requireAuth, me);
 
 // PATCH /api/user/me - Update current user profile
 profile.patch(
-  "/me",
-  requireAuth,
-  validateBody(UpdateProfileSchema),
-  updateProfile
+	"/me",
+	requireAuth,
+	validateBody(UpdateProfileSchema),
+	updateProfile,
 );
 
 // GET /api/user - Get all users with pagination

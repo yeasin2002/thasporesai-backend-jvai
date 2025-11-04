@@ -6,8 +6,8 @@ import type { Server, Socket } from "socket.io";
  * For production, consider using Redis for scalability
  */
 const onlineUsers = new Map<
-  string,
-  { socketId: string; lastSeen: Date; isOnline: boolean }
+	string,
+	{ socketId: string; lastSeen: Date; isOnline: boolean }
 >();
 
 /**
@@ -18,62 +18,62 @@ const onlineUsers = new Map<
  * @param socket - Individual socket connection
  */
 export const registerStatusHandlers = (io: Server, socket: Socket) => {
-  const userId = socket.data.userId;
+	const userId = socket.data.userId;
 
-  // Mark user as online when they connect
-  onlineUsers.set(userId, {
-    socketId: socket.id,
-    lastSeen: new Date(),
-    isOnline: true,
-  });
+	// Mark user as online when they connect
+	onlineUsers.set(userId, {
+		socketId: socket.id,
+		lastSeen: new Date(),
+		isOnline: true,
+	});
 
-  // Broadcast online status to all connected clients
-  io.emit("user_online_status", {
-    userId,
-    isOnline: true,
-    lastSeen: new Date(),
-  });
+	// Broadcast online status to all connected clients
+	io.emit("user_online_status", {
+		userId,
+		isOnline: true,
+		lastSeen: new Date(),
+	});
 
-  console.log(`🟢 User ${userId} is now online`);
+	console.log(`🟢 User ${userId} is now online`);
 
-  /**
-   * Event: get_online_status
-   * Check if a specific user is online
-   *
-   * Payload: { userId: string }
-   */
-  socket.on("get_online_status", ({ userId: targetUserId }) => {
-    const userStatus = onlineUsers.get(targetUserId);
+	/**
+	 * Event: get_online_status
+	 * Check if a specific user is online
+	 *
+	 * Payload: { userId: string }
+	 */
+	socket.on("get_online_status", ({ userId: targetUserId }) => {
+		const userStatus = onlineUsers.get(targetUserId);
 
-    socket.emit("user_online_status", {
-      userId: targetUserId,
-      isOnline: userStatus?.isOnline || false,
-      lastSeen: userStatus?.lastSeen || null,
-    });
-  });
+		socket.emit("user_online_status", {
+			userId: targetUserId,
+			isOnline: userStatus?.isOnline || false,
+			lastSeen: userStatus?.lastSeen || null,
+		});
+	});
 
-  /**
-   * Event: disconnect
-   * Handle user disconnection and update status
-   */
-  socket.on("disconnect", () => {
-    // Update user status to offline
-    const userStatus = onlineUsers.get(userId);
-    if (userStatus) {
-      userStatus.isOnline = false;
-      userStatus.lastSeen = new Date();
-      onlineUsers.set(userId, userStatus);
-    }
+	/**
+	 * Event: disconnect
+	 * Handle user disconnection and update status
+	 */
+	socket.on("disconnect", () => {
+		// Update user status to offline
+		const userStatus = onlineUsers.get(userId);
+		if (userStatus) {
+			userStatus.isOnline = false;
+			userStatus.lastSeen = new Date();
+			onlineUsers.set(userId, userStatus);
+		}
 
-    // Broadcast offline status to all connected clients
-    io.emit("user_online_status", {
-      userId,
-      isOnline: false,
-      lastSeen: new Date(),
-    });
+		// Broadcast offline status to all connected clients
+		io.emit("user_online_status", {
+			userId,
+			isOnline: false,
+			lastSeen: new Date(),
+		});
 
-    console.log(`🔴 User ${userId} is now offline`);
-  });
+		console.log(`🔴 User ${userId} is now offline`);
+	});
 };
 
 /**
@@ -83,7 +83,7 @@ export const registerStatusHandlers = (io: Server, socket: Socket) => {
  * @returns Array of online user IDs
  */
 export const getOnlineUsers = (): string[] => {
-  return Array.from(onlineUsers.entries())
-    .filter(([_, status]) => status.isOnline)
-    .map(([userId]) => userId);
+	return Array.from(onlineUsers.entries())
+		.filter(([_, status]) => status.isOnline)
+		.map(([userId]) => userId);
 };

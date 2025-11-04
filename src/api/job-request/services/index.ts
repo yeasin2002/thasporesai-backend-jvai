@@ -5,4 +5,3 @@ export * from "./get-customer-applications.service";
 export * from "./get-job-applications.service";
 export * from "./get-my-applications.service";
 export * from "./reject-application.service";
-

@@ -1,9 +1,5 @@
 import { db } from "@/db";
-import {
-    exceptionErrorHandler,
-    sendError,
-    sendSuccess,
-} from "@/helpers";
+import { exceptionErrorHandler, sendError, sendSuccess } from "@/helpers";
 import type { RequestHandler } from "express";
 import type { SearchCustomerApplications } from "../job-request.validation";
 
@@ -26,12 +22,7 @@ export const getCustomerApplications: RequestHandler<
 		}
 
 		// Extract query parameters
-		const {
-			jobId,
-			status,
-			page = "1",
-			limit = "10",
-		} = req.query;
+		const { jobId, status, page = "1", limit = "10" } = req.query;
 
 		// Parse pagination
 		const pageNum = Number.parseInt(page, 10);
@@ -68,9 +59,8 @@ export const getCustomerApplications: RequestHandler<
 		}
 
 		// Get total count
-		const total = await db.jobApplicationRequest.countDocuments(
-			applicationFilter,
-		);
+		const total =
+			await db.jobApplicationRequest.countDocuments(applicationFilter);
 
 		// Fetch applications with populated fields
 		const applications = await db.jobApplicationRequest
@@ -108,10 +98,6 @@ export const getCustomerApplications: RequestHandler<
 			totalPages,
 		});
 	} catch (error) {
-		return exceptionErrorHandler(
-			error,
-			res,
-			"Failed to retrieve applications",
-		);
+		return exceptionErrorHandler(error, res, "Failed to retrieve applications");
 	}
 };

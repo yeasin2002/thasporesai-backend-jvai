@@ -158,7 +158,7 @@ export type JobIdParam = z.infer<typeof JobIdParamSchema>;
 export type ApplicationIdParam = z.infer<typeof ApplicationIdParamSchema>;
 export type SearchMyApplications = z.infer<typeof SearchMyApplicationsSchema>;
 export type SearchCustomerApplications = z.infer<
-  typeof SearchCustomerApplicationsSchema
+	typeof SearchCustomerApplicationsSchema
 >;
 export type ApplicationResponse = z.infer<typeof ApplicationResponseSchema>;
 export type ApplicationsResponse = z.infer<typeof ApplicationsResponseSchema>;

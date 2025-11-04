@@ -1,12 +1,12 @@
 import { Schema, Types, model, type Document } from "mongoose";
 
 export interface Experience {
-  user: Types.ObjectId; // Reference to the user who owns this experience
-  company_name: string;
-  title: string;
-  description: string;
-  start_date?: Date;
-  end_date?: Date;
+	user: Types.ObjectId; // Reference to the user who owns this experience
+	company_name: string;
+	title: string;
+	description: string;
+	start_date?: Date;
+	end_date?: Date;
 }
 
 export interface ExperienceDocument extends Experience, Document {}

@@ -1,42 +1,42 @@
 import { Schema, Types, model, type Document } from "mongoose";
 
 export interface User {
-  role: "contractor" | "customer" | "admin";
-  full_name: string;
-  profile_img: string;
-  cover_img: string;
-  email: string;
-  password: string;
-  phone: string;
-  address: string;
-  bio: string;
-  description: string;
-  location?: Types.ObjectId[];
-  availability?: Date;
-  is_verified: boolean;
-  isSuspend: boolean;
-  category: Types.ObjectId[];
-  review: Types.ObjectId[];
+	role: "contractor" | "customer" | "admin";
+	full_name: string;
+	profile_img: string;
+	cover_img: string;
+	email: string;
+	password: string;
+	phone: string;
+	address: string;
+	bio: string;
+	description: string;
+	location?: Types.ObjectId[];
+	availability?: Date;
+	is_verified: boolean;
+	isSuspend: boolean;
+	category: Types.ObjectId[];
+	review: Types.ObjectId[];
 
-  // Contractor specific fields
-  skills: string[];
-  experience: Types.ObjectId[];
-  work_samples: Types.ObjectId[];
-  certifications: Types.ObjectId[];
-  job: Types.ObjectId[];
-  starting_budget: number;
-  hourly_charge: number;
-  // Auth related
-  refreshTokens?: Array<{
-    token: string;
-    jti: string;
-    createdAt: Date;
-  }>;
-  otp?: {
-    code: string;
-    expiresAt: Date;
-    used: boolean;
-  };
+	// Contractor specific fields
+	skills: string[];
+	experience: Types.ObjectId[];
+	work_samples: Types.ObjectId[];
+	certifications: Types.ObjectId[];
+	job: Types.ObjectId[];
+	starting_budget: number;
+	hourly_charge: number;
+	// Auth related
+	refreshTokens?: Array<{
+		token: string;
+		jti: string;
+		createdAt: Date;
+	}>;
+	otp?: {
+		code: string;
+		expiresAt: Date;
+		used: boolean;
+	};
 }
 
 export interface UserDocument extends User, Document {}

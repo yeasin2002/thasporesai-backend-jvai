@@ -14,37 +14,37 @@ import { authMiddleware } from "./middleware/auth.middleware";
  * @returns Socket.IO server instance
  */
 export const initializeSocketIO = (httpServer: HTTPServer) => {
-  // Create Socket.IO server with CORS configuration
-  const io = new Server(httpServer, {
-    cors: {
-      origin: process.env.CLIENT_URL || "*", // Allow all origins in development
-      methods: ["GET", "POST"],
-      //   credentials: true,
-    },
-    // Connection timeout settings
-    pingTimeout: 60000, // 60 seconds
-    pingInterval: 25000, // 25 seconds
-  });
+	// Create Socket.IO server with CORS configuration
+	const io = new Server(httpServer, {
+		cors: {
+			origin: process.env.CLIENT_URL || "*", // Allow all origins in development
+			methods: ["GET", "POST"],
+			//   credentials: true,
+		},
+		// Connection timeout settings
+		pingTimeout: 60000, // 60 seconds
+		pingInterval: 25000, // 25 seconds
+	});
 
-  // Apply authentication middleware to all connections
-  io.use(authMiddleware);
+	// Apply authentication middleware to all connections
+	io.use(authMiddleware);
 
-  // Handle new socket connections
-  io.on("connection", (socket) => {
-    consola.info(`✅ User connected: ${socket.data.userId}`);
+	// Handle new socket connections
+	io.on("connection", (socket) => {
+		consola.info(`✅ User connected: ${socket.data.userId}`);
 
-    // Register all event handlers
-    registerChatHandlers(io, socket);
-    registerTypingHandlers(io, socket);
-    registerStatusHandlers(io, socket);
+		// Register all event handlers
+		registerChatHandlers(io, socket);
+		registerTypingHandlers(io, socket);
+		registerStatusHandlers(io, socket);
 
-    // Handle disconnection
-    socket.on("disconnect", () => {
-      consola.warn(`❌ User disconnected: ${socket.data.userId}`);
-      // Update user online status to offline
-      // This will be handled in status.handler.ts
-    });
-  });
+		// Handle disconnection
+		socket.on("disconnect", () => {
+			consola.warn(`❌ User disconnected: ${socket.data.userId}`);
+			// Update user online status to offline
+			// This will be handled in status.handler.ts
+		});
+	});
 
-  return io;
+	return io;
 };
