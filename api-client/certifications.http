@@ -1,0 +1,38 @@
+@baseUrl = http://localhost:4000
+@token = YOUR_ACCESS_TOKEN_HERE
+
+### Get all certifications for current user
+GET {{baseUrl}}/api/user/certifications
+Authorization: Bearer {{token}}
+
+### Get single certification
+GET {{baseUrl}}/api/user/certifications/CERTIFICATION_ID_HERE
+Authorization: Bearer {{token}}
+
+### Create new certification
+POST {{baseUrl}}/api/user/certifications
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "title": "AWS Certified Solutions Architect",
+  "img": "https://example.com/aws-cert.jpg",
+  "description": "Professional level AWS certification",
+  "issue_date": "2024-01-15T00:00:00.000Z",
+  "expiry_date": "2027-01-15T00:00:00.000Z",
+  "issuing_organization": "Amazon Web Services"
+}
+
+### Update certification
+PUT {{baseUrl}}/api/user/certifications/CERTIFICATION_ID_HERE
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "title": "AWS Certified Solutions Architect - Professional",
+  "description": "Advanced AWS certification with professional level expertise"
+}
+
+### Delete certification
+DELETE {{baseUrl}}/api/user/certifications/CERTIFICATION_ID_HERE
+Authorization: Bearer {{token}}

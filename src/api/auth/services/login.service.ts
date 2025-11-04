@@ -47,10 +47,10 @@ export const login: RequestHandler<{}, unknown, Login> = async (req, res) => {
 		// Store hashed refresh token
 		const hashedRefreshToken = await hashToken(refreshToken);
 		user?.refreshTokens?.push({
-      token: hashedRefreshToken,
-      jti,
-      createdAt: new Date(),
-    });
+			token: hashedRefreshToken,
+			jti,
+			createdAt: new Date(),
+		});
 		await user.save();
 
 		// Remove password from response
