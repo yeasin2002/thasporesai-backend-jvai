@@ -5,6 +5,12 @@ import { registerChatHandlers } from "./handlers/chat.handler";
 import { registerStatusHandlers } from "./handlers/status.handler";
 import { registerTypingHandlers } from "./handlers/typing.handler";
 import { authMiddleware } from "./middleware/auth.middleware";
+import {
+  createConnectionStatsLogger,
+  logPerformance,
+  logRoomOperations,
+  loggerMiddleware,
+} from "./middleware/logger.middleware";
 
 /**
  * Initialize Socket.IO Server
@@ -29,9 +35,27 @@ export const initializeSocketIO = (httpServer: HTTPServer) => {
   // Apply authentication middleware to all connections
   io.use(authMiddleware);
 
+  // Apply logging middleware (only in development or when DEBUG is enabled)
+  if (
+    process.env.NODE_ENV !== "production" ||
+    process.env.SOCKET_DEBUG === "true"
+  ) {
+    io.use(loggerMiddleware);
+    consola.info("🔍 Socket.IO logging middleware enabled");
+  }
+
+  // Start connection statistics logger
+  createConnectionStatsLogger(io);
+
   // Handle new socket connections
   io.on("connection", (socket) => {
     consola.info(`✅ User connected: ${socket.data.userId}`);
+
+    // Enable room operation logging
+    logRoomOperations(socket);
+
+    // Enable performance logging
+    logPerformance(socket);
 
     // Register all event handlers
     registerChatHandlers(io, socket);
