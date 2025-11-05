@@ -114,17 +114,17 @@ httpServer.listen(port, async () => {
 	await connectDB();
 	consola.warn(`💬 Socket.IO chat enabled`);
 
-  // Initialize Firebase Admin SDK for push notifications
-  try {
-    initializeFirebase();
-  } catch (_error) {
-    consola.warn(
-      "⚠️ Firebase initialization failed. Push notifications will not work."
-    );
-  }
+	// Initialize Firebase Admin SDK for push notifications
+	try {
+		initializeFirebase();
+	} catch (_error) {
+		consola.warn(
+			"⚠️ Firebase initialization failed. Push notifications will not work.",
+		);
+	}
 
-  console.log(`🚀 Server is running on http://localhost:${port}`);
-  console.log(`✨ Server is running on http://${getLocalIP()}:${port} \n`);
-  consola.log(`✍️  Swagger doc: http://localhost:${port}/swagger`);
-  consola.log(`📋 Scaler doc: http://localhost:${port}/scaler`);
+	console.log(`🚀 Server is running on http://localhost:${port}`);
+	console.log(`✨ Server is running on http://${getLocalIP()}:${port} \n`);
+	consola.log(`✍️  Swagger doc: http://localhost:${port}/swagger`);
+	consola.log(`📋 Scaler doc: http://localhost:${port}/scaler`);
 });

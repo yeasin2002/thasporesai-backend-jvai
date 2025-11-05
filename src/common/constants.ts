@@ -46,6 +46,10 @@ export const openAPITags = {
 		name: "chat",
 		basepath: "/api/chat",
 	},
+	notification: {
+		name: "notification",
+		basepath: "/api/notification",
+	},
 };
 
 export const mediaTypeFormat = {
