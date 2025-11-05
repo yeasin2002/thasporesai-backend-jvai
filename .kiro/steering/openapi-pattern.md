@@ -234,6 +234,7 @@ export const openAPITags = {
   },
   category: { name: "category", basepath: "/api/category" },
   location: { name: "location", basepath: "/api/location" },
+  review: { name: "review", basepath: "/api/review" },
   payment: { name: "payment", basepath: "/api/payment" },
   setting: { name: "setting", basepath: "/api/setting" },
   common: { 
@@ -264,6 +265,14 @@ export const openAPITags = {
       name: "Admin - Settings",
       basepath: "/api/admin/settings",
     },
+  },
+  chat: {
+    name: "chat",
+    basepath: "/api/chat",
+  },
+  notification: {
+    name: "notification",
+    basepath: "/api/notification",
   },
 };
 

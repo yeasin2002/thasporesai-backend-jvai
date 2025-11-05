@@ -20,17 +20,69 @@
 
 ### Push Notifications
 
-- Mobile push notifications for Flutter app - Backend Firebase
-- Notification triggers:
-  - New job posted (for contractors)
-  - Job application received (for customers)
-  - Booking confirmed/declined
-  - New message received
-  - Payment received/released
-  - Job completed
-  - Review submitted
-- Integration with Pusher or similar service
-- Store notification preferences per user
+- Mobile push notifications for Flutter app using **Firebase Cloud Messaging (FCM)**
+- Backend uses **Firebase Admin SDK** for sending notifications
+- Multi-device support (users can receive notifications on multiple devices)
+- Notification history stored in MongoDB
+- Automatic token management and cleanup
+
+#### Notification Types
+
+- `job_posted` - New job available (sent to all contractors)
+- `job_application` - Job application received (sent to customer)
+- `booking_confirmed` - Booking accepted (sent to contractor)
+- `booking_declined` - Booking rejected (sent to contractor)
+- `message_received` - New chat message (sent to recipient)
+- `payment_received` - Payment received (sent to contractor)
+- `payment_released` - Payment released (sent to contractor)
+- `job_completed` - Job marked complete
+- `review_submitted` - Review posted
+- `general` - Generic notification
+
+#### API Endpoints
+
+- `POST /api/notification/register-token` - Register FCM device token
+- `DELETE /api/notification/unregister-token` - Unregister device token
+- `GET /api/notification` - Get user's notifications (last 100, sorted newest first)
+- `POST /api/notification/mark-read` - Mark notifications as read
+- `DELETE /api/notification/:id` - Delete notification
+- `POST /api/notification/send` - Send notification (Admin only)
+
+#### Notification Service
+
+Located at `src/common/service/notification.service.ts`:
+
+- `NotificationService.sendToUser()` - Send to single user
+- `NotificationService.sendToMultipleUsers()` - Send to multiple users
+- `NotificationService.sendToRole()` - Broadcast to all users with specific role
+- `NotificationService.notifyNewJob()` - Helper for new job notifications
+- `NotificationService.notifyJobApplication()` - Helper for job applications
+- `NotificationService.notifyBookingConfirmed()` - Helper for booking confirmations
+- `NotificationService.notifyNewMessage()` - Helper for new messages
+- `NotificationService.notifyPaymentReceived()` - Helper for payments
+
+#### Usage Example
+
+```typescript
+import { NotificationService } from "@/common/service/notification.service";
+
+// Send to specific user
+await NotificationService.sendToUser({
+  userId: "user_id",
+  title: "New Job Available",
+  body: "A new job has been posted",
+  type: "job_posted",
+  data: { jobId: "job_123" }
+});
+
+// Broadcast to all contractors
+await NotificationService.sendToRole(
+  "contractor",
+  "System Update",
+  "New features available",
+  "general"
+);
+```
 
 ## File Upload System
 
@@ -136,7 +188,40 @@
 
 ### Notification Model
 
-- user, type, title, message, read status, timestamp, metadata
+Located at `src/db/models/notification.model.ts`:
+
+```typescript
+{
+  userId: ObjectId,           // Reference to User
+  title: string,              // Notification title
+  body: string,               // Notification body
+  type: enum,                 // Notification type (10 types)
+  data: Object,               // Additional payload
+  isRead: boolean,            // Read status
+  isSent: boolean,            // Sent status
+  sentAt: Date,               // When sent
+  readAt: Date,               // When read
+  createdAt: Date,            // Auto-generated
+  updatedAt: Date             // Auto-generated
+}
+```
+
+### FCM Token Model
+
+Located at `src/db/models/fcm-token.model.ts`:
+
+```typescript
+{
+  userId: ObjectId,           // Reference to User
+  token: string,              // FCM device token (unique)
+  deviceId: string,           // Unique device identifier
+  deviceType: enum,           // 'android' or 'ios'
+  isActive: boolean,          // Token validity status
+  lastUsed: Date,             // Last notification sent
+  createdAt: Date,            // Auto-generated
+  updatedAt: Date             // Auto-generated
+}
+```
 
 ### File Model
 
@@ -167,34 +252,56 @@ STRIPE_WEBHOOK_SECRET=whsec_...
 STRIPE_COMMISSION_PERCENT=10
 
 # ------------------------------
-# Firebase Configuration
+# Firebase Configuration (Push Notifications)
 # ------------------------------
 
-# Your Firebase Access Credentials (from IAM)
-FIREBASE_ACCESS_KEY_ID=your_firebase_access_key_id
-FIREBASE_SECRET_ACCESS_KEY=your_firebase_secret_access_key
-
-# The region your SNS app is created in (e.g., us-east-1, ap-south-1)
-FIREBASE_REGION=us-east-1
-
-# ------------------------------
-# SNS Platform Application ARNs
-# ------------------------------
-# These are created in AWS SNS console when you set up
-# push notification platforms for Android (FCM) or iOS (APNs).
-
-FIREBASE_PLATFORM_APPLICATION_ARN_ANDROID=arn:aws:sns:us-east-1:123456789012:app/GCM/YourAndroidApp
-FIREBASE_PLATFORM_APPLICATION_ARN_IOS=arn:aws:sns:us-east-1:123456789012:app/APNS/YouriOSApp
+# Firebase service account JSON file
+# Place 'firebase-service-account.json' in project root
+# Download from Firebase Console > Project Settings > Service Accounts
+# File contains: project_id, private_key, client_email, etc.
+# ⚠️ Add to .gitignore to prevent committing credentials
 
 
 
 ```
 
-## Dependencies to Add
+## Dependencies
 
 ```json
 {
   "stripe": "^14.x",
   "multer": "^1.4.x",
+  "firebase-admin": "^13.5.0"
+}
+```
+
+## Firebase Setup
+
+### Backend Setup
+
+1. Create Firebase project at [Firebase Console](https://console.firebase.google.com/)
+2. Add Android/iOS apps to Firebase project
+3. Enable Cloud Messaging
+4. Generate service account key:
+   - Go to Project Settings > Service Accounts
+   - Click "Generate New Private Key"
+   - Save as `firebase-service-account.json` in project root
+5. Add to `.gitignore`: `firebase-service-account.json`
+
+### Mobile App Setup
+
+See `doc/notification/MOBILE_APP_INTEGRATION.md` for complete mobile integration guide.
+
+### Initialization
+
+Firebase is initialized in `src/lib/firebase.ts` and called in `src/app.ts` on server startup:
+
+```typescript
+import { initializeFirebase } from "@/lib/firebase";
+
+try {
+  initializeFirebase();
+} catch (error) {
+  console.warn("⚠️ Firebase initialization failed. Push notifications will not work.");
 }
 ```

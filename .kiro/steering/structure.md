@@ -13,9 +13,13 @@ providus_org/
 │   │   │   ├── review.model.ts
 │   │   │   ├── user.model.ts
 │   │   │   ├── job-application-request.model.ts
+│   │   │   ├── notification.model.ts
+│   │   │   ├── fcm-token.model.ts
 │   │   │   └── [model].model.ts
 │   │   └── index.ts        # Database connection and model exports
 │   ├── lib/                # Utility libraries and helpers
+│   │   ├── firebase.ts     # Firebase Admin SDK initialization
+│   │   └── openapi.ts      # OpenAPI registry configuration
 │   ├── helpers/            # Helper functions
 │   │   ├── response-handler.ts  # Standard API response helpers
 │   │   ├── mongodb-error-handler.ts
@@ -29,6 +33,8 @@ providus_org/
 │   │   ├── email/          # Email templates
 │   │   ├── validations/    # Common zod validation schemas
 │   │   ├── service/        # Common services that can be used in multiple modules
+│   │   │   ├── get-users.service.ts
+│   │   │   └── notification.service.ts  # Core notification logic
 │   │   └── constants.ts    # Centralized API tags and paths
 │   ├── api/                # API route handlers
 │   │   ├── auth/           # Authentication module
@@ -59,6 +65,19 @@ providus_org/
 │   │   ├── job-request/    # Job application request module
 │   │   ├── location/       # Location module
 │   │   ├── users/          # User management module
+│   │   ├── notification/   # Push notification module
+│   │   │   ├── notification.route.ts
+│   │   │   ├── services/
+│   │   │   │   ├── index.ts
+│   │   │   │   ├── register-token.service.ts
+│   │   │   │   ├── unregister-token.service.ts
+│   │   │   │   ├── get-notifications.service.ts
+│   │   │   │   ├── mark-as-read.service.ts
+│   │   │   │   ├── delete-notification.service.ts
+│   │   │   │   └── send-notification.service.ts
+│   │   │   ├── notification.validation.ts
+│   │   │   └── notification.openapi.ts
+│   │   ├── chat/           # Real-time chat module
 │   │   ├── common/         # Common endpoints (e.g., file upload)
 │   │   ├── admin/          # Admin module (nested structure)
 │   │   │   ├── auth-admin/ # Admin authentication sub-module
@@ -115,7 +134,17 @@ providus_org/
 - **`models/`**: Mongoose models and schemas
   - Each model file exports a Mongoose model (e.g., `User`, `Job`, `Category`)
   - Models are imported and exported through `db` object in `index.ts`
-  - Example: `export const db = { user: User, job: Job, category: Category }`
+  - Example: `export const db = { user: User, job: Job, category: Category, notification: Notification, fcmToken: FcmToken }`
+
+### `/src/lib/` - Utility Libraries
+
+- **`firebase.ts`**: Firebase Admin SDK initialization
+  - `initializeFirebase()` - Reads service account JSON and initializes Firebase
+  - `getFirebaseAdmin()` - Returns Firebase app instance
+  - `getMessaging()` - Returns Firebase Messaging instance for push notifications
+- **`openapi.ts`**: OpenAPI registry configuration
+  - Global registry for OpenAPI documentation
+  - `generateOpenAPIDocument()` - Generates OpenAPI spec
 
 ### `/src/common/` - Shared Resources
 
@@ -148,7 +177,12 @@ Contains centralized constants for the entire application:
 #### `service/` - Common Services
 
 - Shared business logic that can be used across multiple modules
-- Example: `get-users.service.ts` for fetching user data from different contexts
+- **`get-users.service.ts`**: Fetching user data with filters and pagination
+- **`notification.service.ts`**: Core notification logic for sending push notifications
+  - `NotificationService.sendToUser()` - Send to single user
+  - `NotificationService.sendToMultipleUsers()` - Send to multiple users
+  - `NotificationService.sendToRole()` - Broadcast to role (contractor/customer/admin)
+  - Helper methods for common scenarios (job posted, payment received, etc.)
 
 ### `/src/api/**/*` - Module Structure
 
