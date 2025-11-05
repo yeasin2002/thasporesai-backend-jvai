@@ -1,3 +1,4 @@
+import consola from "consola";
 import type { ServiceAccount } from "firebase-admin";
 import admin from "firebase-admin";
 import fs from "node:fs";
@@ -38,10 +39,10 @@ export const initializeFirebase = (): admin.app.App => {
 			credential: admin.credential.cert(serviceAccount),
 		});
 
-		console.log("✅ Firebase Admin SDK initialized successfully");
+		consola.warn(" Firebase Admin SDK initialized successfully");
 		return firebaseApp;
 	} catch (error) {
-		console.error("❌ Failed to initialize Firebase Admin SDK:", error);
+		consola.error("❌ Failed to initialize Firebase Admin SDK:", error);
 		throw error;
 	}
 };
