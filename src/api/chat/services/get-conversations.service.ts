@@ -23,7 +23,7 @@ export const getConversations: RequestHandler = async (req, res) => {
       .find({
         participants: userId,
       })
-      .populate("participants", "name avatar email role") // Populate user details
+      .populate("participants", "full_name profile_img cover_img email role phone address location") // Populate user details
       .populate("jobId", "title budget") // Populate job details if linked
       .sort({ "lastMessage.timestamp": -1 }) // Sort by most recent message
       .lean();
