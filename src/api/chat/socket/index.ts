@@ -45,11 +45,13 @@ export const initializeSocketIO = (httpServer: HTTPServer) => {
   }
 
   // Start connection statistics logger
-  createConnectionStatsLogger(io);
+  // createConnectionStatsLogger(io);
 
   // Handle new socket connections
   io.on("connection", (socket) => {
-    consola.info(`✅ User connected: ${socket.data.userId}`);
+    consola.info(
+      `✅ User '${socket.data.email}'  connected with ID : ${socket.data.userId}`
+    );
 
     // Enable room operation logging
     logRoomOperations(socket);

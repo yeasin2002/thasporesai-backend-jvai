@@ -18,7 +18,6 @@ export const authMiddleware = async (
       socket.handshake.auth.token ||
       socket.handshake.headers.authorization?.split(" ")[1];
 
-
     // Check if token exists
     if (!token) {
       return next(new Error("Authentication token required"));
@@ -34,6 +33,7 @@ export const authMiddleware = async (
     // Attach user data to socket for use in handlers
     socket.data.userId = decoded.userId;
     socket.data.role = decoded.role;
+    socket.data.email = decoded.email;
 
     // Allow connection
     next();

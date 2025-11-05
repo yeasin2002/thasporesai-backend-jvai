@@ -243,8 +243,8 @@ export const createConnectionStatsLogger = (io: any) => {
       }
     }
 
-    consola.info({
-      message: "📊 Connection Statistics",
+    consola.warn("📊 Connection Statistics");
+    console.log({
       timestamp: new Date().toISOString(),
       totalSockets: sockets.size,
       uniqueUsers: connectedUsers.size,
