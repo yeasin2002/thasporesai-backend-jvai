@@ -1,7 +1,6 @@
+import "./bidding.openapi";
 
-  import "./bidding.openapi";
-
-  import express, { type Router } from "express";
+import express, { type Router } from "express";
 
 export const bidding: Router = express.Router();
 
