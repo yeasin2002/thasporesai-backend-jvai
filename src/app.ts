@@ -112,7 +112,6 @@ initializeSocketIO(httpServer);
 
 httpServer.listen(port, async () => {
   await connectDB();
-  consola.warn(`💬 Socket.IO chat enabled`);
 
   // Initialize Firebase Admin SDK for push notifications
   try {
@@ -122,17 +121,17 @@ httpServer.listen(port, async () => {
       "⚠️ Firebase initialization failed. Push notifications will not work."
     );
   }
+  consola.warn(` 💬 Socket.IO chat enabled \n`);
 
-  console.log(`🚀 Server is running on http://localhost:${port}`);
-  console.log(`✨ Server is running on http://${getLocalIP()}:${port} \n`);
+  // console.log(`🚀 Server is running on http://localhost:${port}`);
+  // console.log(`✨ Server is running on http://${getLocalIP()}:${port} \n`);
+  // consola.log(`✍️  Swagger doc: http://localhost:${port}/swagger`);
+  // consola.log(`📋 Scaler doc: http://localhost:${port}/scaler`);
+
+  consola.log(`🚀 Server is running on port http://localhost:${port}`);
+  consola.log(`✨ Server is running on port http://${getLocalIP()}:${port} \n`);
+  
+  consola.info("Doc: ");
   consola.log(`✍️  Swagger doc: http://localhost:${port}/swagger`);
   consola.log(`📋 Scaler doc: http://localhost:${port}/scaler`);
-
-  consola.warn(`🚀 Server is running on port http://localhost:${port}`);
-  consola.warn(
-    `✨ Server is running on port http://${getLocalIP()}:${port} \n`
-  );
-  consola.log(` ✍️ Swagger doc: http://localhost:${port}/swagger`);
-  consola.log(` 📋 Scaler doc: http://localhost:${port}/scaler`);
-  consola.log(` 💬 Socket.IO chat enabled \n`);
 });

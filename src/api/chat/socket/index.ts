@@ -6,10 +6,9 @@ import { registerStatusHandlers } from "./handlers/status.handler";
 import { registerTypingHandlers } from "./handlers/typing.handler";
 import { authMiddleware } from "./middleware/auth.middleware";
 import {
-	createConnectionStatsLogger,
-	logPerformance,
-	logRoomOperations,
-	loggerMiddleware,
+  logPerformance,
+  logRoomOperations,
+  loggerMiddleware,
 } from "./middleware/logger.middleware";
 
 /**
@@ -40,9 +39,8 @@ export const initializeSocketIO = (httpServer: HTTPServer) => {
 		process.env.NODE_ENV !== "production" ||
 		process.env.SOCKET_DEBUG === "true"
 	) {
-		io.use(loggerMiddleware);
-		consola.info("🔍 Socket.IO logging middleware enabled");
-	}
+    io.use(loggerMiddleware);
+  }
 
 	// Start connection statistics logger
 	// createConnectionStatsLogger(io);
