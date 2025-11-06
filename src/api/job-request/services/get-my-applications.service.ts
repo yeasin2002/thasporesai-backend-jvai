@@ -48,26 +48,26 @@ export const getMyApplications: RequestHandler<
 
 		// Get applications first
 		const allApplications = await db.jobApplicationRequest
-      .find(applicationQuery)
-      .populate({
-        path: "job",
-        // select:"title description budget status location category address customerId",
-        populate: [
-          {
-            path: "customerId",
-            select: "full_name email profile_img",
-          },
-          {
-            path: "category",
-            select: "name icon",
-          },
-          {
-            path: "location",
-            select: "name state coordinates",
-          },
-        ],
-      })
-      .sort({ createdAt: -1 });
+			.find(applicationQuery)
+			.populate({
+				path: "job",
+				// select:"title description budget status location category address customerId",
+				populate: [
+					{
+						path: "customerId",
+						select: "full_name email profile_img",
+					},
+					{
+						path: "category",
+						select: "name icon",
+					},
+					{
+						path: "location",
+						select: "name state coordinates",
+					},
+				],
+			})
+			.sort({ createdAt: -1 });
 
 		// Filter applications based on job criteria
 		let filteredApplications: any[] = allApplications.filter(

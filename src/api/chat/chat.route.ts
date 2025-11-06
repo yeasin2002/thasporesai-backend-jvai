@@ -27,10 +27,10 @@ chat.get("/conversations", requireAuth, getConversations);
  * Create a new conversation with another user
  */
 chat.post(
-  "/conversations",
-  requireAuth,
-  validateBody(CreateConversationSchema),
-  createConversation
+	"/conversations",
+	requireAuth,
+	validateBody(CreateConversationSchema),
+	createConversation,
 );
 
 /**

@@ -8,9 +8,9 @@ import { getSingleWorkSample } from "./services/get-single-work-sample.service";
 import { getWorkSamples } from "./services/get-work-samples.service";
 import { updateWorkSample } from "./services/update-work-sample.service";
 import {
-  CreateWorkSampleSchema,
-  UpdateWorkSampleSchema,
-  WorkSampleIdSchema,
+	CreateWorkSampleSchema,
+	UpdateWorkSampleSchema,
+	WorkSampleIdSchema,
 } from "./work_samples.validation";
 
 export const workSamples: Router = express.Router();
