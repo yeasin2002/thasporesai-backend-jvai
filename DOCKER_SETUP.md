@@ -83,13 +83,13 @@ Run the automated test script:
 
 **Windows (PowerShell):**
 ```powershell
-.\test-docker-setup.ps1
+./script/test-docker-setup.ps1
 ```
 
 **Linux/Mac:**
 ```bash
-chmod +x test-docker-setup.sh
-./test-docker-setup.sh
+chmod +x ./script/test-docker-setup.sh
+./script/test-docker-setup.sh
 ```
 
 ## 📦 What's Included
@@ -171,8 +171,7 @@ jobsphere/
 ├── .env.docker                # Template
 ├── .dockerignore              # Build optimization
 ├── Makefile                   # Shortcuts
-├── test-docker-setup.ps1      # Test script (Windows)
-├── test-docker-setup.sh       # Test script (Linux/Mac)
+├── script/                    # Test scripts
 ├── uploads/                   # User uploads (persisted)
 ├── logs/                      # App logs (persisted)
 └── doc/deployment/            # Documentation
@@ -383,7 +382,7 @@ SMTP_PASS=...
 1. ✅ Setup MongoDB Atlas - [Guide](doc/deployment/MONGODB_ATLAS.md)
 2. ✅ Configure environment - Copy `.env.docker` to `.env`
 3. ✅ Start services - `docker-compose up -d`
-4. ✅ Test setup - Run `test-docker-setup.ps1` or `.sh`
+4. ✅ Test setup - Run `script/test-docker-setup.ps1` or `.sh`
 5. ✅ Deploy to production - [Guide](doc/deployment/PRODUCTION.md)
 
 ---
