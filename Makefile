@@ -11,7 +11,7 @@ help: ## Show this help message
 setup: ## Initial setup - copy .env and create directories
 	@echo "Setting up environment..."
 	@cp -n .env.docker .env || true
-	@mkdir -p uploads logs
+	@mkdir -p uploads logs monitoring/dashboards
 	@echo "✓ Setup complete. Edit .env with your configuration."
 
 start: ## Start all services
@@ -82,3 +82,21 @@ prune: ## Clean up Docker resources
 	@echo "Cleaning Docker resources..."
 	@docker system prune -a --volumes -f
 	@echo "✓ Cleanup complete"
+
+start-monitoring: ## Start services with monitoring (Grafana + Loki)
+	@echo "Starting services with monitoring..."
+	@docker-compose -f docker-compose.yml -f docker-compose.monitoring.yml up -d
+	@echo "✓ Services started with monitoring"
+	@echo "Grafana: http://localhost:3000 (admin/admin)"
+
+stop-monitoring: ## Stop all services including monitoring
+	@echo "Stopping all services..."
+	@docker-compose -f docker-compose.yml -f docker-compose.monitoring.yml down
+	@echo "✓ All services stopped"
+
+logs-monitoring: ## View monitoring logs
+	@docker-compose -f docker-compose.monitoring.yml logs -f
+
+grafana: ## Open Grafana dashboard
+	@echo "Opening Grafana..."
+	@open http://localhost:3000 || xdg-open http://localhost:3000 || start http://localhost:3000

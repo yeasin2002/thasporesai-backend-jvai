@@ -359,6 +359,7 @@ SMTP_PASS=...
 - **Complete Guide**: `doc/deployment/README.docker.md`
 - **MongoDB Atlas**: `doc/deployment/MONGODB_ATLAS.md`
 - **Production**: `doc/deployment/PRODUCTION.md`
+- **Monitoring**: `doc/deployment/MONITORING.md` ⭐ NEW
 - **Changes**: `doc/deployment/CHANGES.md`
 
 ## 🆘 Support

@@ -14,7 +14,7 @@
     "ruler:apply": "pnpm dlx @intellectronica/ruler@latest apply --local-only",
     "generate:module": "node script/generate-module.js",
     "format": "biome format --write ./src",
-    "docker:setup": "cp .env.docker .env && mkdir -p uploads logs && echo '✓ Docker setup complete. Edit .env with your configuration.'",
+    "docker:setup": "cp .env.docker .env && mkdir -p uploads logs monitoring/dashboards && echo '✓ Docker setup complete. Edit .env with your configuration.'",
     "docker:start": "docker-compose up -d",
     "docker:stop": "docker-compose down",
     "docker:restart": "docker-compose restart",
@@ -22,7 +22,10 @@
     "docker:build": "docker-compose up -d --build",
     "docker:clean": "docker-compose down -v",
     "docker:ps": "docker-compose ps",
-    "docker:test": "curl -s http://localhost:4000/ && echo '\n✓ API is responding' || echo '\n✗ API is not responding'"
+    "docker:test": "curl -s http://localhost:4000/ && echo '\n✓ API is responding' || echo '\n✗ API is not responding'",
+    "docker:monitoring:start": "docker-compose -f docker-compose.yml -f docker-compose.monitoring.yml up -d",
+    "docker:monitoring:stop": "docker-compose -f docker-compose.yml -f docker-compose.monitoring.yml down",
+    "docker:monitoring:logs": "docker-compose -f docker-compose.monitoring.yml logs -f"
   },
   "dependencies": {
     "@asteasolutions/zod-to-openapi": "^8.1.0",

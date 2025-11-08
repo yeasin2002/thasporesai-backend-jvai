@@ -81,3 +81,7 @@ uploads/
 !uploads/.gitkeep
 firebase-service-account.json
 ssl/
+
+# Monitoring
+monitoring/dashboards/*.json
+!monitoring/dashboards/jobsphere-logs.json
