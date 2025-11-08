@@ -29,12 +29,19 @@ nano .env
 **Minimum required changes:**
 
 ```env
-MONGO_ROOT_PASSWORD=your_strong_password_here
+DATABASE_URL=mongodb+srv://username:password@cluster.mongodb.net/jobsphere?retryWrites=true&w=majority
 ACCESS_SECRET=random_32_character_string_here_abc123
 REFRESH_SECRET=random_32_character_string_here_xyz789
 SMTP_USER=your-email@gmail.com
 SMTP_PASS=your-gmail-app-password
 ```
+
+**Get MongoDB Atlas connection string:**
+1. Sign up at [MongoDB Atlas](https://www.mongodb.com/cloud/atlas)
+2. Create free cluster
+3. Create database user
+4. Whitelist IP (0.0.0.0/0 for dev)
+5. Get connection string
 
 ### 3. Start Services
 
@@ -88,11 +95,16 @@ docker-compose up -d
 
 **Database connection failed:**
 ```bash
-# Check MongoDB is running
-docker-compose ps mongodb
+# Check app logs
+docker-compose logs app
 
-# Check logs
-docker-compose logs mongodb
+# Verify DATABASE_URL
+cat .env | grep DATABASE_URL
+
+# Common issues:
+# - IP not whitelisted in MongoDB Atlas
+# - Wrong username/password
+# - Special characters in password not URL-encoded
 ```
 
 **Permission errors:**
@@ -104,6 +116,7 @@ sudo chown -R 1000:1000 uploads/ logs/
 ## Next Steps
 
 - Read full guide: `doc/deployment/README.docker.md`
+- MongoDB Atlas setup: `doc/deployment/MONGODB_ATLAS.md`
 - Configure Firebase for push notifications
 - Setup reverse proxy for production (Nginx/Caddy)
 - Configure automated backups

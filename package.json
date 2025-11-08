@@ -13,7 +13,16 @@
     "check": "oxlint",
     "ruler:apply": "pnpm dlx @intellectronica/ruler@latest apply --local-only",
     "generate:module": "node script/generate-module.js",
-    "format": "biome format --write ./src"
+    "format": "biome format --write ./src",
+    "docker:setup": "cp .env.docker .env && mkdir -p uploads logs && echo '✓ Docker setup complete. Edit .env with your configuration.'",
+    "docker:start": "docker-compose up -d",
+    "docker:stop": "docker-compose down",
+    "docker:restart": "docker-compose restart",
+    "docker:logs": "docker-compose logs -f app",
+    "docker:build": "docker-compose up -d --build",
+    "docker:clean": "docker-compose down -v",
+    "docker:ps": "docker-compose ps",
+    "docker:test": "curl -s http://localhost:4000/ && echo '\n✓ API is responding' || echo '\n✗ API is not responding'"
   },
   "dependencies": {
     "@asteasolutions/zod-to-openapi": "^8.1.0",
