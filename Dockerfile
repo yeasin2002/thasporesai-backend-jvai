@@ -14,7 +14,7 @@ COPY package.json pnpm-lock.yaml* ./
 # ================================
 FROM base AS builder
 
-# Install all dependencies
+# Install all dependencies (including dev dependencies for build)
 RUN pnpm install --frozen-lockfile
 
 # Copy source code
@@ -36,8 +36,8 @@ WORKDIR /app
 # Copy package files
 COPY package.json pnpm-lock.yaml* ./
 
-# Install only production dependencies
-RUN pnpm install --prod --frozen-lockfile
+# Install only production dependencies (skip prepare script)
+RUN pnpm install --prod --frozen-lockfile --ignore-scripts
 
 # Copy built application from builder
 COPY --from=builder /app/dist ./dist
