@@ -1,7 +1,6 @@
-version: "3.8"
+version: '3.8'
 
 services:
-  # MongoDB Database
   mongodb:
     image: mongo:7.0
     container_name: jobsphere-mongodb
@@ -14,7 +13,7 @@ services:
       - "${MONGO_PORT:-27017}:27017"
     volumes:
       - mongodb_data:/data/db
-      - mongodb_config:/data/configdb
+      - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
     networks:
       - jobsphere-network
     healthcheck:
@@ -23,41 +22,6 @@ services:
       timeout: 5s
       retries: 5
 
-  # Application (Development)
-  app-dev:
-    build:
-      context: .
-      dockerfile: Dockerfile
-      target: development
-    container_name: jobsphere-app-dev
-    restart: unless-stopped
-    ports:
-      - "${PORT:-4000}:4000"
-    environment:
-      NODE_ENV: development
-      DATABASE_URL: mongodb://${MONGO_ROOT_USER:-admin}:${MONGO_ROOT_PASSWORD:-changeme}@mongodb:27017/${MONGO_DB_NAME:-jobsphere}?authSource=admin
-      PORT: 4000
-      API_BASE_URL: ${API_BASE_URL:-http://localhost:4000}
-      CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:3000}
-      ACCESS_SECRET: ${ACCESS_SECRET}
-      REFRESH_SECRET: ${REFRESH_SECRET}
-      SMTP_USER: ${SMTP_USER}
-      SMTP_PASS: ${SMTP_PASS}
-    volumes:
-      - .:/app
-      - /app/node_modules
-      - ./uploads:/app/uploads
-      - ./logs:/app/logs
-      - ./firebase-service-account.json:/app/firebase-service-account.json:ro
-    depends_on:
-      mongodb:
-        condition: service_healthy
-    networks:
-      - jobsphere-network
-    profiles:
-      - dev
-
-  # Application (Production)
   app:
     build:
       context: .
@@ -86,28 +50,6 @@ services:
         condition: service_healthy
     networks:
       - jobsphere-network
-    profiles:
-      - prod
-
-  # Redis (Optional - for Socket.IO scaling)
-  redis:
-    image: redis:7-alpine
-    container_name: jobsphere-redis
-    restart: unless-stopped
-    ports:
-      - "${REDIS_PORT:-6379}:6379"
-    volumes:
-      - redis_data:/data
-    networks:
-      - jobsphere-network
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    profiles:
-      - prod
-      - redis
 
 networks:
   jobsphere-network:
@@ -115,8 +57,4 @@ networks:
 
 volumes:
   mongodb_data:
-    driver: local
-  mongodb_config:
-    driver: local
-  redis_data:
     driver: local
