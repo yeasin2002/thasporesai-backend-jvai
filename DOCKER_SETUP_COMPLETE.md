@@ -25,8 +25,8 @@ Your JobSphere Docker setup has been successfully configured for MongoDB Atlas!
 
 ### Test Scripts
 
-- ✅ `test-docker-setup.ps1` - Windows test script
-- ✅ `test-docker-setup.sh` - Linux/Mac test script
+- ✅ `/script/test-docker-setup.ps1` - Windows test script
+- ✅ `/script/test-docker-setup.sh` - Linux/Mac test script
 
 ## 🚀 Quick Start (3 Steps)
 
@@ -79,11 +79,11 @@ docker-compose up -d
 
 ```bash
 # Windows
-.\test-docker-setup.ps1
+./script/test-docker-setup.ps1
 
 # Linux/Mac
-chmod +x test-docker-setup.sh
-./test-docker-setup.sh
+chmod +x ./script/test-docker-setup.sh
+./script/test-docker-setup.sh
 ```
 
 ## 📦 What Changed from Local MongoDB
@@ -214,7 +214,7 @@ docker-compose ps
 1. ✅ Setup MongoDB Atlas
 2. ✅ Configure `.env`
 3. ✅ Run `docker-compose up -d`
-4. ✅ Test with `test-docker-setup.ps1`
+4. ✅ Test with `script/test-docker-setup.ps1`
 
 ### For Production
 
