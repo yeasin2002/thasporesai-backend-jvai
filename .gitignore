@@ -32,6 +32,7 @@ node_modules/
 .env*
 .env.production
 !.env.example
+!.env.docker
 .dev.vars
 
 # logs
@@ -74,3 +75,9 @@ node_modules
 /.windsurf/rules/ruler_windsurf_instructions_03.md
 /.windsurf/rules/ruler_windsurf_instructions_03.md.bak
 # END Ruler Generated Files
+
+# Docker
+uploads/
+!uploads/.gitkeep
+firebase-service-account.json
+ssl/
