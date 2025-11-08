@@ -10,7 +10,19 @@ Simple Docker setup for running JobSphere in production or testing production bu
 
 ## Quick Start
 
-### 1. Setup Environment
+### 1. Setup MongoDB Atlas
+
+**Using MongoDB Atlas (Cloud Database):**
+
+1. Create account at [MongoDB Atlas](https://www.mongodb.com/cloud/atlas)
+2. Create a free cluster (M0)
+3. Create database user
+4. Whitelist your IP (or 0.0.0.0/0 for development)
+5. Get connection string
+
+See detailed guide: `doc/deployment/MONGODB_ATLAS.md`
+
+### 2. Setup Environment
 
 ```bash
 # Copy environment template
@@ -21,7 +33,7 @@ nano .env
 ```
 
 **Required changes in `.env`:**
-- `MONGO_ROOT_PASSWORD` - Strong password for MongoDB
+- `DATABASE_URL` - Your MongoDB Atlas connection string
 - `ACCESS_SECRET` - Random 32+ character string
 - `REFRESH_SECRET` - Random 32+ character string
 - `SMTP_USER` - Your Gmail address
@@ -29,7 +41,12 @@ nano .env
 - `API_BASE_URL` - Your domain (production) or `http://localhost:4000` (local)
 - `CORS_ORIGIN` - Your frontend URL or `*` for all
 
-### 2. Firebase Setup (Optional)
+**Example DATABASE_URL:**
+```env
+DATABASE_URL=mongodb+srv://username:password@cluster0.xxxxx.mongodb.net/jobsphere?retryWrites=true&w=majority
+```
+
+### 3. Firebase Setup (Optional)
 
 If using push notifications:
 
@@ -39,7 +56,7 @@ If using push notifications:
 ls firebase-service-account.json
 ```
 
-### 3. Start Services
+### 4. Start Services
 
 ```bash
 # Build and start
@@ -49,7 +66,7 @@ docker-compose up -d
 docker-compose logs -f app
 ```
 
-### 4. Verify Deployment
+### 5. Verify Deployment
 
 ```bash
 # Check health
@@ -82,15 +99,17 @@ docker-compose up -d --build
 
 ### Database Operations
 
-```bash
-# Access MongoDB shell
-docker-compose exec mongodb mongosh -u admin -p your_password
+**Note:** Since you're using MongoDB Atlas, database operations are done through Atlas dashboard or using connection string.
 
-# Backup database
-docker-compose exec mongodb mongodump --out=/data/backup --authenticationDatabase=admin -u admin -p your_password
+```bash
+# Backup database (from your local machine)
+mongodump --uri="$DATABASE_URL" --out=./backup
 
 # Restore database
-docker-compose exec mongodb mongorestore /data/backup --authenticationDatabase=admin -u admin -p your_password
+mongorestore --uri="$DATABASE_URL" ./backup/jobsphere
+
+# Access MongoDB shell
+mongosh "$DATABASE_URL"
 ```
 
 ### Maintenance

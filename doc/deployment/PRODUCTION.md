@@ -218,17 +218,16 @@ nano /home/user/backup.sh
 DATE=$(date +%Y%m%d_%H%M%S)
 BACKUP_DIR="/home/user/backups"
 
+# Load environment variables
+source /path/to/jobsphere/.env
+
 # Create backup directory
 mkdir -p $BACKUP_DIR
 
-# Backup MongoDB
-docker-compose -f /path/to/jobsphere/docker-compose.yml exec -T mongodb \
-  mongodump --archive=/data/backup.archive --gzip \
-  --authenticationDatabase=admin -u admin -p your_password
-
-# Copy backup from container
-docker cp jobsphere-mongodb:/data/backup.archive \
-  $BACKUP_DIR/mongodb_$DATE.archive
+# Backup MongoDB Atlas
+mongodump --uri="$DATABASE_URL" \
+  --archive=$BACKUP_DIR/mongodb_$DATE.archive \
+  --gzip
 
 # Backup uploads
 tar -czf $BACKUP_DIR/uploads_$DATE.tar.gz \
@@ -240,6 +239,8 @@ find $BACKUP_DIR -name "*.tar.gz" -mtime +7 -delete
 
 echo "Backup completed: $DATE"
 ```
+
+**Note:** MongoDB Atlas paid tiers include automatic backups. Free tier (M0) requires manual backups.
 
 ```bash
 # Make executable
@@ -355,16 +356,17 @@ Use Nginx/Caddy to distribute traffic across instances.
 
 ## Security Checklist
 
-- [ ] Strong passwords for MongoDB
+- [ ] MongoDB Atlas IP whitelist configured
+- [ ] Strong database user password
 - [ ] Random JWT secrets (32+ chars)
 - [ ] HTTPS enabled (SSL certificate)
 - [ ] Firewall configured (UFW)
-- [ ] MongoDB not exposed publicly
 - [ ] Regular backups automated
 - [ ] Log rotation configured
 - [ ] Server updates automated
 - [ ] SSH key authentication only
 - [ ] Fail2ban installed (optional)
+- [ ] MongoDB Atlas monitoring enabled
 
 ## Monitoring & Alerts
 
