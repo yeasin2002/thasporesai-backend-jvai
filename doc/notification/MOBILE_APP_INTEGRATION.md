@@ -1,274 +1,274 @@
-# Mobile App Push Notification Integration
+# Mobile App Integration Guide (Flutter)
 
-Minimal guide for integrating push notifications with JobSphere backend.
+## Overview
 
-## Base URL
+This guide covers how to integrate Firebase Cloud Messaging (FCM) push notifications in your Flutter mobile app to work with the JobSphere backend.
 
-```
-https://your-backend-url.com/api
-```
+## Prerequisites
 
-## Authentication
+- Flutter project set up
+- Firebase project created (same one used by backend)
+- `firebase_messaging` package
+- `firebase_core` package
 
-All endpoints require JWT Bearer token:
+## Flutter Setup
 
-```
-Authorization: Bearer <your_access_token>
-```
+### 1. Add Dependencies
 
----
+Add to `pubspec.yaml`:
 
-## API Endpoints
-
-### 1. Register FCM Token
-
-Register device token to receive push notifications.
-
-**Endpoint:** `POST /api/notification/register-token`
-
-**Request Body:**
-
-```json
-{
-  "token": "fcm_device_token_here",
-  "deviceId": "unique_device_id",
-  "deviceType": "android"
-}
+```yaml
+dependencies:
+  flutter:
+    sdk: flutter
+  firebase_core: ^3.8.1
+  firebase_messaging: ^15.1.5
+  flutter_local_notifications: ^18.0.1  # For foreground notifications
 ```
 
-**Fields:**
-
-- `token` (string, required): FCM device token from Firebase
-- `deviceId` (string, required): Unique device identifier
-- `deviceType` (enum, required): Either `"android"` or `"ios"`
-
-**Response (200 OK):**
-
-```json
-{
-  "status": 200,
-  "message": "FCM token registered successfully",
-  "data": {
-    "token": "fcm_device_token_here",
-    "deviceId": "unique_device_id",
-    "deviceType": "android"
-  }
-}
+Run:
+```bash
+flutter pub get
 ```
 
-**When to call:**
+### 2. Configure Firebase for Flutter
 
-- After successful user login
-- When FCM token is refreshed
+#### Android Configuration
 
----
+1. Download `google-services.json` from Firebase Console
+2. Place it in `android/app/google-services.json`
+3. Update `android/build.gradle`:
 
-### 2. Unregister FCM Token
-
-Remove device token (e.g., on logout).
-
-**Endpoint:** `DELETE /api/notification/unregister-token`
-
-**Request Body:**
-
-```json
-{
-  "token": "fcm_device_token_here"
-}
-```
-
-**Response (200 OK):**
-
-```json
-{
-  "status": 200,
-  "message": "FCM token unregistered successfully",
-  "data": null
-}
-```
-
-**When to call:**
-
-- On user logout
-- When user disables notifications
-
----
-
-### 3. Get All Notifications
-
-Retrieve all notifications for authenticated user.
-
-**Endpoint:** `GET /api/notification`
-
-**Query Parameters:** None
-
-**Response (200 OK):**
-
-```json
-{
-  "status": 200,
-  "message": "Notifications retrieved successfully",
-  "data": [
-    {
-      "_id": "67890abcdef",
-      "userId": "12345abcdef",
-      "title": "New Job Available",
-      "body": "A new plumbing job has been posted in your area",
-      "type": "job_posted",
-      "data": {
-        "jobId": "job_12345",
-        "category": "plumbing"
-      },
-      "isRead": false,
-      "isSent": true,
-      "sentAt": "2025-11-05T10:30:00.000Z",
-      "readAt": null,
-      "createdAt": "2025-11-05T10:30:00.000Z",
-      "updatedAt": "2025-11-05T10:30:00.000Z"
+```gradle
+buildscript {
+    dependencies {
+        classpath 'com.google.gms:google-services:4.4.2'
     }
-  ]
 }
 ```
 
-**Notification Object:**
+4. Update `android/app/build.gradle`:
 
-- `_id` (string): Notification ID
-- `userId` (string): User ID
-- `title` (string): Notification title
-- `body` (string): Notification message
-- `type` (enum): Notification type (see types below)
-- `data` (object): Additional data payload
-- `isRead` (boolean): Read status
-- `isSent` (boolean): Sent status
-- `sentAt` (date): When notification was sent
-- `readAt` (date): When notification was read
-- `createdAt` (date): Creation timestamp
-- `updatedAt` (date): Update timestamp
+```gradle
+apply plugin: 'com.google.gms.google-services'
 
-**Notification Types:**
-
-- `job_posted` - New job available
-- `job_application` - Someone applied to your job
-- `booking_confirmed` - Booking accepted
-- `booking_declined` - Booking rejected
-- `message_received` - New chat message
-- `payment_received` - Payment received
-- `payment_released` - Payment released to contractor
-- `job_completed` - Job marked complete
-- `review_submitted` - New review posted
-- `general` - Generic notification
-
-**Notes:**
-
-- Returns last 100 notifications
-- Sorted by newest first (createdAt descending)
-- Empty array if no notifications
-
----
-
-### 4. Mark Notifications as Read
-
-Mark one or more notifications as read.
-
-**Endpoint:** `POST /api/notification/mark-read`
-
-**Request Body:**
-
-```json
-{
-  "notificationIds": ["notification_id_1", "notification_id_2"]
+android {
+    defaultConfig {
+        minSdkVersion 21  // FCM requires minimum SDK 21
+    }
 }
 ```
 
-**Response (200 OK):**
+5. Add permissions to `android/app/src/main/AndroidManifest.xml`:
 
-```json
-{
-  "status": 200,
-  "message": "Notifications marked as read successfully",
-  "data": null
-}
+```xml
+<manifest>
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.VIBRATE"/>
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
+    
+    <application>
+        <!-- ... -->
+    </application>
+</manifest>
 ```
 
-**When to call:**
+#### iOS Configuration
 
-- When user opens notification
-- When user views notification list
+1. Download `GoogleService-Info.plist` from Firebase Console
+2. Place it in `ios/Runner/GoogleService-Info.plist`
+3. Open `ios/Runner.xcworkspace` in Xcode
+4. Enable Push Notifications capability
+5. Add to `ios/Runner/Info.plist`:
 
----
-
-### 5. Delete Notification
-
-Delete a specific notification.
-
-**Endpoint:** `DELETE /api/notification/:id`
-
-**URL Parameters:**
-
-- `id` (string): Notification ID
-
-**Response (200 OK):**
-
-```json
-{
-  "status": 200,
-  "message": "Notification deleted successfully",
-  "data": null
-}
+```xml
+<key>UIBackgroundModes</key>
+<array>
+    <string>fetch</string>
+    <string>remote-notification</string>
+</array>
 ```
 
----
+### 3. Initialize Firebase in Flutter
 
-## Error Responses
+Create `lib/services/firebase_service.dart`:
 
-All endpoints may return these error responses:
+```dart
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
-**401 Unauthorized:**
+class FirebaseService {
+  static final FirebaseMessaging _messaging = FirebaseMessaging.instance;
+  static final FlutterLocalNotificationsPlugin _localNotifications =
+      FlutterLocalNotificationsPlugin();
 
-```json
-{
-  "status": 401,
-  "message": "Unauthorized",
-  "data": null
-}
-```
+  /// Initialize Firebase and FCM
+  static Future<void> initialize() async {
+    // Initialize Firebase
+    await Firebase.initializeApp();
 
-**400 Bad Request:**
+    // Request notification permissions (iOS)
+    NotificationSettings settings = await _messaging.requestPermission(
+      alert: true,
+      badge: true,
+      sound: true,
+      provisional: false,
+    );
 
-```json
-{
-  "status": 400,
-  "message": "Validation error message",
-  "data": null
-}
-```
+    if (settings.authorizationStatus == AuthorizationStatus.authorized) {
+      print('✅ User granted notification permission');
+    } else {
+      print('❌ User declined notification permission');
+    }
 
-**500 Internal Server Error:**
+    // Initialize local notifications for foreground
+    await _initializeLocalNotifications();
 
-```json
-{
-  "status": 500,
-  "message": "Internal Server Error",
-  "data": null
-}
-```
+    // Get FCM token
+    String? token = await _messaging.getToken();
+    if (token != null) {
+      print('📱 FCM Token: $token');
+      // Send token to backend
+      await _registerTokenWithBackend(token);
+    }
 
----
+    // Listen for token refresh
+    _messaging.onTokenRefresh.listen((newToken) {
+      print('🔄 FCM Token refreshed: $newToken');
+      _registerTokenWithBackend(newToken);
+    });
 
-## Integration Flow
+    // Handle foreground messages
+    FirebaseMessaging.onMessage.listen(_handleForegroundMessage);
 
-### 1. On App Launch
+    // Handle background messages
+    FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
-```
-1. Initialize Firebase
-2. Request notification permissions
-3. Get FCM token from Firebase
-```
+    // Handle notification tap (app opened from notification)
+    FirebaseMessaging.onMessageOpenedApp.listen(_handleNotificationTap);
 
-### 2. After Login
+    // Check if app was opened from a notification
+    RemoteMessage? initialMessage = await _messaging.getInitialMessage();
+    if (initialMessage != null) {
+      _handleNotificationTap(initialMessage);
+    }
+  }
 
-```
-1. Save access token securely
+  /// Initialize local notifications for foreground display
+  static Future<void> _initializeLocalNotifications() async {
+    const AndroidInitializationSettings androidSettings =
+        AndroidInitializationSettings('@mipmap/ic_launcher');
+
+    const DarwinInitializationSettings iosSettings =
+        DarwinInitializationSettings(
+      requestAlertPermission: true,
+      requestBadgePermission: true,
+      requestSoundPermission: true,
+    );
+
+    const InitializationSettings settings = InitializationSettings(
+      android: androidSettings,
+      iOS: iosSettings,
+    );
+
+    await _localNotifications.initialize(
+      settings,
+      onDidReceiveNotificationResponse: (NotificationResponse response) {
+        // Handle notification tap
+        print('Notification tapped: ${response.payload}');
+      },
+    );
+
+    // Create notification channel for Android
+    const AndroidNotificationChannel channel = AndroidNotificationChannel(
+      'high_importance_channel',
+      'High Importance Notifications',
+      description: 'This channel is used for important notifications.',
+      importance: Importance.high,
+    );
+
+    await _localNotifications
+        .resolvePlatformSpecificImplementation<
+            AndroidFlutterLocalNotificationsPlugin>()
+        ?.createNotificationChannel(channel);
+  }
+
+  /// Register FCM token with backend
+  static Future<void> _registerTokenWithBackend(String token) async {
+    try {
+      // Get device info
+      String deviceId = await _getDeviceId();
+      String deviceType = Platform.isAndroid ? 'android' : 'ios';
+
+      // Call backend API
+      final response = await http.post(
+        Uri.parse('${ApiConfig.baseUrl}/api/notification/register-token'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ${await _getAccessToken()}',
+        },
+        body: jsonEncode({
+          'token': token,
+          'deviceId': deviceId,
+          'deviceType': deviceType,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        print('✅ FCM token registered with backend');
+      } else {
+        print('❌ Failed to register FCM token: ${response.body}');
+      }
+    } catch (e) {
+      print('❌ Error registering FCM token: $e');
+    }
+  }
+
+  /// Handle foreground messages
+  static Future<void> _handleForegroundMessage(RemoteMessage message) async {
+    print('📬 Foreground message received: ${message.notification?.title}');
+
+    // Show local notification when app is in foreground
+    RemoteNotification? notification = message.notification;
+    AndroidNotification? android = message.notification?.android;
+
+    if (notification != null) {
+      await _localNotifications.show(
+        notification.hashCode,
+        notification.title,
+        notification.body,
+        const NotificationDetails(
+          android: AndroidNotificationDetails(
+            'high_importance_channel',
+            'High Importance Notifications',
+            importance: Importance.high,
+            priority: Priority.high,
+            icon: '@mipmap/ic_launcher',
+          ),
+          iOS: DarwinNotificationDetails(),
+        ),
+        payload: jsonEncode(message.data),
+      );
+    }
+  }
+
+  /// Handle notification tap
+  static void _handleNotificationTap(RemoteMessage message) {
+    print('🔔 Notification tapped: ${message.data}');
+
+    // Navigate based on notification type
+    String? type = message.data['type'];
+    switch (type) {
+      case 'job_posted':
+        // Navigate to job details
+        String? jobId = message.data['jobId'];
+        // NavigationService.navigateTo('/job/$jobId');
+        break;
+      case 'message_received':
+        // Navigate to chat
+        String? conversationId = message.data['conversationId'];
+        // NavigationService.navigateTo('/chat/$conversationId');
 2. Get FCM token
 3. Call POST /api/notification/register-token
 4. Listen for token refresh
