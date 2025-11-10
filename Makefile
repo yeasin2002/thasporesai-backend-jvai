@@ -30,6 +30,13 @@ restart: ## Restart all services
 	@docker-compose restart
 	@echo "✓ Services restarted"
 
+rebuild: ## Rebuild and start services
+	@echo "Stopping services..."
+	@docker-compose down
+	@echo "Rebuilding and starting services..."
+	@docker-compose up -d --build
+	@echo "✓ Rebuild complete"
+
 logs: ## View application logs
 	@docker-compose logs -f app
 

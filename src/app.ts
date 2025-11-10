@@ -52,7 +52,7 @@ app.use(
 );
 
 app.get("/", (_req, res) => {
-	res.status(200).send("OK");
+	res.status(200).send("Not OK");
 });
 
 // OpenAPI documentation
