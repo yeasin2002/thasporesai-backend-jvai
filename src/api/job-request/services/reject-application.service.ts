@@ -1,3 +1,4 @@
+import { NotificationService } from "@/common/service/notification.service";
 import { db } from "@/db";
 import { sendError, sendSuccess } from "@/helpers";
 import type { RequestHandler } from "express";
@@ -48,6 +49,19 @@ export const rejectApplication: RequestHandler = async (req, res) => {
 		await application.save();
 
 		await application.populate("contractor", "full_name email profile_img");
+
+		// Send notification to contractor
+		await NotificationService.sendToUser({
+			userId: application.contractor.toString(),
+			title: "Application Update",
+			body: `Your application for "${job.title}" was not selected this time`,
+			type: "booking_declined",
+			data: {
+				jobId: job._id.toString(),
+				applicationId: applicationId,
+				jobTitle: job.title,
+			},
+		});
 
 		return sendSuccess(
 			res,

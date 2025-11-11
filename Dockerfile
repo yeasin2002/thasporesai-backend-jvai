@@ -1,6 +1,14 @@
 # Production-ready Node.js application with minimal footprint
 FROM node:20-alpine AS base
 
+# Set timezone to Asia/Dhaka
+RUN apk add --no-cache tzdata && \
+    cp /usr/share/zoneinfo/Asia/Dhaka /etc/localtime && \
+    echo "Asia/Dhaka" > /etc/timezone && \
+    apk del tzdata
+
+ENV TZ=Asia/Dhaka
+
 # Install pnpm
 RUN npm install -g pnpm@10.18.3
 
@@ -27,6 +35,14 @@ RUN pnpm build
 # Production stage
 # ================================
 FROM node:20-alpine AS production
+
+# Set timezone to Asia/Dhaka
+RUN apk add --no-cache tzdata && \
+    cp /usr/share/zoneinfo/Asia/Dhaka /etc/localtime && \
+    echo "Asia/Dhaka" > /etc/timezone && \
+    apk del tzdata
+
+ENV TZ=Asia/Dhaka
 
 # Install pnpm
 RUN npm install -g pnpm@10.18.3

@@ -1,4 +1,5 @@
-import { Schema, Types, model, type Document } from "mongoose";
+import type { Document, Types } from "mongoose";
+import { model, Schema } from "mongoose";
 
 export interface FcmToken {
 	userId: Types.ObjectId;

@@ -1,3 +1,4 @@
+/** biome-ignore-all lint/complexity/noThisInStatic: <> */
 import { db } from "@/db";
 import { getMessaging } from "@/lib/firebase";
 import type { MulticastMessage } from "firebase-admin/messaging";
@@ -43,6 +44,8 @@ export interface BulkNotificationPayload {
  * Notification Service
  * Provides methods to send push notifications via Firebase Cloud Messaging
  */
+
+// biome-ignore lint/complexity/noStaticOnlyClass: <>
 export class NotificationService {
 	/**
 	 * Send notification to a single user

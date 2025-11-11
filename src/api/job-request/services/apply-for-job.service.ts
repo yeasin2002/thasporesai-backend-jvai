@@ -1,3 +1,4 @@
+import { NotificationService } from "@/common/service/notification.service";
 import { db } from "@/db";
 import { sendError, sendSuccess } from "@/helpers";
 import type { RequestHandler } from "express";
@@ -46,6 +47,12 @@ export const applyForJob: RequestHandler = async (req, res) => {
 			return sendError(res, 400, "You have already applied to this job");
 		}
 
+		// Get contractor details for notification
+		const contractor = await db.user.findById(contractorId);
+		if (!contractor) {
+			return sendError(res, 404, "Contractor not found");
+		}
+
 		// Create application
 		const application = await db.jobApplicationRequest.create({
 			job: jobId,
@@ -56,6 +63,20 @@ export const applyForJob: RequestHandler = async (req, res) => {
 
 		// Populate contractor details
 		await application.populate("contractor", "full_name email profile_img");
+
+		// Send notification to job owner (customer)
+		await NotificationService.sendToUser({
+			userId: job.customerId.toString(),
+			title: "New Job Application",
+			body: `${contractor.full_name} has applied to your job "${job.title}"`,
+			type: "job_application",
+			data: {
+				jobId: jobId,
+				applicationId: String(application._id),
+				contractorId: contractorId,
+				contractorName: contractor.full_name,
+			},
+		});
 
 		return sendSuccess(
 			res,

@@ -6,9 +6,9 @@ import { registerStatusHandlers } from "./handlers/status.handler";
 import { registerTypingHandlers } from "./handlers/typing.handler";
 import { authMiddleware } from "./middleware/auth.middleware";
 import {
-  logPerformance,
-  logRoomOperations,
-  loggerMiddleware,
+	logPerformance,
+	logRoomOperations,
+	loggerMiddleware,
 } from "./middleware/logger.middleware";
 
 /**
@@ -39,8 +39,8 @@ export const initializeSocketIO = (httpServer: HTTPServer) => {
 		process.env.NODE_ENV !== "production" ||
 		process.env.SOCKET_DEBUG === "true"
 	) {
-    io.use(loggerMiddleware);
-  }
+		io.use(loggerMiddleware);
+	}
 
 	// Start connection statistics logger
 	// createConnectionStatsLogger(io);

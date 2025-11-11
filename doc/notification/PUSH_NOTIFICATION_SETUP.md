@@ -28,13 +28,13 @@ JobSphere's push notification system enables real-time communication between the
 
 ### Key Features
 
-✅ **Multi-device support** - Users can receive notifications on multiple devices
-✅ **Notification persistence** - All notifications stored in database
-✅ **Read/unread tracking** - Track which notifications have been read
-✅ **Type-based notifications** - Different notification types for different events
-✅ **Role-based broadcasting** - Send notifications to all users with specific role
-✅ **Automatic token cleanup** - Invalid tokens are automatically deactivated
-✅ **Admin control** - Admins can send custom notifications to any user
+- ✅ **Multi-device support** - Users can receive notifications on multiple devices
+- ✅ **Notification persistence** - All notifications stored in database
+- ✅ **Read/unread tracking** - Track which notifications have been read
+- ✅ **Type-based notifications** - Different notification types for different events
+- ✅ **Role-based broadcasting** - Send notifications to all users with specific role
+- ✅ **Automatic token cleanup** - Invalid tokens are automatically deactivated
+- ✅ **Admin control** - Admins can send custom notifications to any user
 
 ---
 
