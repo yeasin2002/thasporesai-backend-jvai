@@ -44,8 +44,8 @@ export const initializeFirebase = (): admin.app.App => {
 	} catch (error) {
 		consola.error("❌ Failed to initialize Firebase Admin SDK:", error);
 		consola.warn(
-      "⚠️ Firebase initialization failed. Push notifications will not work."
-    );
+			"⚠️ Firebase initialization failed. Push notifications will not work.",
+		);
 		throw error;
 	}
 };
