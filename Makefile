@@ -94,7 +94,7 @@ start-monitoring: ## Start services with monitoring (Grafana + Loki)
 	@echo "Starting services with monitoring..."
 	@docker-compose -f docker-compose.yml -f docker-compose.monitoring.yml up -d
 	@echo "✓ Services started with monitoring"
-	@echo "Grafana: http://localhost:3000 (admin/admin)"
+	@echo "Grafana: http://localhost:8000 (admin/admin)"
 
 stop-monitoring: ## Stop all services including monitoring
 	@echo "Stopping all services..."
@@ -106,4 +106,4 @@ logs-monitoring: ## View monitoring logs
 
 grafana: ## Open Grafana dashboard
 	@echo "Opening Grafana..."
-	@open http://localhost:3000 || xdg-open http://localhost:3000 || start http://localhost:3000
+	@open http://localhost:8000 || xdg-open http://localhost:8000 || start http://localhost:8000
