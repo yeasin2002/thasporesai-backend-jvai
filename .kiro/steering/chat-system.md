@@ -250,38 +250,46 @@ socket.emit("error", {
 src/
 ├── app.ts
 ├── api/
-│    ├── socket/
-│    │   ├── index.ts              # Socket.IO server setup
-│    │   ├── handlers/
-│    │   │   ├── auth.handler.ts   # Authentication
-│    │   │   ├── chat.handler.ts   # Chat messages
-│    │   │   ├── typing.handler.ts # Typing indicators
-│    │   │   └── status.handler.ts # Online status
-│    │       └── utils/
-│    │       ├── room.utils.ts     # Room management
-│    │       └── online.utils.ts   # Online status tracking
-│   ├── middleware/
-│   │   └── auth.middleware.ts # Socket auth middleware
-
+│   ├── chat/
+│   │   ├── chat.route.ts          # REST API endpoints
+│   │   ├── chat.validation.ts     # Zod schemas
+│   │   ├── chat.openapi.ts        # OpenAPI docs
+│   │   ├── services/              # REST service handlers
+│   │   │   ├── index.ts
+│   │   │   ├── create-conversation.service.ts
+│   │   │   ├── get-conversations.service.ts
+│   │   │   └── get-messages.service.ts
+│   │   └── socket/                # Socket.IO implementation
+│   │       ├── index.ts           # Socket.IO server setup
+│   │       ├── handlers/
+│   │       │   ├── chat.handler.ts   # Chat messages
+│   │       │   ├── typing.handler.ts # Typing indicators
+│   │       │   └── status.handler.ts # Online status
+│   │       ├── middleware/
+│   │       │   ├── auth.middleware.ts   # Socket auth
+│   │       │   └── logger.middleware.ts # Socket logging
+│   │       └── utils/
+│   │           └── room.utils.ts     # Room management
 ```
 
 ### Setup Socket.IO Server
 
 ```typescript
-// src/socket/index.ts
+// src/api/chat/socket/index.ts
 import { Server } from "socket.io";
 import type { Server as HTTPServer } from "http";
 import { authMiddleware } from "./middleware/auth.middleware";
+import { loggerMiddleware, logRoomOperations, logPerformance } from "./middleware/logger.middleware";
 import { registerChatHandlers } from "./handlers/chat.handler";
 import { registerTypingHandlers } from "./handlers/typing.handler";
 import { registerStatusHandlers } from "./handlers/status.handler";
+import consola from "consola";
 
 export const initializeSocketIO = (httpServer: HTTPServer) => {
   const io = new Server(httpServer, {
     cors: {
       origin: process.env.CLIENT_URL || "*",
       methods: ["GET", "POST"],
-      credentials: true,
     },
     pingTimeout: 60000,
     pingInterval: 25000,
@@ -290,9 +298,18 @@ export const initializeSocketIO = (httpServer: HTTPServer) => {
   // Authentication middleware
   io.use(authMiddleware);
 
+  // Logging middleware (development only)
+  if (process.env.NODE_ENV !== "production" || process.env.SOCKET_DEBUG === "true") {
+    io.use(loggerMiddleware);
+  }
+
   // Connection handler
   io.on("connection", (socket) => {
-    console.log(`User connected: ${socket.data.userId}`);
+    consola.info(`✅ User '${socket.data.email}' connected with ID: ${socket.data.userId}`);
+
+    // Enable logging
+    logRoomOperations(socket);
+    logPerformance(socket);
 
     // Register event handlers
     registerChatHandlers(io, socket);
@@ -301,9 +318,7 @@ export const initializeSocketIO = (httpServer: HTTPServer) => {
 
     // Handle disconnection
     socket.on("disconnect", () => {
-      console.log(`User disconnected: ${socket.data.userId}`);
-      // Update online status
-      updateUserStatus(socket.data.userId, false);
+      consola.warn(`❌ User disconnected: ${socket.data.userId}`);
     });
   });
 
@@ -314,9 +329,9 @@ export const initializeSocketIO = (httpServer: HTTPServer) => {
 ### Authentication Middleware
 
 ```typescript
-// src/socket/middleware/auth.middleware.ts
+// src/api/chat/socket/middleware/auth.middleware.ts
 import type { Socket } from "socket.io";
-import jwt from "jsonwebtoken";
+import { verifyAccessToken } from "@/lib/jwt";
 
 export const authMiddleware = async (
   socket: Socket,
@@ -331,13 +346,12 @@ export const authMiddleware = async (
       return next(new Error("Authentication token required"));
     }
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as {
-      userId: string;
-      role: string;
-    };
+    // Verify token using existing JWT utility
+    const decoded = verifyAccessToken(token);
 
     // Attach user data to socket
     socket.data.userId = decoded.userId;
+    socket.data.email = decoded.email;
     socket.data.role = decoded.role;
 
     next();
@@ -347,19 +361,47 @@ export const authMiddleware = async (
 };
 ```
 
+### Logger Middleware
+
+```typescript
+// src/api/chat/socket/middleware/logger.middleware.ts
+import consola from "consola";
+import type { Socket } from "socket.io";
+
+export const loggerMiddleware = (socket: Socket, next: (err?: Error) => void) => {
+  consola.info(`🔌 Socket connection attempt from: ${socket.data.email || "unknown"}`);
+  next();
+};
+
+export const logRoomOperations = (socket: Socket) => {
+  socket.on("join_conversation", (data) => {
+    consola.info(`📥 User ${socket.data.userId} joining room: ${data.conversationId}`);
+  });
+};
+
+export const logPerformance = (socket: Socket) => {
+  const startTime = Date.now();
+  socket.on("disconnect", () => {
+    const duration = Date.now() - startTime;
+    consola.info(`⏱️ Connection duration: ${duration}ms`);
+  });
+};
+```
+
 ### Chat Handler Example
 
 ```typescript
-// src/socket/handlers/chat.handler.ts
+// src/api/chat/socket/handlers/chat.handler.ts
 import type { Server, Socket } from "socket.io";
 import { db } from "@/db";
 import { createRoomId } from "../utils/room.utils";
+import consola from "consola";
 
 export const registerChatHandlers = (io: Server, socket: Socket) => {
   // Join conversation room
   socket.on("join_conversation", async ({ conversationId, userId }) => {
     socket.join(conversationId);
-    console.log(`User ${userId} joined conversation ${conversationId}`);
+    consola.info(`User ${userId} joined conversation ${conversationId}`);
   });
 
   // Send message
@@ -394,7 +436,10 @@ export const registerChatHandlers = (io: Server, socket: Socket) => {
 
       // Send delivery confirmation to sender
       socket.emit("message_delivered", { messageId: message._id });
+      
+      consola.success(`Message sent in conversation ${conversationId}`);
     } catch (error) {
+      consola.error("Error sending message:", error);
       socket.emit("error", { message: "Failed to send message" });
     }
   });
@@ -421,6 +466,7 @@ export const registerChatHandlers = (io: Server, socket: Socket) => {
         readBy: userId,
       });
     } catch (error) {
+      consola.error("Error marking as read:", error);
       socket.emit("error", { message: "Failed to mark as read" });
     }
   });
@@ -431,13 +477,16 @@ export const registerChatHandlers = (io: Server, socket: Socket) => {
 
 Complement Socket.IO with REST endpoints for initial data loading:
 
-### `GET /api/conversations`
+### `GET /api/chat/conversations`
 
 Get user's conversation list
+
+**Implementation**: `src/api/chat/services/get-conversations.service.ts`
 
 ```typescript
 Response: {
   status: 200,
+  message: "Conversations retrieved successfully",
   data: [
     {
       _id: "conv123",
@@ -450,14 +499,17 @@ Response: {
 }
 ```
 
-### `GET /api/conversations/:id/messages`
+### `GET /api/chat/conversations/:id/messages`
 
 Get conversation message history (paginated)
+
+**Implementation**: `src/api/chat/services/get-messages.service.ts`
 
 ```typescript
 Query: { page: 1, limit: 50 }
 Response: {
   status: 200,
+  message: "Messages retrieved successfully",
   data: {
     messages: [...],
     hasMore: true,
@@ -466,27 +518,33 @@ Response: {
 }
 ```
 
-### `POST /api/conversations`
+### `POST /api/chat/conversations`
 
 Create new conversation
+
+**Implementation**: `src/api/chat/services/create-conversation.service.ts`
 
 ```typescript
 Body: { participantId: "user456", jobId?: "job123" }
 Response: {
   status: 201,
+  message: "Conversation created successfully",
   data: { conversationId: "user123_user456" }
 }
 ```
 
-### `POST /api/upload/chat-file`
+### `POST /api/common/upload`
 
 Upload file for chat (images, documents)
+
+**Implementation**: `src/api/common/img-upload/upload-image.service.ts`
 
 ```typescript
 Body: FormData with file
 Response: {
   status: 200,
-  data: { fileUrl: "/uploads/chat/file123.jpg" }
+  message: "File uploaded successfully",
+  data: { fileUrl: "/uploads/file123.jpg" }
 }
 ```
 

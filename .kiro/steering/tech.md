@@ -6,7 +6,7 @@
 - **Framework**: Express.js v5.1.0
 - **Database**: MongoDB with Mongoose ODM v8.14.0
 - **Package Manager**: pnpm
-- **openAPI Generation**: @asteasolutions/zod-to-openapi, each module (in api folder) will have a doc.ts like user.doc.ts
+- **openAPI Generation**: @asteasolutions/zod-to-openapi, each module (in api folder) will have a [module].openapi.ts file
 
 ## Development Tools
 
@@ -20,14 +20,20 @@
 
 - **dotenv**: Environment variable management
 - **cors**: Cross-origin resource sharing
-- **@scalar/express-api-reference**: Express API Reference
+- **@scalar/express-api-reference**: Express API Reference (Scalar UI)
+- **swagger-ui-express**: Swagger UI for API documentation
 - **jsonwebtoken**: JSON Web Token (JWT) for authentication
 - **bcryptjs**: Password hashing
 - **mongoose**: MongoDB Object Data Modeling (ODM)
 - **morgan**: HTTP request logger
-- **swagger-ui-express**: Swagger UI for API documentation
+- **winston**: Advanced logging with daily file rotation
+- **winston-daily-rotate-file**: Daily rotating file transport for winston
 - **zod**: Runtime type validation
-- **nodemailer** : Email sending
+- **nodemailer**: Email sending
+- **multer**: File upload handling
+- **socket.io**: Real-time bidirectional communication
+- **firebase-admin**: Firebase Admin SDK for push notifications
+- **consola**: Elegant console logger
 
 
 ## Common Commands

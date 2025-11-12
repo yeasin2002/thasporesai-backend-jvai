@@ -2,21 +2,28 @@
 
 ## Real-Time Communication
 
-### WebSocket Chat System
+### Socket.IO Chat System
 
 - Real-time messaging between Customers and Contractors
 - No voice/video call functionality
-- Native WebSocket implementation
+- Socket.IO implementation (not native WebSocket)
 - Features:
   - One-to-one chat rooms
   - Message history persistence with database
-  - Online/offline status
+  - Online/offline status tracking
   - Typing indicators
   - Message read receipts
-  - File sharing in chat (images, documents) and store them in database (after uploading to  storage)
+  - File sharing in chat (images, documents) stored in database
+  - Authentication middleware for socket connections
+  - Logging middleware for debugging (development mode)
+  - Performance monitoring
 
-###  Email Sending with nodemailer 
--  Send Email for OTP verification
+### Email Sending with Nodemailer
+
+- Send OTP verification emails
+- Welcome emails for new users
+- Email templates in `src/common/email/`
+- Configured in `src/lib/nodemailer.ts`
 
 ### Push Notifications
 
@@ -180,11 +187,48 @@ await NotificationService.sendToRole(
 - `refunded` - Payment refunded to customer
 - `failed` - Payment failed
 
-## Database Models Required
+## Database Models
 
-### Chat/Message Model
+### Conversation Model
 
-- sender, receiver, message, timestamp, read status, room ID
+Located at `src/db/models/conversation.model.ts`:
+
+```typescript
+{
+  participants: ObjectId[],   // [customerId, contractorId]
+  lastMessage: {
+    text: string,
+    senderId: ObjectId,
+    timestamp: Date
+  },
+  unreadCount: Map<string, number>, // Track unread per user
+  jobId?: ObjectId,           // Optional: link to specific job
+  createdAt: Date,
+  updatedAt: Date
+}
+```
+
+### Message Model
+
+Located at `src/db/models/message.model.ts`:
+
+```typescript
+{
+  conversationId: ObjectId,
+  senderId: ObjectId,
+  receiverId: ObjectId,
+  messageType: 'text' | 'image' | 'file',
+  content: {
+    text?: string,
+    fileUrl?: string,
+    fileName?: string,
+    fileSize?: number
+  },
+  status: 'sent' | 'delivered' | 'read',
+  timestamp: Date,
+  createdAt: Date
+}
+```
 
 ### Notification Model
 
@@ -215,7 +259,7 @@ Located at `src/db/models/fcm-token.model.ts`:
   userId: ObjectId,           // Reference to User
   token: string,              // FCM device token (unique)
   deviceId: string,           // Unique device identifier
-  deviceType: enum,           // 'android' or 'ios'
+  deviceType: 'android' | 'ios',
   isActive: boolean,          // Token validity status
   lastUsed: Date,             // Last notification sent
   createdAt: Date,            // Auto-generated
@@ -223,15 +267,61 @@ Located at `src/db/models/fcm-token.model.ts`:
 }
 ```
 
-### File Model
+### Experience Model
 
-- filename, originalName, path, mimeType, size, uploadedBy, uploadDate
+Located at `src/db/models/experience.model.ts`:
 
-### Payment Model
+```typescript
+{
+  user: ObjectId,             // Reference to User
+  company_name: string,
+  title: string,
+  description: string,
+  start_date?: Date,
+  end_date?: Date,
+  createdAt: Date,
+  updatedAt: Date
+}
+```
+
+### Work Sample Model
+
+Located at `src/db/models/work-samples.model.ts`:
+
+```typescript
+{
+  user: ObjectId,             // Reference to User
+  name: string,
+  img: string,                // Image URL
+  description?: string,
+  createdAt: Date,
+  updatedAt: Date
+}
+```
+
+### Certification Model
+
+Located at `src/db/models/certification.model.ts`:
+
+```typescript
+{
+  user: ObjectId,             // Reference to User
+  title: string,
+  img: string,                // Certificate image URL
+  description?: string,
+  issue_date?: Date,
+  expiry_date?: Date,
+  issuing_organization?: string,
+  createdAt: Date,
+  updatedAt: Date
+}
+```
+
+### Payment Model (Future)
 
 - customer, contractor, job, amount, commission, status, stripePaymentId, timestamps
 
-### Payout Model
+### Payout Model (Future)
 
 - contractor, amount, status, stripePayoutId, requestDate, completedDate
 
@@ -269,11 +359,15 @@ STRIPE_COMMISSION_PERCENT=10
 
 ```json
 {
-  "stripe": "^14.x",
-  "multer": "^1.4.x",
-  "firebase-admin": "^13.5.0"
+  "socket.io": "^4.8.1",
+  "multer": "^2.0.2",
+  "firebase-admin": "^13.5.0",
+  "winston": "^3.18.3",
+  "winston-daily-rotate-file": "^5.0.0"
 }
 ```
+
+**Note**: Stripe integration is planned but not yet implemented
 
 ## Firebase Setup
 

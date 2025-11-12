@@ -5,7 +5,7 @@
 ```
 providus_org/
 ├── src/                    # Source code
-│   ├── db/                 # Database connection and models
+│   ├── db/                 # Database models
 │   │   ├── models/         # Mongoose models
 │   │   │   ├── job.model.ts
 │   │   │   ├── category.model.ts
@@ -15,11 +15,24 @@ providus_org/
 │   │   │   ├── job-application-request.model.ts
 │   │   │   ├── notification.model.ts
 │   │   │   ├── fcm-token.model.ts
+│   │   │   ├── conversation.model.ts
+│   │   │   ├── message.model.ts
+│   │   │   ├── experience.model.ts
+│   │   │   ├── work-samples.model.ts
+│   │   │   ├── certification.model.ts
 │   │   │   └── [model].model.ts
-│   │   └── index.ts        # Database connection and model exports
+│   │   └── index.ts        # Model exports only
 │   ├── lib/                # Utility libraries and helpers
 │   │   ├── firebase.ts     # Firebase Admin SDK initialization
-│   │   └── openapi.ts      # OpenAPI registry configuration
+│   │   ├── openapi.ts      # OpenAPI registry configuration
+│   │   ├── jwt.ts          # JWT token management
+│   │   ├── logger.ts       # Winston logger configuration
+│   │   ├── connect-mongo.ts # MongoDB connection
+│   │   ├── multer.ts       # File upload configuration
+│   │   ├── nodemailer.ts   # Email sending configuration
+│   │   ├── morgan.ts       # Morgan HTTP logger format
+│   │   ├── get-my-ip.ts    # Get local IP address
+│   │   └── index.ts        # Barrel exports
 │   ├── helpers/            # Helper functions
 │   │   ├── response-handler.ts  # Standard API response helpers
 │   │   ├── mongodb-error-handler.ts
@@ -27,7 +40,10 @@ providus_org/
 │   ├── middleware/         # Express middleware
 │   │   ├── auth.middleware.ts
 │   │   ├── validation.middleware.ts
-│   │   ├── error.middleware.ts
+│   │   ├── common/         # Common middleware
+│   │   │   ├── default-not-found.ts
+│   │   │   ├── global-error-handler.ts
+│   │   │   └── index.ts
 │   │   └── index.ts
 │   ├── common/             # Common constants and utilities
 │   │   ├── email/          # Email templates
@@ -45,7 +61,8 @@ providus_org/
 │   │   │   │   ├── register.service.ts
 │   │   │   │   ├── forgot-password.service.ts
 │   │   │   │   ├── reset-password.service.ts
-│   │   │   │   └── verify-otp.service.ts
+│   │   │   │   ├── verify-OTP.service.ts
+│   │   │   │   └── refresh-token.service.ts
 │   │   │   ├── auth.validation.ts
 │   │   │   └── auth.openapi.ts
 │   │   ├── category/       # Category module (uses single service file pattern)
@@ -82,9 +99,7 @@ providus_org/
 │   │   ├── admin/          # Admin module (nested structure)
 │   │   │   ├── auth-admin/ # Admin authentication sub-module
 │   │   │   │   ├── auth-admin.route.ts
-│   │   │   │   ├── services/
-│   │   │   │   │   ├── index.ts
-│   │   │   │   │   └── login.service.ts
+│   │   │   │   ├── auth-admin.service.ts
 │   │   │   │   ├── auth-admin.validation.ts
 │   │   │   │   └── auth-admin.openapi.ts
 │   │   │   ├── admin-user/       # Admin user management sub-module
@@ -92,15 +107,38 @@ providus_org/
 │   │   │   │   ├── services/
 │   │   │   │   │   ├── index.ts
 │   │   │   │   │   ├── get-all-users.service.ts
-│   │   │   │   │   ├── get-user.service.ts
-│   │   │   │   │   ├── delete-user.service.ts
-│   │   │   │   │   └── suspend-user.service.ts
-│   │   │   │   ├── user.validation.ts
-│   │   │   │   └── user.openapi.ts
-│   │   │   ├── dashboard/  # Admin dashboard sub-module
-│   │   │   ├── job/        # Admin job management sub-module
-│   │   │   ├── payments/   # Admin payments sub-module
-│   │   │   └── settings/   # Admin settings sub-module
+│   │   │   │   │   ├── get-single-user-by-id.service.ts
+│   │   │   │   │   ├── delete-user-account.service.ts
+│   │   │   │   │   └── suspend-or-unsuspend-user.service.ts
+│   │   │   │   ├── admin-user.validation.ts
+│   │   │   │   └── admin-user.openapi.ts
+│   │   │   └── (other admin modules as needed)
+│   │   ├── users/          # User profile module (nested structure)
+│   │   │   ├── profile/    # Main user profile endpoints
+│   │   │   │   ├── profile.route.ts
+│   │   │   │   ├── services/
+│   │   │   │   │   ├── index.ts
+│   │   │   │   │   ├── me.service.ts
+│   │   │   │   │   ├── update-profile.service.ts
+│   │   │   │   │   ├── get-all-users.service.ts
+│   │   │   │   │   └── get-single-user.service.ts
+│   │   │   │   ├── profile.validation.ts
+│   │   │   │   └── profile.openapi.ts
+│   │   │   ├── certifications/ # User certifications sub-module
+│   │   │   │   ├── certifications.route.ts
+│   │   │   │   ├── services/
+│   │   │   │   ├── certifications.validation.ts
+│   │   │   │   └── certifications.openapi.ts
+│   │   │   ├── experience/     # User experience sub-module
+│   │   │   │   ├── experience.route.ts
+│   │   │   │   ├── services/
+│   │   │   │   ├── experience.validation.ts
+│   │   │   │   └── experience.openapi.ts
+│   │   │   └── work_samples/   # User work samples sub-module
+│   │   │       ├── work_samples.route.ts
+│   │   │       ├── services/
+│   │   │       ├── work_samples.validation.ts
+│   │   │       └── work_samples.openapi.ts
 │   │   └── [other modules]/
 │   │
 │   └── app.ts              # Application entry point
@@ -130,11 +168,11 @@ providus_org/
 
 ### `/src/db/`
 
-- **`index.ts`**: Database connection logic (`connectDB` function) and model exports
+- **`index.ts`**: Model exports only (database connection moved to `lib/`)
 - **`models/`**: Mongoose models and schemas
   - Each model file exports a Mongoose model (e.g., `User`, `Job`, `Category`)
   - Models are imported and exported through `db` object in `index.ts`
-  - Example: `export const db = { user: User, job: Job, category: Category, notification: Notification, fcmToken: FcmToken }`
+  - Example: `export const db = { user: User, job: Job, category: Category, notification: Notification, fcmToken: FcmToken, conversation: Conversation, message: Message, experience: Experience, workSample: WorkSample, certification: Certification }`
 
 ### `/src/lib/` - Utility Libraries
 
@@ -145,6 +183,24 @@ providus_org/
 - **`openapi.ts`**: OpenAPI registry configuration
   - Global registry for OpenAPI documentation
   - `generateOpenAPIDocument()` - Generates OpenAPI spec
+- **`jwt.ts`**: JWT token management
+  - `signAccessToken()` - Generate access token
+  - `signRefreshToken()` - Generate refresh token with JTI
+  - `verifyAccessToken()` - Verify access token
+  - `verifyRefreshToken()` - Verify refresh token
+  - `hashPassword()` - Hash password with bcrypt
+  - `comparePassword()` - Compare password with hash
+  - `generateOTP()` - Generate 4-digit OTP
+- **`logger.ts`**: Winston logger configuration
+  - Daily rotating file logs (error, combined, http)
+  - Console logging with colors
+  - Helper functions: `logError()`, `logInfo()`, `logWarn()`, `logDebug()`, `logHttp()`
+- **`connect-mongo.ts`**: MongoDB connection logic
+  - `connectDB()` - Connect to MongoDB with Mongoose
+- **`multer.ts`**: File upload configuration
+  - Multer setup for handling multipart/form-data
+- **`nodemailer.ts`**: Email sending configuration
+  - Nodemailer setup for sending emails (OTP, welcome, etc.)
 
 ### `/src/common/` - Shared Resources
 
@@ -192,10 +248,11 @@ Each API module follows this pattern:
 
 - Express router with route definitions
 - Imports validation middleware
-- Imports service handlers
+- Imports service handlers from `services/` folder
 - Exports router instance with descriptive name
 - Example: `export const auth: Router = express.Router();`
 - For nested modules: `export const adminUser: Router = express.Router();`
+- Must import OpenAPI file at the top: `import "./[module].openapi";`
 
 #### `services/` folder
 
@@ -247,25 +304,32 @@ For complex features like admin panel, use nested modules:
 
 ```
 src/api/admin/
-├── user/           # Sub-module for user management
-│   ├── user.route.ts
+├── admin-user/     # Sub-module for user management
+│   ├── admin-user.route.ts
 │   ├── services/
 │   │   ├── index.ts
 │   │   ├── get-all-users.service.ts
-│   │   ├── get-user.service.ts
-│   │   ├── delete-user.service.ts
-│   │   └── suspend-user.service.ts
-│   ├── user.validation.ts
-│   └── user.openapi.ts
-├── dashboard/      # Sub-module for dashboard
-└── settings/       # Sub-module for settings
+│   │   ├── get-single-user-by-id.service.ts
+│   │   ├── delete-user-account.service.ts
+│   │   └── suspend-or-unsuspend-user.service.ts
+│   ├── admin-user.validation.ts
+│   └── admin-user.openapi.ts
+├── auth-admin/     # Sub-module for admin authentication
+│   ├── auth-admin.route.ts
+│   ├── auth-admin.service.ts
+│   ├── auth-admin.validation.ts
+│   └── auth-admin.openapi.ts
+└── (other admin modules as needed)
 ```
 
 **Registration in app.ts:**
 
 ```typescript
-import { adminUser } from "@/api/admin/user/user.route";
-app.use("/api/admin/users", adminUser);
+import { adminUser } from "@/api/admin/admin-user/admin-user.route";
+import { authAdmin } from "@/api/admin/auth-admin/auth-admin.route";
+
+app.use("/api/admin/auth", authAdmin);
+app.use("/api/admin/users", requireAuth, requireRole("admin"), adminUser);
 ```
 
 **Export naming convention for nested modules:**
@@ -325,11 +389,12 @@ Contains utility functions for consistent API responses:
 - **`validateBody(schema)`**: Validates request body against Zod schema
 - **`validateParams(schema)`**: Validates route parameters
 - **`validateQuery(schema)`**: Validates query parameters
+- **`validate(schemas)`**: Validates multiple parts of request (body, params, query)
 
-#### `error.middleware.ts`
+#### `common/` - Common Middleware
 
-- **`notFoundHandler`**: Handles 404 errors for undefined routes
-- **`errorHandler`**: Global error handler for uncaught errors
+- **`notFoundHandler`**: Handles 404 errors for undefined routes (with logging)
+- **`errorHandler`**: Global error handler for uncaught errors (with logging)
 
 ## Configuration Files
 
