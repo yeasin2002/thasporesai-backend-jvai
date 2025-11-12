@@ -10,12 +10,15 @@ This directory contains comprehensive documentation for the payment and bidding 
 
 ### Core Documentation
 
-1. **[ARCHITECTURE.md](./ARCHITECTURE.md)** - System architecture and component overview
-2. **[FLOW.md](./FLOW.md)** - Complete workflow from job posting to payment release
-3. **[STRIPE_INTEGRATION.md](./STRIPE_INTEGRATION.md)** - Stripe payment processing details
-4. **[JOB_LIFECYCLE.md](./JOB_LIFECYCLE.md)** - Job status management and transitions
-5. **[DATABASE_SCHEMA.md](./DATABASE_SCHEMA.md)** - Database models and relationships
-6. **[API_DESIGN.md](./API_DESIGN.md)** - API endpoints and specifications
+1. **[QUICK_REFERENCE.md](./QUICK_REFERENCE.md)** - ⚡ **START HERE** - Quick reference for key concepts
+2. **[INTEGRATION_GUIDE.md](./INTEGRATION_GUIDE.md)** - ⭐ **IMPORTANT** - How to integrate with existing codebase
+3. **[IMPLEMENTATION_CHECKLIST.md](./IMPLEMENTATION_CHECKLIST.md)** - Step-by-step implementation guide
+4. **[ARCHITECTURE.md](./ARCHITECTURE.md)** - System architecture and component overview
+5. **[FLOW.md](./FLOW.md)** - Complete workflow from job posting to payment release
+6. **[DATABASE_SCHEMA.md](./DATABASE_SCHEMA.md)** - Database models and relationships
+7. **[API_DESIGN.md](./API_DESIGN.md)** - API endpoints and specifications
+8. **[STRIPE_INTEGRATION.md](./STRIPE_INTEGRATION.md)** - Stripe payment processing details
+9. **[JOB_LIFECYCLE.md](./JOB_LIFECYCLE.md)** - Job status management and transitions
 
 ## Quick Start
 
@@ -111,11 +114,26 @@ PAYMENT_HOLD_DAYS=7
 
 ## Getting Started
 
-1. Read [ARCHITECTURE.md](./ARCHITECTURE.md) for system overview
-2. Review [FLOW.md](./FLOW.md) for complete workflow
-3. Check [DATABASE_SCHEMA.md](./DATABASE_SCHEMA.md) for data models
+### For Quick Understanding
+
+1. **Start here**: [QUICK_REFERENCE.md](./QUICK_REFERENCE.md) - Get up to speed in 5 minutes
+2. Review [FLOW.md](./FLOW.md) for complete workflow visualization
+3. Check [ARCHITECTURE.md](./ARCHITECTURE.md) for system overview
+
+### For Implementation
+
+1. **Essential**: [INTEGRATION_GUIDE.md](./INTEGRATION_GUIDE.md) - Shows how to integrate with your existing codebase patterns
+2. Follow [IMPLEMENTATION_CHECKLIST.md](./IMPLEMENTATION_CHECKLIST.md) for step-by-step guide
+3. Reference [DATABASE_SCHEMA.md](./DATABASE_SCHEMA.md) for model definitions
 4. Implement APIs following [API_DESIGN.md](./API_DESIGN.md)
 5. Integrate Stripe using [STRIPE_INTEGRATION.md](./STRIPE_INTEGRATION.md)
+6. Manage job states with [JOB_LIFECYCLE.md](./JOB_LIFECYCLE.md)
+
+### AI Assistant Integration
+
+- **Kiro Steering Doc**: `.kiro/steering/payment-bidding-system.md` - Complete guidance for AI assistant
+- **Existing Patterns**: Check `src/api/job/`, `src/api/auth/` for established code patterns
+- **Module Generator**: `bun run generate:module --module <name>` for scaffolding new modules
 
 ## Support
 
