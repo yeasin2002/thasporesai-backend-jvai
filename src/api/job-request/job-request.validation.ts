@@ -164,3 +164,50 @@ export type ApplicationResponse = z.infer<typeof ApplicationResponseSchema>;
 export type ApplicationsResponse = z.infer<typeof ApplicationsResponseSchema>;
 export type SuccessResponse = z.infer<typeof SuccessResponseSchema>;
 export type ErrorResponse = z.infer<typeof ErrorResponseSchema>;
+
+// ============================================
+// OFFER SCHEMAS (Payment System)
+// ============================================
+
+// Send offer schema
+export const SendOfferSchema = z
+	.object({
+		amount: z
+			.number()
+			.positive()
+			.openapi({ description: "Job budget amount" }),
+		timeline: z
+			.string()
+			.min(1)
+			.openapi({ description: "Expected completion time" }),
+		description: z
+			.string()
+			.min(1)
+			.openapi({ description: "Work description" }),
+	})
+	.openapi("SendOffer");
+
+// Offer ID parameter schema
+export const OfferIdParamSchema = z
+	.object({
+		offerId: z
+			.string()
+			.min(1)
+			.openapi({ description: "Offer ID" }),
+	})
+	.openapi("OfferIdParam");
+
+// Reject offer schema
+export const RejectOfferSchema = z
+	.object({
+		reason: z
+			.string()
+			.min(1)
+			.openapi({ description: "Rejection reason" }),
+	})
+	.openapi("RejectOffer");
+
+// Export types
+export type SendOffer = z.infer<typeof SendOfferSchema>;
+export type OfferIdParam = z.infer<typeof OfferIdParamSchema>;
+export type RejectOffer = z.infer<typeof RejectOfferSchema>;
