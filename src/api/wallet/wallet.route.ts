@@ -1,12 +1,12 @@
 import "./wallet.openapi";
 
-import { requireAuth } from "@/middleware";
+import { requireAuth, requireRole } from "@/middleware";
 import {
 	validateBody,
 	validateQuery,
 } from "@/middleware/validation.middleware";
 import express, { type Router } from "express";
-import { deposit, getTransactions, getWallet } from "./services";
+import { deposit, getTransactions, getWallet, withdraw } from "./services";
 import {
 	DepositSchema,
 	TransactionQuerySchema,
@@ -29,4 +29,11 @@ wallet.get(
 	getTransactions,
 );
 
-// TODO: Withdraw money (contractors only)
+// Withdraw money (contractors only)
+wallet.post(
+	"/withdraw",
+	requireAuth,
+	requireRole("contractor"),
+	validateBody(WithdrawSchema),
+	withdraw,
+);

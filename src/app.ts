@@ -31,6 +31,7 @@ import {
 import { authAdmin } from "./api/admin/auth-admin/auth-admin.route";
 import { initializeSocketIO } from "./api/chat/socket";
 import { common } from "./api/common/common.route";
+import { startOfferExpirationJob } from "./jobs/expire-offers";
 import { getLocalIP } from "./lib/get-my-ip";
 import { morganDevFormat } from "./lib/morgan";
 
@@ -125,6 +126,9 @@ httpServer.listen(port, async () => {
 		);
 	}
 	consola.warn(` 💬 Socket.IO chat enabled \n`);
+
+	// Start offer expiration job
+	startOfferExpirationJob();
 
 	// console.log(`🚀 Server is running on http://localhost:${port}`);
 	// console.log(`✨ Server is running on http://${getLocalIP()}:${port} \n`);

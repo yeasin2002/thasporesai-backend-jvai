@@ -1,3 +1,4 @@
+import { AdminService } from "@/common/service/admin.service";
 import { NotificationService } from "@/common/service/notification.service";
 import { db } from "@/db";
 import { sendBadRequest, sendInternalError, sendSuccess } from "@/helpers";
@@ -39,16 +40,9 @@ export const completeJob: RequestHandler = async (req, res) => {
 		offer.completedAt = new Date();
 		await offer.save();
 
-		// 5. Get or create admin wallet
-		const adminUserId = process.env.ADMIN_USER_ID || "admin";
-		let adminWallet = await db.wallet.findOne({ user: adminUserId });
-		if (!adminWallet) {
-			adminWallet = await db.wallet.create({
-				user: adminUserId,
-				balance: 0,
-				escrowBalance: 0,
-			});
-		}
+		// 5. Get admin wallet
+		const adminWallet = await AdminService.getAdminWallet();
+		const adminUserId = await AdminService.getAdminUserId();
 
 		// 6. Transfer service fee to admin
 		adminWallet.balance += offer.serviceFee;

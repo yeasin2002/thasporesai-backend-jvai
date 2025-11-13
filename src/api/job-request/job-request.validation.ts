@@ -172,12 +172,22 @@ export type ErrorResponse = z.infer<typeof ErrorResponseSchema>;
 // Send offer schema
 export const SendOfferSchema = z
 	.object({
-		amount: z.number().positive().openapi({ description: "Job budget amount" }),
+		amount: z
+			.number()
+			.positive("Amount must be positive")
+			.min(10, "Minimum offer amount is $10")
+			.max(10000, "Maximum offer amount is $10,000")
+			.openapi({ description: "Job budget amount" }),
 		timeline: z
 			.string()
-			.min(1)
+			.min(1, "Timeline is required")
+			.max(100, "Timeline too long")
 			.openapi({ description: "Expected completion time" }),
-		description: z.string().min(1).openapi({ description: "Work description" }),
+		description: z
+			.string()
+			.min(10, "Description must be at least 10 characters")
+			.max(1000, "Description too long")
+			.openapi({ description: "Work description" }),
 	})
 	.openapi("SendOffer");
 
