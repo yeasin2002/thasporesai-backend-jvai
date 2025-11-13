@@ -172,38 +172,26 @@ export type ErrorResponse = z.infer<typeof ErrorResponseSchema>;
 // Send offer schema
 export const SendOfferSchema = z
 	.object({
-		amount: z
-			.number()
-			.positive()
-			.openapi({ description: "Job budget amount" }),
+		amount: z.number().positive().openapi({ description: "Job budget amount" }),
 		timeline: z
 			.string()
 			.min(1)
 			.openapi({ description: "Expected completion time" }),
-		description: z
-			.string()
-			.min(1)
-			.openapi({ description: "Work description" }),
+		description: z.string().min(1).openapi({ description: "Work description" }),
 	})
 	.openapi("SendOffer");
 
 // Offer ID parameter schema
 export const OfferIdParamSchema = z
 	.object({
-		offerId: z
-			.string()
-			.min(1)
-			.openapi({ description: "Offer ID" }),
+		offerId: z.string().min(1).openapi({ description: "Offer ID" }),
 	})
 	.openapi("OfferIdParam");
 
 // Reject offer schema
 export const RejectOfferSchema = z
 	.object({
-		reason: z
-			.string()
-			.min(1)
-			.openapi({ description: "Rejection reason" }),
+		reason: z.string().min(1).openapi({ description: "Rejection reason" }),
 	})
 	.openapi("RejectOffer");
 

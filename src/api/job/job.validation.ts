@@ -210,6 +210,29 @@ export const ErrorResponseSchema = z
 	})
 	.openapi("ErrorResponse");
 
+// ============================================
+// PAYMENT SYSTEM SCHEMAS (Phase 5)
+// ============================================
+
+// Update Job Status Schema
+export const UpdateJobStatusSchema = z
+	.object({
+		status: z
+			.enum(["assigned", "in_progress", "completed", "cancelled"])
+			.openapi({ description: "New job status" }),
+	})
+	.openapi("UpdateJobStatus");
+
+// Cancel Job Schema
+export const CancelJobSchema = z
+	.object({
+		reason: z
+			.string()
+			.min(1, "Cancellation reason is required")
+			.openapi({ description: "Reason for cancellation" }),
+	})
+	.openapi("CancelJob");
+
 // Type exports
 export type Job = z.infer<typeof JobSchema>;
 export type CreateJob = z.infer<typeof CreateJobSchema>;
@@ -219,3 +242,5 @@ export type JobResponse = z.infer<typeof JobResponseSchema>;
 export type JobsResponse = z.infer<typeof JobsResponseSchema>;
 export type SuccessResponse = z.infer<typeof SuccessResponseSchema>;
 export type ErrorResponse = z.infer<typeof ErrorResponseSchema>;
+export type UpdateJobStatus = z.infer<typeof UpdateJobStatusSchema>;
+export type CancelJob = z.infer<typeof CancelJobSchema>;

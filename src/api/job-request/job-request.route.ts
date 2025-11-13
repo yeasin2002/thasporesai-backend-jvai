@@ -2,32 +2,32 @@ import "./job-request.openapi";
 
 import { requireAuth, requireRole } from "@/middleware/auth.middleware";
 import {
-  validateBody,
-  validateParams,
-  validateQuery,
+	validateBody,
+	validateParams,
+	validateQuery,
 } from "@/middleware/validation.middleware";
 import express, { type Router } from "express";
 import {
-  ApplicationIdParamSchema,
-  ApplyForJobSchema,
-  JobIdParamSchema,
-  OfferIdParamSchema,
-  RejectOfferSchema,
-  SearchCustomerApplicationsSchema,
-  SearchMyApplicationsSchema,
-  SendOfferSchema,
+	ApplicationIdParamSchema,
+	ApplyForJobSchema,
+	JobIdParamSchema,
+	OfferIdParamSchema,
+	RejectOfferSchema,
+	SearchCustomerApplicationsSchema,
+	SearchMyApplicationsSchema,
+	SendOfferSchema,
 } from "./job-request.validation";
 import {
-  acceptApplication,
-  acceptOfferService,
-  applyForJob,
-  cancelApplication,
-  getCustomerApplications,
-  getJobApplications,
-  getMyApplications,
-  rejectApplication,
-  rejectOfferService,
-  sendOffer,
+	acceptApplication,
+	acceptOfferService,
+	applyForJob,
+	cancelApplication,
+	getCustomerApplications,
+	getJobApplications,
+	getMyApplications,
+	rejectApplication,
+	rejectOfferService,
+	sendOffer,
 } from "./services";
 
 export const jobRequest: Router = express.Router();

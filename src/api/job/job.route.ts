@@ -12,18 +12,23 @@ import {
 } from "@/middleware/validation.middleware";
 import express, { type Router } from "express";
 import {
+	CancelJobSchema,
 	CreateJobSchema,
 	JobIdSchema,
 	SearchJobSchema,
 	UpdateJobSchema,
+	UpdateJobStatusSchema,
 } from "./job.validation";
 import {
+	cancelJob,
+	completeJob,
 	createJob,
 	deleteJob,
 	getAllJobs,
 	getJobById,
 	getMyJobs,
 	updateJob,
+	updateJobStatus,
 } from "./services";
 
 export const job: Router = express.Router();
@@ -57,3 +62,34 @@ job.put(
 	updateJob,
 );
 job.delete("/:id", requireAuth, validateParams(JobIdSchema), deleteJob);
+
+// ============================================
+// PAYMENT SYSTEM ROUTES (Phase 5)
+// ============================================
+
+// Mark job complete (Customer only)
+job.post(
+	"/:id/complete",
+	requireAuth,
+	requireRole("customer"),
+	validateParams(JobIdSchema),
+	completeJob,
+);
+
+// Update job status (Customer or Contractor)
+job.patch(
+	"/:id/status",
+	requireAuth,
+	validateParams(JobIdSchema),
+	validateBody(UpdateJobStatusSchema),
+	updateJobStatus,
+);
+
+// Cancel job (Customer or Admin)
+job.post(
+	"/:id/cancel",
+	requireAuth,
+	validateParams(JobIdSchema),
+	validateBody(CancelJobSchema),
+	cancelJob,
+);

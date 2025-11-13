@@ -2,15 +2,15 @@ import "./wallet.openapi";
 
 import { requireAuth } from "@/middleware";
 import {
-  validateBody,
-  validateQuery,
+	validateBody,
+	validateQuery,
 } from "@/middleware/validation.middleware";
 import express, { type Router } from "express";
 import { deposit, getTransactions, getWallet } from "./services";
 import {
-  DepositSchema,
-  TransactionQuerySchema,
-  WithdrawSchema,
+	DepositSchema,
+	TransactionQuerySchema,
+	WithdrawSchema,
 } from "./wallet.validation";
 
 export const wallet: Router = express.Router();
@@ -23,10 +23,10 @@ wallet.post("/deposit", requireAuth, validateBody(DepositSchema), deposit);
 
 // Get transaction history
 wallet.get(
-  "/transactions",
-  requireAuth,
-  validateQuery(TransactionQuerySchema),
-  getTransactions
+	"/transactions",
+	requireAuth,
+	validateQuery(TransactionQuerySchema),
+	getTransactions,
 );
 
 // TODO: Withdraw money (contractors only)
