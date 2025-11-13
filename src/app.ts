@@ -92,6 +92,7 @@ import { certifications } from "./api/users/certifications/certifications.route"
 import { experience } from "./api/users/experience/experience.route";
 import { profile } from "./api/users/profile/profile.route";
 import { workSamples } from "./api/users/work_samples/work_samples.route";
+import { wallet } from "./api/wallet/wallet.route";
 
 // Profile routes (main user endpoints)
 app.use("/api/user", profile);
@@ -100,6 +101,8 @@ app.use("/api/user", profile);
 app.use("/api/user/certifications", certifications);
 app.use("/api/user/experience", experience);
 app.use("/api/user/work-samples", workSamples);
+
+app.use("/api/wallet", wallet);
 
 // Error handling
 app.use(notFoundHandler);
