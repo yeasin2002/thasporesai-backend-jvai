@@ -1,14 +1,15 @@
 import { openAPITags } from "@/common/constants";
 import { registry } from "@/lib/openapi";
+import { z } from "zod";
 import {
-	CreateJobSchema,
-	ErrorResponseSchema,
-	JobIdSchema,
-	JobResponseSchema,
-	JobsResponseSchema,
-	SearchJobSchema,
-	SuccessResponseSchema,
-	UpdateJobSchema,
+  CreateJobSchema,
+  ErrorResponseSchema,
+  JobIdSchema,
+  JobResponseSchema,
+  JobsResponseSchema,
+  SearchJobSchema,
+  SuccessResponseSchema,
+  UpdateJobSchema,
 } from "./job.validation";
 
 // Register schemas
@@ -300,6 +301,258 @@ registry.registerPath({
 		},
 		403: {
 			description: "Forbidden - Owner or Admin only",
+			content: {
+				"application/json": {
+					schema: ErrorResponseSchema,
+				},
+			},
+		},
+		404: {
+			description: "Job not found",
+			content: {
+				"application/json": {
+					schema: ErrorResponseSchema,
+				},
+			},
+		},
+		500: {
+			description: "Internal server error",
+			content: {
+				"application/json": {
+					schema: ErrorResponseSchema,
+				},
+			},
+		},
+	},
+});
+
+// ============================================
+// PAYMENT SYSTEM ENDPOINTS (Phase 5)
+// ============================================
+
+import { CancelJobSchema, UpdateJobStatusSchema } from "./job.validation";
+
+// Register payment schemas
+registry.register("UpdateJobStatus", UpdateJobStatusSchema);
+registry.register("CancelJob", CancelJobSchema);
+
+// Response schemas for payment endpoints
+const CompleteJobResponseSchema = z.object({
+	status: z.number(),
+	message: z.string(),
+	data: z.object({
+		job: z.object({
+			_id: z.string(),
+			status: z.string(),
+			completedAt: z.string(),
+		}),
+		payment: z.object({
+			serviceFee: z.number(),
+			contractorPayout: z.number(),
+			adminCommission: z.number(),
+		}),
+	}),
+});
+
+const CancelJobResponseSchema = z.object({
+	status: z.number(),
+	message: z.string(),
+	data: z.object({
+		job: z.object({
+			_id: z.string(),
+			status: z.string(),
+			cancelledAt: z.string(),
+			cancellationReason: z.string(),
+		}),
+		refundAmount: z.number(),
+	}),
+});
+
+registry.register("CompleteJobResponse", CompleteJobResponseSchema);
+registry.register("CancelJobResponse", CancelJobResponseSchema);
+
+// POST /api/job/:id/complete - Mark job complete (Customer only)
+registry.registerPath({
+	method: "post",
+	path: `${openAPITags.job.basepath}/{id}/complete`,
+	description:
+		"Customer marks job as complete. Service fee (20%) is transferred to admin. Contractor payout (80%) is transferred to contractor. Escrow is released. Job status changes to 'completed'.",
+	summary: "Complete job and release payment",
+	tags: [openAPITags.job.name],
+	security: [{ bearerAuth: [] }],
+	request: {
+		params: JobIdSchema,
+	},
+	responses: {
+		200: {
+			description:
+				"Job completed successfully. Payment released to contractor.",
+			content: {
+				"application/json": {
+					schema: CompleteJobResponseSchema,
+				},
+			},
+		},
+		400: {
+			description: "Bad request - Job not in progress or offer not found",
+			content: {
+				"application/json": {
+					schema: ErrorResponseSchema,
+				},
+			},
+		},
+		401: {
+			description: "Unauthorized",
+			content: {
+				"application/json": {
+					schema: ErrorResponseSchema,
+				},
+			},
+		},
+		403: {
+			description: "Forbidden - Customer only",
+			content: {
+				"application/json": {
+					schema: ErrorResponseSchema,
+				},
+			},
+		},
+		404: {
+			description: "Job not found",
+			content: {
+				"application/json": {
+					schema: ErrorResponseSchema,
+				},
+			},
+		},
+		500: {
+			description: "Internal server error",
+			content: {
+				"application/json": {
+					schema: ErrorResponseSchema,
+				},
+			},
+		},
+	},
+});
+
+// PATCH /api/job/:id/status - Update job status
+registry.registerPath({
+	method: "patch",
+	path: `${openAPITags.job.basepath}/{id}/status`,
+	description:
+		"Update job status. Valid transitions: open→assigned/cancelled, assigned→in_progress/cancelled, in_progress→completed/cancelled. Customer or assigned contractor can update.",
+	summary: "Update job status",
+	tags: [openAPITags.job.name],
+	security: [{ bearerAuth: [] }],
+	request: {
+		params: JobIdSchema,
+		body: {
+			content: {
+				"application/json": {
+					schema: UpdateJobStatusSchema,
+				},
+			},
+		},
+	},
+	responses: {
+		200: {
+			description: "Job status updated successfully",
+			content: {
+				"application/json": {
+					schema: JobResponseSchema,
+				},
+			},
+		},
+		400: {
+			description: "Bad request - Invalid status transition",
+			content: {
+				"application/json": {
+					schema: ErrorResponseSchema,
+				},
+			},
+		},
+		401: {
+			description: "Unauthorized",
+			content: {
+				"application/json": {
+					schema: ErrorResponseSchema,
+				},
+			},
+		},
+		403: {
+			description: "Forbidden - Not authorized to update this job",
+			content: {
+				"application/json": {
+					schema: ErrorResponseSchema,
+				},
+			},
+		},
+		404: {
+			description: "Job not found",
+			content: {
+				"application/json": {
+					schema: ErrorResponseSchema,
+				},
+			},
+		},
+		500: {
+			description: "Internal server error",
+			content: {
+				"application/json": {
+					schema: ErrorResponseSchema,
+				},
+			},
+		},
+	},
+});
+
+// POST /api/job/:id/cancel - Cancel job
+registry.registerPath({
+	method: "post",
+	path: `${openAPITags.job.basepath}/{id}/cancel`,
+	description:
+		"Cancel a job with reason. If offer exists, full refund is issued to customer. Cannot cancel completed jobs. Customer or Admin only.",
+	summary: "Cancel job",
+	tags: [openAPITags.job.name],
+	security: [{ bearerAuth: [] }],
+	request: {
+		params: JobIdSchema,
+		body: {
+			content: {
+				"application/json": {
+					schema: CancelJobSchema,
+				},
+			},
+		},
+	},
+	responses: {
+		200: {
+			description: "Job cancelled successfully. Refund issued if applicable.",
+			content: {
+				"application/json": {
+					schema: CancelJobResponseSchema,
+				},
+			},
+		},
+		400: {
+			description: "Bad request - Cannot cancel completed job",
+			content: {
+				"application/json": {
+					schema: ErrorResponseSchema,
+				},
+			},
+		},
+		401: {
+			description: "Unauthorized",
+			content: {
+				"application/json": {
+					schema: ErrorResponseSchema,
+				},
+			},
+		},
+		403: {
+			description: "Forbidden - Customer or Admin only",
 			content: {
 				"application/json": {
 					schema: ErrorResponseSchema,
