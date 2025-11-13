@@ -8,17 +8,24 @@ JobSphere's payment and bidding system enables customers to hire contractors thr
 
 This directory contains comprehensive documentation for the payment and bidding system:
 
-### Core Documentation
+## Key Changes from Original Plan
 
-1. **[QUICK_REFERENCE.md](./QUICK_REFERENCE.md)** - ⚡ **START HERE** - Quick reference for key concepts
-2. **[INTEGRATION_GUIDE.md](./INTEGRATION_GUIDE.md)** - ⭐ **IMPORTANT** - How to integrate with existing codebase
-3. **[IMPLEMENTATION_CHECKLIST.md](./IMPLEMENTATION_CHECKLIST.md)** - Step-by-step implementation guide
-4. **[ARCHITECTURE.md](./ARCHITECTURE.md)** - System architecture and component overview
-5. **[FLOW.md](./FLOW.md)** - Complete workflow from job posting to payment release
-6. **[DATABASE_SCHEMA.md](./DATABASE_SCHEMA.md)** - Database models and relationships
-7. **[API_DESIGN.md](./API_DESIGN.md)** - API endpoints and specifications
-8. **[STRIPE_INTEGRATION.md](./STRIPE_INTEGRATION.md)** - Stripe payment processing details
-9. **[JOB_LIFECYCLE.md](./JOB_LIFECYCLE.md)** - Job status management and transitions
+### ✅ What Changed
+
+1. **No Separate Bidding Module** - Uses existing `job-request` module
+2. **Simplified Commission** - Buyer pays 5% extra, Seller gets 80% (Admin gets 25% total)
+3. **One Offer Per Job** - Cannot send multiple offers for same job
+4. **Wallet-Based** - Money must be in wallet before sending offer
+5. **Escrow System** - Money held in escrow until job completion
+
+### 📊 Commission Structure
+
+```
+Job Budget: $100
+├── Buyer Pays: $105 (100 + 5%)
+├── Seller Gets: $80 (100 - 20%)
+└── Admin Gets: $25 (5% + 20%)
+```
 
 ## Quick Start
 
@@ -32,19 +39,21 @@ This directory contains comprehensive documentation for the payment and bidding 
 6. **Contractor completes work** → Customer marks complete
 7. **Admin releases payment** → Fees deducted, Job Status: `completed`
 
-### Commission Structure
+### Commission Structure (Revised)
 
-- **Platform Fee**: 10% (deducted when offer accepted)
-- **Service Fee**: 20% (deducted when job completed)
-- **Total Admin Commission**: 30% of offer amount
+- **Platform Fee**: 5% (charged to buyer when offer sent)
+- **Service Fee**: 20% (deducted from seller when job completed)
+- **Total Admin Commission**: 25% of job budget
+- **Contractor Payout**: 80% of job budget
 
 ### Key Modules
 
-- **Job Module** (`/api/job`) - Job posting and management
-- **Job Request Module** (`/api/job-request`) - Application handling
-- **Chat Module** (`/api/chat`) - Customer-contractor communication
-- **Bidding Module** (`/api/bidding`) - Offer management
-- **Payment Module** (`/api/payment`) - Stripe integration and transactions
+- **Job Module** (`/api/job`) - Job posting and management ✅ Existing
+- **Job Request Module** (`/api/job-request`) - Application handling + **Offer management** ✅ Extend existing
+- **Chat Module** (`/api/chat`) - Customer-contractor communication ✅ Existing
+- **Wallet Module** (`/api/wallet`) - Balance and transactions ⚠️ **NEW** - Need to create
+- **Offer Model** (`/api/offer`) - Offer management ⚠️ **NEW** - Need to create
+- **Payment Module** - Not needed (wallet-based system with stripe)
 
 ## Implementation Checklist
 
@@ -114,26 +123,27 @@ PAYMENT_HOLD_DAYS=7
 
 ## Getting Started
 
-### For Quick Understanding
+### ⚡ Quick Start (5 minutes)
 
-1. **Start here**: [QUICK_REFERENCE.md](./QUICK_REFERENCE.md) - Get up to speed in 5 minutes
-2. Review [FLOW.md](./FLOW.md) for complete workflow visualization
-3. Check [ARCHITECTURE.md](./ARCHITECTURE.md) for system overview
+1. **[REVISED_FLOW.md](./REVISED_FLOW.md)** - ⭐ **START HERE** - Your actual system flow (no separate bidding module)
+2. **[IMPLEMENTATION_GUIDE.md](./IMPLEMENTATION_GUIDE.md)** - 📋 **STEP-BY-STEP** - Complete implementation guide (12 days)
+3. **[QUICK_REFERENCE.md](./QUICK_REFERENCE.md)** - 🔍 Quick reference for key concepts
 
-### For Implementation
+### 📚 Detailed Documentation
 
-1. **Essential**: [INTEGRATION_GUIDE.md](./INTEGRATION_GUIDE.md) - Shows how to integrate with your existing codebase patterns
-2. Follow [IMPLEMENTATION_CHECKLIST.md](./IMPLEMENTATION_CHECKLIST.md) for step-by-step guide
-3. Reference [DATABASE_SCHEMA.md](./DATABASE_SCHEMA.md) for model definitions
-4. Implement APIs following [API_DESIGN.md](./API_DESIGN.md)
-5. Integrate Stripe using [STRIPE_INTEGRATION.md](./STRIPE_INTEGRATION.md)
-6. Manage job states with [JOB_LIFECYCLE.md](./JOB_LIFECYCLE.md)
+1. **[ARCHITECTURE.md](./ARCHITECTURE.md)** - System architecture overview
+2. **[FLOW.md](./FLOW.md)** - Original flow (with separate bidding module - for reference only)
+3. **[DATABASE_SCHEMA.md](./DATABASE_SCHEMA.md)** - Database models and relationships
+4. **[API_DESIGN.md](./API_DESIGN.md)** - API endpoints specifications
+5. **[JOB_LIFECYCLE.md](./JOB_LIFECYCLE.md)** - Job status management
+6. **[STRIPE_INTEGRATION.md](./STRIPE_INTEGRATION.md)** - Stripe payment processing (future)
+7. **[IMPLEMENTATION_CHECKLIST.md](./IMPLEMENTATION_CHECKLIST.md)** - Original checklist (for reference)
 
-### AI Assistant Integration
+### 🤖 AI Assistant Integration
 
-- **Kiro Steering Doc**: `.kiro/steering/payment-bidding-system.md` - Complete guidance for AI assistant
-- **Existing Patterns**: Check `src/api/job/`, `src/api/auth/` for established code patterns
-- **Module Generator**: `bun run generate:module --module <name>` for scaffolding new modules
+- **Kiro Steering Doc**: `.kiro/steering/payment-bidding-system.md` - AI assistant guidance
+- **Existing Patterns**: Check `src/api/job/`, `src/api/job-request/`, `src/api/chat/` for code patterns
+- **Module Generator**: `bun run generate:module --module <name>` for scaffolding
 
 ## Support
 

@@ -8,11 +8,13 @@ JobSphere's payment and bidding system is the **most critical feature** of the p
 
 ### Core Components
 
-1. **Bidding Module** (`/api/bidding`) - Offer management
-2. **Payment Module** (`/api/payment`) - Payment processing
-3. **Wallet Module** (`/api/wallet`) - Balance and withdrawal management
-4. **Stripe Integration** - Payment gateway
-5. **Job Lifecycle** - Status management
+1. **Job-Request Module** (`/api/job-request`) - Applications + Offer management (extend existing)
+2. **Wallet Module** (`/api/wallet`) - Balance and transaction management (NEW)
+3. **Job Module** (`/api/job`) - Job lifecycle and completion (extend existing)
+4. **Transaction System** - Audit trail for all money movements
+5. **Escrow System** - Hold money until job completion
+
+**Note**: No separate bidding module needed - job-request handles everything!
 
 ### Commission Structure
 
@@ -264,21 +266,15 @@ Customer marks job complete:
 
 ## API Endpoints
 
-### Bidding Module (`/api/bidding`)
+### Job-Request Module (Extend Existing `/api/job-request`)
 
-- `POST /offer` - Create and send offer (Customer only)
-- `GET /offers/sent` - Get sent offers (Customer only)
-- `GET /offers/received` - Get received offers (Contractor only)
+**New Endpoints**:
+- `POST /:applicationId/send-offer` - Customer sends offer
+- `POST /offer/:offerId/accept` - Contractor accepts offer
+- `POST /offer/:offerId/reject` - Contractor rejects offer
+- `GET /offers/sent` - Customer views sent offers
+- `GET /offers/received` - Contractor views received offers
 - `GET /offer/:offerId` - Get offer details
-- `POST /offer/:offerId/accept` - Accept offer (Contractor only)
-- `POST /offer/:offerId/reject` - Reject offer (Contractor only)
-- `DELETE /offer/:offerId` - Cancel offer (Customer only)
-
-### Payment Module (`/api/payment`)
-
-- `GET /history` - Get payment history
-- `GET /:paymentId` - Get payment details
-- `POST /:paymentId/refund` - Request refund (Customer only)
 
 ### Wallet Module (`/api/wallet`)
 
@@ -287,14 +283,19 @@ Customer marks job complete:
 - `POST /connect-stripe` - Connect Stripe account (Contractor only)
 - `POST /withdraw` - Request withdrawal (Contractor only)
 
-### Job Module Updates
+### Job Module (Extend Existing `/api/job`)
 
-- `POST /job/:jobId/complete` - Mark job complete (Customer only)
-- `POST /job/:jobId/cancel` - Cancel job (Customer or Admin)
+**New Endpoints**:
+- `POST /:jobId/complete` - Mark job complete (Customer only)
+- `POST /:jobId/cancel` - Cancel job (Customer or Admin)
+- `PATCH /:jobId/status` - Update job status (Customer or Contractor)
 
-### Webhook
+### Wallet Module (NEW `/api/wallet`)
 
-- `POST /webhooks/stripe` - Handle Stripe webhook events
+- `GET /` - Get wallet balance
+- `POST /deposit` - Add money to wallet
+- `POST /withdraw` - Withdraw money (Contractors only)
+- `GET /transactions` - Get transaction history
 
 ## Stripe Integration
 
@@ -688,29 +689,35 @@ Install with: `bun add stripe decimal.js`
 
 ## Implementation Priority
 
-1. **Phase 1**: Database models (Offer, Payment, Transaction, Wallet)
-2. **Phase 2**: Stripe setup and integration
-3. **Phase 3**: Bidding module (offer creation, acceptance, rejection)
-4. **Phase 4**: Payment module (history, details, refunds)
-5. **Phase 5**: Wallet module (balance, transactions, withdrawals)
-6. **Phase 6**: Job lifecycle updates (complete, cancel)
-7. **Phase 7**: Webhook handling
-8. **Phase 8**: Admin endpoints
-9. **Phase 9**: Testing
+1. **Phase 1**: Database models (Offer, Wallet, Transaction) - Update Job & JobApplicationRequest
+2. **Phase 2**: Payment configuration constants
+3. **Phase 3**: Wallet module (deposit, balance, transactions)
+4. **Phase 4**: Extend job-request module (send offer, accept, reject)
+5. **Phase 5**: Extend job module (complete, cancel, status updates)
+6. **Phase 6**: Edge cases (expiration, cancellation, refunds)
+7. **Phase 7**: Admin endpoints (earnings, monitoring)
+8. **Phase 8**: Testing (manual + automated)
+9. **Phase 9**: Documentation
 10. **Phase 10**: Deployment
+
+**Total Time**: ~12 days
+
+**See**: `doc/payment/IMPLEMENTATION_GUIDE.md` for detailed step-by-step instructions
 
 ## Best Practices
 
 1. **Always validate** offer status before processing
-2. **Use Stripe test mode** for all development
-3. **Log all transactions** for audit trail
-4. **Send notifications** at every step
-5. **Handle errors gracefully** with user-friendly messages
-6. **Test edge cases** thoroughly
-7. **Monitor Stripe dashboard** for issues
-8. **Keep commission rates** configurable
+2. **Check wallet balance** before deducting
+3. **Use escrow** for holding money safely
+4. **Log all transactions** for audit trail
+5. **Send notifications** at every step
+6. **Handle errors gracefully** with user-friendly messages
+7. **Test edge cases** thoroughly (expiration, cancellation, etc.)
+8. **Keep commission rates** configurable in constants
 9. **Document all flows** clearly
 10. **Review code** before deployment
+11. **One offer per job** - enforce this rule strictly
+12. **Atomic operations** - use database transactions for money movements
 
 ## Summary
 
