@@ -926,12 +926,18 @@ DATABASE_URL=<mongodb_connection_string>
 JWT_SECRET=<secret_key>
 ```
 
-**Optional Variables**
+**Optional Variables (Stripe Integration)**
 ```
 STRIPE_SECRET_KEY=<stripe_key>
+STRIPE_PUBLISHABLE_KEY=<stripe_publishable_key>
 STRIPE_WEBHOOK_SECRET=<webhook_secret>
+STRIPE_CONNECT_CLIENT_ID=<connect_client_id>
 FCM_SERVER_KEY=<firebase_key>
 ```
+
+**Note**: For complete Stripe setup instructions, see:
+- `doc/payment/STRIPE_WEBHOOK_GUIDE.md` - Webhook implementation
+- `doc/payment/STRIPE_DASHBOARD_SETUP.md` - Dashboard configuration
 
 ### Database Setup
 
@@ -991,6 +997,8 @@ FCM_SERVER_KEY=<firebase_key>
 - `doc/payment/API_DESIGN.md`: API architecture
 - `doc/payment/DATABASE_SCHEMA.md`: Database design
 - `doc/payment/REVISED_FLOW.md`: Flow diagrams
+- `doc/payment/STRIPE_WEBHOOK_GUIDE.md`: Webhook implementation
+- `doc/payment/STRIPE_DASHBOARD_SETUP.md`: Stripe dashboard setup
 
 **Frontend Resources**
 - `doc/payment/IMPLEMENTATION/FRONTEND_API_DOCUMENTATION.md`: Complete API reference
