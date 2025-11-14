@@ -1,0 +1,1102 @@
+# JobSphere Payment System - Complete Documentation
+
+**Version**: 1.0.0  
+**Last Updated**: November 13, 2025  
+**Status**: ✅ Production Ready
+
+---
+
+## Table of Contents
+
+1. [Overview](#overview)
+2. [System Architecture](#system-architecture)
+3. [Core Features](#core-features)
+4. [Commission Structure](#commission-structure)
+5. [Payment Flow](#payment-flow)
+6. [API Endpoints](#api-endpoints)
+7. [Integration Guide](#integration-guide)
+8. [Data Models](#data-models)
+9. [User Roles & Permissions](#user-roles--permissions)
+10. [Error Handling](#error-handling)
+11. [Security Features](#security-features)
+12. [Testing Guide](#testing-guide)
+13. [Deployment](#deployment)
+14. [Support & Resources](#support--resources)
+
+---
+
+## Overview
+
+The JobSphere Payment System is a comprehensive escrow-based payment platform designed for service marketplaces. It facilitates secure transactions between customers and contractors with automated commission handling, real-time notifications, and complete transaction tracking.
+
+### Key Highlights
+
+- **Escrow-Based Security**: All payments are held in escrow until job completion
+- **Automated Commissions**: Platform fees and service fees are automatically calculated and distributed
+- **One Offer Per Job**: Simplified workflow with single offer acceptance
+- **Automatic Refunds**: Failed transactions and cancellations trigger instant refunds
+- **Real-Time Updates**: WebSocket integration for instant notifications
+- **Transaction History**: Complete audit trail of all financial activities
+- **Withdrawal Support**: Contractors can withdraw earnings with configurable limits
+
+---
+
+## System Architecture
+
+### Core Components
+
+The payment system consists of several interconnected modules:
+
+**Wallet Management**
+- Handles user balances (available and escrow)
+- Processes deposits and withdrawals
+- Tracks lifetime earnings and spending
+- Supports wallet freeze functionality
+
+**Offer System**
+- Manages job offers between customers and contractors
+- Enforces one-offer-per-job rule
+- Handles offer acceptance and rejection
+- Implements automatic expiration (7 days)
+
+**Transaction Engine**
+- Records all financial movements
+- Supports multiple transaction types
+- Maintains complete audit trail
+- Handles failed transaction recovery
+
+**Job Payment Integration**
+- Links jobs with payment processing
+- Manages job status transitions
+- Triggers payment releases
+- Handles cancellations and refunds
+
+**Admin Service**
+- Auto-creates admin user and wallet
+- Manages commission collection
+- Provides system-wide payment oversight
+- Supports environment configuration
+
+**Automated Jobs**
+- Offer expiration cron job (runs hourly)
+- Automatic refund processing
+- Notification dispatch
+- Application status reset
+
+---
+
+## Core Features
+
+### 1. Wallet System
+
+Each user has a dedicated wallet with two balance types:
+
+**Available Balance**
+- Money available for sending offers or withdrawal
+- Updated on deposits, refunds, and payments received
+- Protected from unauthorized access
+
+**Escrow Balance**
+- Money held for pending offers
+- Released on job completion or offer rejection
+- Separate from available funds for transparency
+
+**Transaction History**
+- Complete record of all wallet activities
+- Filterable by transaction type
+- Paginated for performance
+- Includes sender and receiver details
+
+**Deposit Functionality**
+- Minimum deposit: $10
+- Integrated with payment gateways
+- Instant balance updates
+- Transaction logging
+
+**Withdrawal System** (Contractors Only)
+- Minimum withdrawal: $10
+- Maximum withdrawal: $10,000
+- Estimated arrival: 2-3 business days
+- Requires sufficient available balance
+- Blocked if wallet is frozen
+
+### 2. Offer Management
+
+**Sending Offers** (Customer Only)
+- Specify job amount, timeline, and description
+- Automatic commission calculation
+- Instant escrow hold
+- One offer per job enforcement
+- Balance validation before processing
+
+**Accepting Offers** (Contractor Only)
+- Reviews offer details and earnings breakdown
+- Accepts to start job
+- Triggers platform fee transfer to admin
+- Updates job status to "assigned"
+- Rejects other pending applications
+
+**Rejecting Offers** (Contractor Only)
+- Provides rejection reason
+- Triggers full refund to customer
+- Resets application status
+- Allows customer to send new offer
+- Sends notification to customer
+
+**Automatic Expiration**
+- Offers expire after 7 days
+- Automated hourly check
+- Full refund on expiration
+- Application status reset
+- Notification to customer
+
+### 3. Job Payment Processing
+
+**Job Status Flow**
+- **Open**: Accepting applications
+- **Assigned**: Offer accepted, contractor assigned
+- **In Progress**: Work actively being performed
+- **Completed**: Work finished, payment released
+- **Cancelled**: Job cancelled, refunds processed
+
+**Payment Release** (On Completion)
+- Service fee transferred to admin
+- Contractor payout transferred to contractor
+- Escrow released
+- Transaction records created
+- Notifications sent to all parties
+
+**Job Cancellation**
+- Available before completion
+- Full refund to customer if offer exists
+- Escrow released immediately
+- Cancellation reason recorded
+- Notifications to affected parties
+
+### 4. Commission System
+
+**Platform Fee (5%)**
+- Charged when customer sends offer
+- Transferred to admin when offer accepted
+- Non-refundable after acceptance
+- Covers platform operating costs
+
+**Service Fee (20%)**
+- Deducted from job amount
+- Transferred to admin on job completion
+- Applied to contractor payout calculation
+- Covers transaction processing and support
+
+**Total Admin Commission (25%)**
+- Combined platform fee and service fee
+- Distributed at different transaction stages
+- Transparent calculation and display
+- Auditable through transaction history
+
+### 5. Notification System
+
+**Real-Time Notifications** (WebSocket/Socket.IO)
+- Offer received
+- Offer accepted/rejected
+- Payment released
+- Offer expired
+- Withdrawal processed
+
+**Push Notifications** (FCM)
+- Mobile app integration
+- Critical payment events
+- Configurable per user
+- Device token management
+
+---
+
+## Commission Structure
+
+### Calculation Breakdown
+
+For a $100 job:
+
+| Component | Amount | Recipient | Timing |
+|-----------|--------|-----------|--------|
+| Job Budget | $100.00 | N/A | Initial |
+| Platform Fee (5%) | $5.00 | Admin | Offer Acceptance |
+| Total Charge | **$105.00** | Customer Pays | Offer Sent |
+| Service Fee (20%) | $20.00 | Admin | Job Completion |
+| Contractor Payout (80%) | **$80.00** | Contractor | Job Completion |
+| Admin Total (25%) | $25.00 | Admin | Combined |
+
+### Customer Perspective
+
+- Posts job with $100 budget
+- Pays $105 total (includes 5% platform fee)
+- $105 held in escrow when offer sent
+- $0 refunded if job completed
+- $105 refunded if offer rejected or cancelled
+
+### Contractor Perspective
+
+- Sees $100 job offer
+- Knows they'll receive $80 (after 20% service fee)
+- Receives $80 on job completion
+- Can withdraw earnings anytime
+- Minimum withdrawal $10
+
+### Admin Revenue
+
+- Receives $5 when offer accepted (5% platform fee)
+- Receives $20 when job completed (20% service fee)
+- Total commission: $25 per $100 job (25%)
+- Auto-transferred to admin wallet
+- Tracked in transaction history
+
+---
+
+## Payment Flow
+
+### Complete Transaction Journey
+
+**Step 1: Customer Preparation**
+- Customer registers and logs in
+- Deposits money into wallet (e.g., $200)
+- Posts job with budget (e.g., $100)
+- Waits for contractor applications
+
+**Step 2: Contractor Application**
+- Contractor finds job
+- Submits application with message
+- Application visible to customer
+- Status: "pending"
+
+**Step 3: Offer Creation**
+- Customer reviews applications
+- Selects preferred contractor
+- Sends offer with amount, timeline, description
+- System calculates commissions:
+  - Job budget: $100
+  - Platform fee: $5
+  - Total charge: $105
+  - Service fee: $20
+  - Contractor payout: $80
+- Customer wallet: $200 - $105 = $95 available
+- Escrow balance: $105
+- Offer status: "pending"
+
+**Step 4: Offer Response**
+
+**Option A: Acceptance**
+- Contractor reviews offer
+- Accepts offer
+- Platform fee ($5) transferred to admin
+- Job status changes to "assigned"
+- Contractor assigned to job
+- Other applications rejected automatically
+- Remaining $100 stays in escrow
+- Notifications sent
+
+**Option B: Rejection**
+- Contractor reviews offer
+- Provides rejection reason
+- Full $105 refunded to customer wallet
+- Customer wallet: $200 available
+- Application status: "pending"
+- Customer can send new offer
+- Notification sent to customer
+
+**Step 5: Work Execution**
+- Contractor updates status to "in_progress"
+- Performs work according to timeline
+- Communicates with customer
+- Prepares for completion
+
+**Step 6: Job Completion**
+- Customer marks job as complete
+- Service fee ($20) transferred to admin
+- Contractor payout ($80) transferred to contractor
+- Escrow released
+- Job status: "completed"
+- Offer status: "completed"
+- Transaction records created
+- Notifications sent
+
+**Step 7: Withdrawal (Optional)**
+- Contractor has $80 available
+- Requests withdrawal (e.g., $50)
+- System validates balance
+- Processes withdrawal
+- Estimated arrival: 2-3 business days
+- Transaction recorded
+
+### Alternative Flows
+
+**Job Cancellation**
+- Customer or admin cancels job
+- Cancellation reason recorded
+- If offer exists: Full refund to customer
+- Escrow released
+- Job status: "cancelled"
+- Notification to contractor
+
+**Offer Expiration**
+- Offer reaches 7-day limit
+- Automated job identifies expired offer
+- Full refund to customer
+- Application status reset
+- Notification sent
+- Customer can send new offer
+
+---
+
+## API Endpoints
+
+### Authentication
+
+All endpoints except public routes require JWT authentication via Bearer token:
+
+```
+Authorization: Bearer <access_token>
+Content-Type: application/json
+```
+
+### Wallet Endpoints
+
+#### Get Wallet Balance
+```
+GET /api/wallet
+```
+**Authentication**: Required  
+**Returns**: User's wallet with available and escrow balances
+
+#### Deposit Money
+```
+POST /api/wallet/deposit
+```
+**Authentication**: Required  
+**Body**: `amount` (number), `paymentMethodId` (string)  
+**Validation**: Minimum $10  
+**Returns**: Updated wallet and transaction details
+
+#### Withdraw Money
+```
+POST /api/wallet/withdraw
+```
+**Authentication**: Required (Contractors only)  
+**Body**: `amount` (number)  
+**Validation**: Min $10, Max $10,000, sufficient balance  
+**Returns**: Withdrawal confirmation and new balance
+
+#### Get Transaction History
+```
+GET /api/wallet/transactions
+```
+**Authentication**: Required  
+**Query Parameters**: `page`, `limit`, `type` (optional)  
+**Returns**: Paginated list of transactions
+
+### Offer Endpoints
+
+#### Send Offer
+```
+POST /api/job-request/:applicationId/send-offer
+```
+**Authentication**: Required (Customer only)  
+**Body**: `amount` (number), `timeline` (string), `description` (string)  
+**Validation**: 
+- Amount: $10-$10,000
+- Timeline: 1-100 characters
+- Description: 10-1000 characters  
+**Returns**: Offer details, wallet balance, commission breakdown
+
+#### Accept Offer
+```
+POST /api/job-request/offer/:offerId/accept
+```
+**Authentication**: Required (Contractor only)  
+**Returns**: Updated offer, job status, payment breakdown
+
+#### Reject Offer
+```
+POST /api/job-request/offer/:offerId/reject
+```
+**Authentication**: Required (Contractor only)  
+**Body**: `reason` (string, optional)  
+**Returns**: Updated offer status, refund amount
+
+### Job Endpoints
+
+#### Update Job Status
+```
+PATCH /api/job/:id/status
+```
+**Authentication**: Required  
+**Body**: `status` (string)  
+**Valid Transitions**:
+- open → assigned, cancelled
+- assigned → in_progress, cancelled
+- in_progress → completed, cancelled  
+**Returns**: Updated job details
+
+#### Complete Job
+```
+POST /api/job/:id/complete
+```
+**Authentication**: Required (Customer only)  
+**Prerequisites**: Job must be "in_progress"  
+**Returns**: Completed job details, payment breakdown
+
+#### Cancel Job
+```
+POST /api/job/:id/cancel
+```
+**Authentication**: Required (Customer or Admin)  
+**Body**: `reason` (string, optional)  
+**Returns**: Cancelled job details, refund amount
+
+---
+
+## Integration Guide
+
+### Frontend Integration (React/Next.js)
+
+**Service Setup**
+- Create service classes for wallet, offers, and jobs
+- Implement centralized API client with interceptors
+- Handle authentication tokens securely
+- Add error handling middleware
+
+**Wallet Integration**
+- Display available and escrow balances prominently
+- Show deposit and withdrawal options
+- Implement transaction history view with filtering
+- Add balance refresh on navigation
+
+**Offer Flow UI**
+- Create offer dialog with commission breakdown
+- Show real-time balance validation
+- Display contractor earnings calculation
+- Add confirmation steps
+
+**Job Management**
+- Implement status badges with color coding
+- Add complete/cancel buttons based on role
+- Show payment status in job details
+- Handle status transitions with confirmation
+
+**Error Handling**
+- Display user-friendly error messages
+- Handle insufficient balance gracefully
+- Show loading states during transactions
+- Implement retry mechanisms
+
+**Real-Time Updates**
+- Integrate Socket.IO client
+- Listen for payment events
+- Update UI on notifications
+- Show toast/snackbar for events
+
+### Mobile Integration (Flutter)
+
+**Service Layer**
+- Create Dart service classes
+- Use http package for API calls
+- Implement secure token storage (flutter_secure_storage)
+- Add error handling and retries
+
+**Wallet Features**
+- Design wallet widget with balance display
+- Implement deposit flow with payment gateway
+- Add withdrawal screens with validation
+- Show transaction history with pagination
+
+**Offer Management**
+- Create offer cards with expandable details
+- Implement accept/reject dialogs
+- Show commission breakdown clearly
+- Add confirmation flows
+
+**Push Notifications**
+- Integrate Firebase Cloud Messaging (FCM)
+- Register device token with backend
+- Handle notification payloads
+- Navigate to relevant screens on tap
+
+**Offline Support**
+- Cache wallet balance locally
+- Queue transactions when offline
+- Sync on reconnection
+- Show sync status to user
+
+**UI Components**
+- Design custom wallet widget
+- Create offer status badges
+- Build transaction list items
+- Implement pull-to-refresh
+
+---
+
+## Data Models
+
+### Wallet Model
+
+Represents user's financial account:
+
+**Fields**:
+- `_id`: Unique identifier
+- `user`: Reference to user document
+- `balance`: Available funds
+- `escrowBalance`: Funds held in escrow
+- `currency`: Currency code (default: "USD")
+- `isActive`: Account active status
+- `isFrozen`: Account frozen status (prevents transactions)
+- `totalEarnings`: Lifetime earnings
+- `totalSpent`: Lifetime spending
+- `totalWithdrawals`: Lifetime withdrawals
+- `createdAt`: Account creation timestamp
+- `updatedAt`: Last update timestamp
+
+### Offer Model
+
+Represents job offer between customer and contractor:
+
+**Fields**:
+- `_id`: Unique identifier
+- `job`: Reference to job document
+- `customer`: Reference to customer user
+- `contractor`: Reference to contractor user
+- `application`: Reference to application document
+- `amount`: Job budget amount
+- `platformFee`: 5% platform fee
+- `serviceFee`: 20% service fee
+- `contractorPayout`: 80% contractor payment
+- `totalCharge`: Total amount charged to customer
+- `timeline`: Expected completion timeline
+- `description`: Work description
+- `status`: Current status (pending, accepted, rejected, cancelled, completed, expired)
+- `acceptedAt`: Acceptance timestamp
+- `rejectedAt`: Rejection timestamp
+- `cancelledAt`: Cancellation timestamp
+- `completedAt`: Completion timestamp
+- `expiresAt`: Expiration timestamp (7 days from creation)
+- `rejectionReason`: Reason for rejection
+- `cancellationReason`: Reason for cancellation
+- `createdAt`: Creation timestamp
+- `updatedAt`: Last update timestamp
+
+### Transaction Model
+
+Records all financial movements:
+
+**Fields**:
+- `_id`: Unique identifier
+- `type`: Transaction type
+  - `deposit`: Money added to wallet
+  - `withdrawal`: Money withdrawn
+  - `escrow_hold`: Money moved to escrow
+  - `escrow_release`: Money released from escrow
+  - `platform_fee`: Platform fee payment
+  - `service_fee`: Service fee payment
+  - `contractor_payout`: Payment to contractor
+  - `refund`: Refund to customer
+- `amount`: Transaction amount
+- `from`: Sender user (populated)
+- `to`: Receiver user (populated)
+- `offer`: Reference to related offer
+- `job`: Reference to related job
+- `status`: Transaction status (pending, completed, failed)
+- `description`: Transaction description
+- `failureReason`: Reason for failure
+- `completedAt`: Completion timestamp
+- `createdAt`: Creation timestamp
+- `updatedAt`: Last update timestamp
+
+### Job Model
+
+Extended with payment fields:
+
+**Payment-Related Fields**:
+- `contractorId`: Assigned contractor reference
+- `offerId`: Accepted offer reference
+- `status`: Job status (open, assigned, in_progress, completed, cancelled)
+- `assignedAt`: Assignment timestamp
+- `completedAt`: Completion timestamp
+- `cancelledAt`: Cancellation timestamp
+- `cancellationReason`: Reason for cancellation
+
+---
+
+## User Roles & Permissions
+
+### Customer
+
+**Allowed Actions**:
+- Deposit money into wallet
+- Send offers to contractors
+- Mark jobs as complete
+- Cancel jobs before completion
+- View transaction history
+- View wallet balance
+
+**Restrictions**:
+- Cannot withdraw money
+- Cannot accept their own offers
+- Cannot update job status to "in_progress"
+
+### Contractor
+
+**Allowed Actions**:
+- Accept or reject offers
+- Update job status to "in_progress"
+- Withdraw earnings from wallet
+- View transaction history
+- View wallet balance
+
+**Restrictions**:
+- Cannot send offers
+- Cannot mark jobs as complete
+- Cannot cancel jobs (only customer/admin can)
+
+### Admin
+
+**Allowed Actions**:
+- Receive platform fees and service fees
+- Cancel jobs on behalf of users
+- View all transactions
+- Freeze wallets if needed
+- Override system restrictions
+
+**Automatic Functions**:
+- Admin user auto-created on first run
+- Admin wallet auto-created
+- Commission transfers automatic
+- No manual intervention required
+
+---
+
+## Error Handling
+
+### Common Error Codes
+
+| Code | Status | Meaning |
+|------|--------|---------|
+| 400 | Bad Request | Invalid input or validation failed |
+| 401 | Unauthorized | Missing or invalid authentication token |
+| 403 | Forbidden | Insufficient permissions for action |
+| 404 | Not Found | Requested resource doesn't exist |
+| 500 | Server Error | Internal server error occurred |
+
+### Error Response Format
+
+All errors follow consistent structure:
+```json
+{
+  "status": 400,
+  "message": "Human-readable error description",
+  "data": null,
+  "errors": [
+    {
+      "field": "amount",
+      "message": "Amount must be at least $10"
+    }
+  ]
+}
+```
+
+### Wallet Errors
+
+- **Insufficient balance**: Not enough available funds
+- **Wallet not found**: User wallet doesn't exist (auto-creates)
+- **Minimum deposit**: Deposit below $10
+- **Maximum withdrawal**: Withdrawal above $10,000
+- **Wallet frozen**: Account locked by admin
+- **Contractor only**: Non-contractors attempting withdrawal
+
+### Offer Errors
+
+- **Offer already exists**: One offer per job rule violation
+- **Job not open**: Job already assigned or completed
+- **Insufficient balance**: Not enough for total charge
+- **Not authorized**: User doesn't own resource
+- **Offer expired**: Offer past 7-day expiration
+- **Invalid status**: Offer in wrong status for action
+
+### Job Errors
+
+- **Job not found**: Invalid job ID
+- **Invalid status transition**: Illegal status change
+- **Cannot cancel completed**: Completed jobs immutable
+- **No contractor assigned**: Required contractor missing
+- **Not in progress**: Job must be in progress for completion
+
+---
+
+## Security Features
+
+### Authentication & Authorization
+
+**JWT Token System**
+- Access tokens valid for 15 days (development)
+- Refresh tokens valid for 30 days
+- Tokens include user ID and role
+- Validated on every protected endpoint
+
+**Role-Based Access Control**
+- Customer-only endpoints (send offer, complete job, cancel)
+- Contractor-only endpoints (accept/reject offer, withdraw)
+- Admin endpoints (override actions, freeze wallets)
+- Automatic role verification via middleware
+
+### Input Validation
+
+**Zod Schema Validation**
+- All inputs validated before processing
+- Type checking and constraints enforced
+- Custom error messages for clarity
+- Prevents injection attacks
+
+**Amount Validation**
+- Positive numbers only
+- Minimum and maximum limits
+- Decimal precision controlled
+- Currency format validated
+
+**String Validation**
+- Length constraints enforced
+- Character set restrictions
+- SQL injection prevention
+- XSS protection
+
+### Transaction Security
+
+**Balance Verification**
+- Pre-transaction balance check
+- Atomic balance updates
+- Race condition prevention
+- Rollback on failures
+
+**Escrow Protection**
+- Funds held securely until completion
+- Cannot be accessed during hold
+- Automatic release on completion/cancellation
+- Separate from available balance
+
+**Audit Trail**
+- Every transaction recorded
+- Immutable transaction history
+- Sender and receiver tracked
+- Timestamps for all events
+
+### Wallet Security
+
+**Freeze Functionality**
+- Admin can freeze suspicious wallets
+- Prevents all transactions when frozen
+- User notified of freeze
+- Requires admin intervention to unfreeze
+
+**Withdrawal Limits**
+- Minimum: $10
+- Maximum: $10,000 per transaction
+- Prevents money laundering
+- Configurable per system needs
+
+---
+
+## Testing Guide
+
+### Manual Testing Flow
+
+**Prerequisites**
+- Create test customer account
+- Create test contractor account
+- Obtain authentication tokens
+- Set up API testing tool (Postman/Insomnia)
+
+**Test Scenario 1: Happy Path**
+
+1. Customer deposits $200
+   - Verify wallet balance updated
+   - Check transaction created
+
+2. Customer posts job
+   - Verify job created with "open" status
+
+3. Contractor applies to job
+   - Verify application created
+
+4. Customer sends $100 offer
+   - Verify wallet deducted $105
+   - Check escrow balance increased
+   - Confirm offer created with pending status
+
+5. Contractor accepts offer
+   - Verify job status "assigned"
+   - Check platform fee ($5) transferred to admin
+   - Confirm other applications rejected
+
+6. Contractor updates to "in_progress"
+   - Verify job status updated
+
+7. Customer marks complete
+   - Verify service fee ($20) to admin
+   - Check contractor receives $80
+   - Confirm job status "completed"
+
+8. Contractor withdraws $50
+   - Verify balance decreased
+   - Check transaction created
+
+**Test Scenario 2: Offer Rejection**
+
+1-4. Same as Happy Path
+
+5. Contractor rejects offer
+   - Verify full refund ($105) to customer
+   - Check application status reset
+   - Confirm notification sent
+
+6. Customer sends new offer
+   - Verify process repeats
+
+**Test Scenario 3: Job Cancellation**
+
+1-6. Same as Happy Path
+
+7. Customer cancels job
+   - Verify refund processed
+   - Check escrow released
+   - Confirm job status "cancelled"
+
+**Test Scenario 4: Insufficient Balance**
+
+1. Customer deposits $50
+
+2-3. Same as Happy Path
+
+4. Customer attempts $100 offer
+   - Verify error: "Insufficient balance"
+   - Check wallet unchanged
+   - Confirm no offer created
+
+**Test Scenario 5: Offer Expiration**
+
+1-4. Same as Happy Path
+
+5. Wait for automated job to run (or manually trigger)
+   - Verify offer status "expired"
+   - Check full refund to customer
+   - Confirm application reset
+
+### API Response Validation
+
+**Success Responses**
+- Status code 200 or 201
+- Consistent response structure
+- All required fields present
+- Correct data types
+
+**Error Responses**
+- Appropriate status codes
+- Clear error messages
+- Error details when applicable
+- Consistent format
+
+### Performance Testing
+
+**Response Times**
+- Wallet operations: < 500ms
+- Offer operations: < 1000ms
+- Transaction queries: < 2000ms
+- Job operations: < 1000ms
+
+**Concurrency**
+- Multiple simultaneous offers
+- Parallel wallet operations
+- Concurrent job updates
+- Race condition handling
+
+---
+
+## Deployment
+
+### Environment Configuration
+
+**Required Variables**
+```
+ADMIN_USER_ID=<optional_admin_id>
+DATABASE_URL=<mongodb_connection_string>
+JWT_SECRET=<secret_key>
+```
+
+**Optional Variables**
+```
+STRIPE_SECRET_KEY=<stripe_key>
+STRIPE_WEBHOOK_SECRET=<webhook_secret>
+FCM_SERVER_KEY=<firebase_key>
+```
+
+### Database Setup
+
+**Initial Setup**
+- No manual migrations required
+- Admin user auto-creates on first run
+- Admin wallet auto-creates automatically
+- Indexes created automatically
+
+**Data Persistence**
+- MongoDB for all data storage
+- Transaction logs immutable
+- Wallet balances atomic
+- Job states consistent
+
+### Service Registration
+
+**Automated Jobs**
+- Offer expiration runs hourly
+- Starts automatically on server launch
+- Logs all processed offers
+- Error handling per offer
+
+**Socket.IO Server**
+- Real-time notification support
+- Automatic reconnection
+- Room-based messaging
+- Event broadcasting
+
+### Health Checks
+
+**System Health**
+- Database connectivity
+- Admin user existence
+- Admin wallet existence
+- Automated job status
+
+**Monitoring Points**
+- Failed transactions
+- Stuck offers
+- Frozen wallets
+- Error rates
+
+---
+
+## Support & Resources
+
+### Documentation
+
+**API Documentation**
+- Swagger UI: `/swagger`
+- Scalar UI: `/scaler`
+- JSON Specification: `/api-docs.json`
+
+**Implementation Guides**
+- `doc/payment/IMPLEMENTATION_GUIDE.md`: Complete backend guide
+- `doc/payment/API_DESIGN.md`: API architecture
+- `doc/payment/DATABASE_SCHEMA.md`: Database design
+- `doc/payment/REVISED_FLOW.md`: Flow diagrams
+
+**Frontend Resources**
+- `doc/payment/IMPLEMENTATION/FRONTEND_API_DOCUMENTATION.md`: Complete API reference
+- `doc/payment/IMPLEMENTATION/QUICK_START_GUIDE.md`: Quick reference
+- `doc/payment/IMPLEMENTATION/POSTMAN_COLLECTION_GUIDE.md`: Testing guide
+
+### Technical Support
+
+**Contact Channels**
+- Backend Team: backend@jobsphere.com
+- Technical Support: support@jobsphere.com
+- Emergency Issues: emergency@jobsphere.com
+
+**Response Times**
+- Critical Issues: 1 hour
+- High Priority: 4 hours
+- Medium Priority: 24 hours
+- Low Priority: 3 business days
+
+### Development Resources
+
+**Source Code**
+- Admin Service: `src/common/service/admin.service.ts`
+- Wallet Services: `src/api/wallet/services/`
+- Offer Services: `src/api/job-request/services/`
+- Job Services: `src/api/job/services/`
+- Automated Jobs: `src/jobs/`
+
+**Configuration**
+- Payment Config: `src/config/payment-config.ts`
+- Validation Schemas: `src/api/*/validation.ts`
+- Routes: `src/api/*/routes.ts`
+
+---
+
+## Changelog
+
+### Version 1.0.0 (November 13, 2025)
+
+**Initial Release**
+- ✅ Wallet management system
+- ✅ Offer creation and management
+- ✅ Job payment processing
+- ✅ Withdrawal functionality
+- ✅ Automated offer expiration
+- ✅ Transaction history
+- ✅ Real-time notifications
+- ✅ Admin service integration
+- ✅ Complete API documentation
+- ✅ Production-ready deployment
+
+**System Status**
+- Build: ✅ Passing
+- Tests: ✅ Verified
+- Documentation: ✅ Complete
+- Security: ✅ Implemented
+- Performance: ✅ Optimized
+
+---
+
+## Quick Reference
+
+### Commission Calculation
+```
+Customer Pays = Job Budget × 1.05
+Platform Fee = Job Budget × 0.05 (on acceptance)
+Service Fee = Job Budget × 0.20 (on completion)
+Contractor Gets = Job Budget × 0.80 (on completion)
+Admin Total = Job Budget × 0.25 (combined)
+```
+
+### Status Flow
+```
+Job: open → assigned → in_progress → completed
+Offer: pending → accepted → completed
+Application: pending → accepted/rejected
+```
+
+### Key Limits
+```
+Minimum Deposit: $10
+Minimum Withdrawal: $10
+Maximum Withdrawal: $10,000
+Offer Expiration: 7 days
+Token Validity: 15 days (access), 30 days (refresh)
+```
+
+---
+
+## Production Readiness Checklist
+
+- ✅ All core features implemented
+- ✅ Authentication and authorization
+- ✅ Input validation and sanitization
+- ✅ Error handling and logging
+- ✅ Transaction security
+- ✅ Automated processes
+- ✅ API documentation
+- ✅ Testing completed
+- ✅ Deployment guidelines
+- ✅ Support channels established
+
+---
+
+**System Status**: ✅ Production Ready  
+**Documentation Version**: 1.0.0  
+**Last Verified**: November 13, 2025
+
+For detailed technical implementation, refer to the comprehensive documentation in the `doc/payment/` directory.
