@@ -3,7 +3,7 @@ import { NotificationService } from "@/common/service/notification.service";
 import { db } from "@/db";
 import { sendBadRequest, sendInternalError, sendSuccess } from "@/helpers";
 import type { RequestHandler } from "express";
-import type { SendOffer } from "../job-request.validation";
+import type { SendOffer } from "../offer.validation";
 
 export const sendOffer: RequestHandler<
 	{ applicationId: string },
@@ -12,7 +12,7 @@ export const sendOffer: RequestHandler<
 > = async (req, res) => {
 	try {
 		const { applicationId } = req.params;
-		const customerId = req.user.id;
+		const customerId = req.user!.id;
 		const { amount, timeline, description } = req.body;
 
 		// 1. Validate application
@@ -63,7 +63,7 @@ export const sendOffer: RequestHandler<
 		if (wallet.balance < amounts.totalCharge) {
 			return sendBadRequest(
 				res,
-				`Insufficient balance. Required: $${amounts.totalCharge}, Available: $${wallet.balance}`,
+				`Insufficient balance. Required: ${amounts.totalCharge}, Available: ${wallet.balance}`,
 			);
 		}
 
@@ -99,7 +99,7 @@ export const sendOffer: RequestHandler<
 			offer: offer._id,
 			job: job._id,
 			status: "completed",
-			description: `Escrow hold for job offer: $${amounts.totalCharge}`,
+			description: `Escrow hold for job offer: ${amounts.totalCharge}`,
 			completedAt: new Date(),
 		});
 
@@ -110,12 +110,12 @@ export const sendOffer: RequestHandler<
 
 		// 11. Send notification to contractor
 		await NotificationService.sendToUser({
-			userId: application.contractor._id.toString(),
+			userId: (application.contractor as any)._id.toString(),
 			title: "New Offer Received",
-			body: `You received an offer of $${amount} for "${job.title}"`,
+			body: `You received an offer of ${amount} for "${job.title}"`,
 			type: "booking_confirmed",
 			data: {
-				offerId: offer._id.toString(),
+				offerId: (offer._id as any).toString(),
 				jobId: job._id.toString(),
 				amount: amount.toString(),
 			},

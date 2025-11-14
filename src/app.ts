@@ -14,6 +14,7 @@ import { jobRequest } from "@/api/job-request/job-request.route";
 import { job } from "@/api/job/job.route";
 import { location } from "@/api/location/location.route";
 import { notification } from "@/api/notification/notification.route";
+import { offer } from "@/api/offer/offer.route";
 import { review } from "@/api/review/review.route";
 import { testNotification } from "@/api/test-notification/test-notification.route";
 
@@ -104,6 +105,7 @@ app.use("/api/user/experience", experience);
 app.use("/api/user/work-samples", workSamples);
 
 app.use("/api/wallet", wallet);
+app.use("/api/offer", offer);
 
 // Error handling
 app.use(notFoundHandler);

@@ -4,7 +4,7 @@ import { db } from "@/db";
 import { sendBadRequest, sendInternalError, sendSuccess } from "@/helpers";
 import type { RequestHandler } from "express";
 
-export const acceptOfferService: RequestHandler = async (req, res) => {
+export const acceptOffer: RequestHandler = async (req, res) => {
 	try {
 		const { offerId } = req.params;
 		const contractorId = req.user!.id;

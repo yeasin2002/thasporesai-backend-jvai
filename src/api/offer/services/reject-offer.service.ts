@@ -2,9 +2,9 @@ import { NotificationService } from "@/common/service/notification.service";
 import { db } from "@/db";
 import { sendBadRequest, sendInternalError, sendSuccess } from "@/helpers";
 import type { RequestHandler } from "express";
-import type { RejectOffer } from "../job-request.validation";
+import type { RejectOffer } from "../offer.validation";
 
-export const rejectOfferService: RequestHandler<
+export const rejectOffer: RequestHandler<
 	{ offerId: string },
 	any,
 	RejectOffer
@@ -59,7 +59,7 @@ export const rejectOfferService: RequestHandler<
 			offer: offerId,
 			job: offer.job,
 			status: "completed",
-			description: `Refund for rejected offer: $${offer.totalCharge}`,
+			description: `Refund for rejected offer: ${offer.totalCharge}`,
 			completedAt: new Date(),
 		});
 

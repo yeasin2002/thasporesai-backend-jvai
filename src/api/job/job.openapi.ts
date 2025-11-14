@@ -2,14 +2,14 @@ import { openAPITags } from "@/common/constants";
 import { registry } from "@/lib/openapi";
 import { z } from "zod";
 import {
-  CreateJobSchema,
-  ErrorResponseSchema,
-  JobIdSchema,
-  JobResponseSchema,
-  JobsResponseSchema,
-  SearchJobSchema,
-  SuccessResponseSchema,
-  UpdateJobSchema,
+	CreateJobSchema,
+	ErrorResponseSchema,
+	JobIdSchema,
+	JobResponseSchema,
+	JobsResponseSchema,
+	SearchJobSchema,
+	SuccessResponseSchema,
+	UpdateJobSchema,
 } from "./job.validation";
 
 // Register schemas

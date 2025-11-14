@@ -11,23 +11,17 @@ import {
 	ApplicationIdParamSchema,
 	ApplyForJobSchema,
 	JobIdParamSchema,
-	OfferIdParamSchema,
-	RejectOfferSchema,
 	SearchCustomerApplicationsSchema,
 	SearchMyApplicationsSchema,
-	SendOfferSchema,
 } from "./job-request.validation";
 import {
 	acceptApplication,
-	acceptOfferService,
 	applyForJob,
 	cancelApplication,
 	getCustomerApplications,
 	getJobApplications,
 	getMyApplications,
 	rejectApplication,
-	rejectOfferService,
-	sendOffer,
 } from "./services";
 
 export const jobRequest: Router = express.Router();
@@ -96,37 +90,4 @@ jobRequest.patch(
 	requireRole("customer"),
 	validateParams(ApplicationIdParamSchema),
 	rejectApplication,
-);
-
-// ============================================
-// OFFER ROUTES (Payment System)
-// ============================================
-
-// Customer sends offer to contractor
-jobRequest.post(
-	"/:applicationId/send-offer",
-	requireAuth,
-	requireRole("customer"),
-	validateParams(ApplicationIdParamSchema),
-	validateBody(SendOfferSchema),
-	sendOffer,
-);
-
-// Contractor accepts offer
-jobRequest.post(
-	"/offer/:offerId/accept",
-	requireAuth,
-	requireRole("contractor"),
-	validateParams(OfferIdParamSchema),
-	acceptOfferService,
-);
-
-// Contractor rejects offer
-jobRequest.post(
-	"/offer/:offerId/reject",
-	requireAuth,
-	requireRole("contractor"),
-	validateParams(OfferIdParamSchema),
-	validateBody(RejectOfferSchema),
-	rejectOfferService,
 );
