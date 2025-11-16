@@ -1,11 +1,95 @@
+import "./job-invite.openapi";
 
-  import "./job-invite.openapi";
-
-  import express, { type Router } from "express";
+import { requireAuth, requireRole } from "@/middleware/auth.middleware";
+import {
+  validateBody,
+  validateParams,
+  validateQuery,
+} from "@/middleware/validation.middleware";
+import express, { type Router } from "express";
+import {
+  InviteIdParamSchema,
+  JobIdParamSchema,
+  RejectInviteSchema,
+  SearchReceivedInvitesSchema,
+  SearchSentInvitesSchema,
+  SendInviteSchema,
+} from "./job-invite.validation";
+import {
+  acceptInvite,
+  cancelInvite,
+  getInvite,
+  getReceivedInvites,
+  getSentInvites,
+  rejectInvite,
+  sendInvite,
+} from "./services";
 
 export const jobInvite: Router = express.Router();
 
-// TODO: Add your routes here
-// Example:
-// jobInvite.get("/", handler);
-// jobInvite.post("/", validateBody(schema), handler);
+// Customer routes
+// Send invite to contractor
+jobInvite.post(
+  "/send/:jobId",
+  requireAuth,
+  requireRole("customer"),
+  validateParams(JobIdParamSchema),
+  validateBody(SendInviteSchema),
+  sendInvite
+);
+
+// Get customer's sent invites
+jobInvite.get(
+  "/sent",
+  requireAuth,
+  requireRole("customer"),
+  validateQuery(SearchSentInvitesSchema),
+  getSentInvites
+);
+
+// Cancel sent invite
+jobInvite.delete(
+  "/:inviteId",
+  requireAuth,
+  requireRole("customer"),
+  validateParams(InviteIdParamSchema),
+  cancelInvite
+);
+
+// Contractor routes
+// Get contractor's received invites
+jobInvite.get(
+  "/received",
+  requireAuth,
+  requireRole("contractor"),
+  validateQuery(SearchReceivedInvitesSchema),
+  getReceivedInvites
+);
+
+// Accept invite
+jobInvite.patch(
+  "/:inviteId/accept",
+  requireAuth,
+  requireRole("contractor"),
+  validateParams(InviteIdParamSchema),
+  acceptInvite
+);
+
+// Reject invite
+jobInvite.patch(
+  "/:inviteId/reject",
+  requireAuth,
+  requireRole("contractor"),
+  validateParams(InviteIdParamSchema),
+  validateBody(RejectInviteSchema),
+  rejectInvite
+);
+
+// Shared routes (both customer and contractor)
+// Get single invite details
+jobInvite.get(
+  "/:inviteId",
+  requireAuth,
+  validateParams(InviteIdParamSchema),
+  getInvite
+);

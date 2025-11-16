@@ -1,0 +1,135 @@
+### Job Invite API Tests
+### Base URL
+@baseUrl = http://localhost:4000
+@customerToken = YOUR_CUSTOMER_TOKEN_HERE
+@contractorToken = YOUR_CONTRACTOR_TOKEN_HERE
+@jobId = YOUR_JOB_ID_HERE
+@contractorId = YOUR_CONTRACTOR_ID_HERE
+@inviteId = YOUR_INVITE_ID_HERE
+
+### ============================================
+### CUSTOMER ENDPOINTS
+### ============================================
+
+### 1. Send Invite to Contractor
+POST {{baseUrl}}/api/job-invite/send/{{jobId}}
+Content-Type: application/json
+Authorization: Bearer {{customerToken}}
+
+{
+  "contractorId": "{{contractorId}}",
+  "message": "I'd like to invite you to work on this project. Your skills match perfectly!"
+}
+
+### 2. Get Sent Invites (All)
+GET {{baseUrl}}/api/job-invite/sent
+Authorization: Bearer {{customerToken}}
+
+### 3. Get Sent Invites (Filtered by Job)
+GET {{baseUrl}}/api/job-invite/sent?jobId={{jobId}}
+Authorization: Bearer {{customerToken}}
+
+### 4. Get Sent Invites (Filtered by Status)
+GET {{baseUrl}}/api/job-invite/sent?status=pending
+Authorization: Bearer {{customerToken}}
+
+### 5. Get Sent Invites (Paginated)
+GET {{baseUrl}}/api/job-invite/sent?page=1&limit=5
+Authorization: Bearer {{customerToken}}
+
+### 6. Cancel Invite
+DELETE {{baseUrl}}/api/job-invite/{{inviteId}}
+Authorization: Bearer {{customerToken}}
+
+### ============================================
+### CONTRACTOR ENDPOINTS
+### ============================================
+
+### 7. Get Received Invites (All)
+GET {{baseUrl}}/api/job-invite/received
+Authorization: Bearer {{contractorToken}}
+
+### 8. Get Received Invites (Filtered by Status)
+GET {{baseUrl}}/api/job-invite/received?status=pending
+Authorization: Bearer {{contractorToken}}
+
+### 9. Get Received Invites (Paginated)
+GET {{baseUrl}}/api/job-invite/received?page=1&limit=5
+Authorization: Bearer {{contractorToken}}
+
+### 10. Accept Invite
+PATCH {{baseUrl}}/api/job-invite/{{inviteId}}/accept
+Authorization: Bearer {{contractorToken}}
+
+### 11. Reject Invite (Without Reason)
+PATCH {{baseUrl}}/api/job-invite/{{inviteId}}/reject
+Content-Type: application/json
+Authorization: Bearer {{contractorToken}}
+
+{}
+
+### 12. Reject Invite (With Reason)
+PATCH {{baseUrl}}/api/job-invite/{{inviteId}}/reject
+Content-Type: application/json
+Authorization: Bearer {{contractorToken}}
+
+{
+  "rejectionReason": "Not available at this time. Thank you for considering me!"
+}
+
+### ============================================
+### SHARED ENDPOINTS
+### ============================================
+
+### 13. Get Invite Details (Customer)
+GET {{baseUrl}}/api/job-invite/{{inviteId}}
+Authorization: Bearer {{customerToken}}
+
+### 14. Get Invite Details (Contractor)
+GET {{baseUrl}}/api/job-invite/{{inviteId}}
+Authorization: Bearer {{contractorToken}}
+
+### ============================================
+### ERROR CASES
+### ============================================
+
+### 15. Send Invite Without Auth (Should fail with 401)
+POST {{baseUrl}}/api/job-invite/send/{{jobId}}
+Content-Type: application/json
+
+{
+  "contractorId": "{{contractorId}}",
+  "message": "Test"
+}
+
+### 16. Send Duplicate Invite (Should fail with 400)
+POST {{baseUrl}}/api/job-invite/send/{{jobId}}
+Content-Type: application/json
+Authorization: Bearer {{customerToken}}
+
+{
+  "contractorId": "{{contractorId}}",
+  "message": "Duplicate invite test"
+}
+
+### 17. Accept Already Processed Invite (Should fail with 400)
+PATCH {{baseUrl}}/api/job-invite/{{inviteId}}/accept
+Authorization: Bearer {{contractorToken}}
+
+### 18. Cancel Already Processed Invite (Should fail with 400)
+DELETE {{baseUrl}}/api/job-invite/{{inviteId}}
+Authorization: Bearer {{customerToken}}
+
+### 19. Contractor Tries to Send Invite (Should fail with 403)
+POST {{baseUrl}}/api/job-invite/send/{{jobId}}
+Content-Type: application/json
+Authorization: Bearer {{contractorToken}}
+
+{
+  "contractorId": "{{contractorId}}",
+  "message": "Test"
+}
+
+### 20. Customer Tries to Accept Invite (Should fail with 403)
+PATCH {{baseUrl}}/api/job-invite/{{inviteId}}/accept
+Authorization: Bearer {{customerToken}}
