@@ -13,7 +13,7 @@ const notificationTypes = [
   "job_completed",
   "review_submitted",
   "general",
-];
+] as const;
 
 // Base notification schema
 export const NotificationSchema = z.object({

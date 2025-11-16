@@ -4,6 +4,7 @@ import { Conversation } from "./models/conversation.model";
 import { Experience } from "./models/experience.model";
 import { FcmToken } from "./models/fcm-token.model";
 import { JobApplicationRequest } from "./models/job-application-request.model";
+import { JobInvite } from "./models/job-invite.model";
 import { Job } from "./models/job.model";
 import { Location } from "./models/location.model";
 import { Message } from "./models/message.model";
@@ -16,21 +17,22 @@ import { Wallet } from "./models/wallet.model";
 import { WorkSample } from "./models/work-samples.model";
 
 export const db = {
-	user: User,
-	category: Category,
-	job: Job,
-	review: Review,
-	location: Location,
-	jobApplicationRequest: JobApplicationRequest,
-	notification: Notification,
-	fcmToken: FcmToken,
-	conversation: Conversation,
-	message: Message,
-	experience: Experience,
-	workSample: WorkSample,
-	certification: Certification,
-	// Payment system models
-	offer: Offer,
-	wallet: Wallet,
-	transaction: Transaction,
+  // Payment system models
+  offer: Offer,
+  wallet: Wallet,
+  transaction: Transaction,
+  user: User,
+  category: Category,
+  job: Job,
+  review: Review,
+  location: Location,
+  jobApplicationRequest: JobApplicationRequest,
+  jobInvite: JobInvite,
+  notification: Notification,
+  fcmToken: FcmToken,
+  conversation: Conversation,
+  message: Message,
+  experience: Experience,
+  workSample: WorkSample,
+  certification: Certification,
 };
