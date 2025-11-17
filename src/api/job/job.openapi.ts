@@ -2,14 +2,14 @@ import { openAPITags } from "@/common/constants";
 import { registry } from "@/lib/openapi";
 import { z } from "zod";
 import {
-	CreateJobSchema,
-	ErrorResponseSchema,
-	JobIdSchema,
-	JobResponseSchema,
-	JobsResponseSchema,
-	SearchJobSchema,
-	SuccessResponseSchema,
-	UpdateJobSchema,
+  CreateJobSchema,
+  ErrorResponseSchema,
+  JobIdSchema,
+  JobResponseSchema,
+  JobsResponseSchema,
+  SearchJobSchema,
+  SuccessResponseSchema,
+  UpdateJobSchema,
 } from "./job.validation";
 
 // Register schemas
@@ -110,6 +110,99 @@ registry.registerPath({
 			content: {
 				"application/json": {
 					schema: JobsResponseSchema,
+				},
+			},
+		},
+		401: {
+			description: "Unauthorized",
+			content: {
+				"application/json": {
+					schema: ErrorResponseSchema,
+				},
+			},
+		},
+		403: {
+			description: "Forbidden - Customer only",
+			content: {
+				"application/json": {
+					schema: ErrorResponseSchema,
+				},
+			},
+		},
+		500: {
+			description: "Internal server error",
+			content: {
+				"application/json": {
+					schema: ErrorResponseSchema,
+				},
+			},
+		},
+	},
+});
+
+// GET /api/job/engaged - Get engaged jobs (jobs with applications or offers)
+registry.registerPath({
+	method: "get",
+	path: `${openAPITags.job.basepath}/engaged`,
+	description:
+		"Get all jobs where the customer has engagement through receiving job applications or sending offers. Each job includes engagement statistics showing the number of applications and offers.",
+	summary: "Get engaged jobs",
+	tags: [openAPITags.job.name],
+	security: [{ bearerAuth: [] }],
+	request: {
+		query: SearchJobSchema,
+	},
+	responses: {
+		200: {
+			description:
+				"Engaged jobs retrieved successfully with engagement statistics",
+			content: {
+				"application/json": {
+					schema: z.object({
+						status: z.number(),
+						message: z.string(),
+						data: z.object({
+							jobs: z.array(
+								z.object({
+									_id: z.string(),
+									title: z.string(),
+									description: z.string(),
+									budget: z.number(),
+									status: z.enum([
+										"open",
+										"assigned",
+										"in_progress",
+										"completed",
+										"cancelled",
+									]),
+									category: z.any(),
+									location: z.any(),
+									customerId: z.any(),
+									contractorId: z.any().optional(),
+									createdAt: z.string(),
+									updatedAt: z.string(),
+									engagement: z.object({
+										applications: z.object({
+											total: z.number(),
+											pending: z.number(),
+											accepted: z.number(),
+										}),
+										offers: z.object({
+											total: z.number(),
+											pending: z.number(),
+											accepted: z.number(),
+										}),
+										hasApplications: z.boolean(),
+										hasOffers: z.boolean(),
+									}),
+								}),
+							),
+							total: z.number(),
+							page: z.number(),
+							limit: z.number(),
+							totalPages: z.number(),
+						}),
+					}),
 				},
 			},
 		},

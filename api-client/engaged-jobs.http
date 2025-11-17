@@ -1,0 +1,116 @@
+### Engaged Jobs API Tests
+### Base URL
+@baseUrl = http://localhost:4000
+@customerToken = YOUR_CUSTOMER_TOKEN_HERE
+
+### ============================================
+### ENGAGED JOBS ENDPOINTS
+### ============================================
+
+### 1. Get All Engaged Jobs (No Filters)
+GET {{baseUrl}}/api/job/engaged
+Authorization: Bearer {{customerToken}}
+
+### 2. Get Engaged Jobs with Pagination
+GET {{baseUrl}}/api/job/engaged?page=1&limit=5
+Authorization: Bearer {{customerToken}}
+
+### 3. Get Engaged Jobs - Filter by Status (Open)
+GET {{baseUrl}}/api/job/engaged?status=open
+Authorization: Bearer {{customerToken}}
+
+### 4. Get Engaged Jobs - Filter by Status (In Progress)
+GET {{baseUrl}}/api/job/engaged?status=in_progress
+Authorization: Bearer {{customerToken}}
+
+### 5. Get Engaged Jobs - Search by Title/Description
+GET {{baseUrl}}/api/job/engaged?search=plumbing
+Authorization: Bearer {{customerToken}}
+
+### 6. Get Engaged Jobs - Filter by Category
+GET {{baseUrl}}/api/job/engaged?category=CATEGORY_ID_HERE
+Authorization: Bearer {{customerToken}}
+
+### 7. Get Engaged Jobs - Filter by Budget Range
+GET {{baseUrl}}/api/job/engaged?minBudget=100&maxBudget=1000
+Authorization: Bearer {{customerToken}}
+
+### 8. Get Engaged Jobs - Filter by Location
+GET {{baseUrl}}/api/job/engaged?location=LOCATION_ID_HERE
+Authorization: Bearer {{customerToken}}
+
+### 9. Get Engaged Jobs - Combined Filters
+GET {{baseUrl}}/api/job/engaged?status=open&minBudget=200&maxBudget=800&page=1&limit=10
+Authorization: Bearer {{customerToken}}
+
+### 10. Get Engaged Jobs - Search with Filters
+GET {{baseUrl}}/api/job/engaged?search=repair&status=open&category=CATEGORY_ID_HERE
+Authorization: Bearer {{customerToken}}
+
+### ============================================
+### ERROR CASES
+### ============================================
+
+### 11. Get Engaged Jobs Without Authentication (Should fail with 401)
+GET {{baseUrl}}/api/job/engaged
+
+### 12. Get Engaged Jobs with Invalid Token (Should fail with 401)
+GET {{baseUrl}}/api/job/engaged
+Authorization: Bearer invalid_token_here
+
+### 13. Get Engaged Jobs as Contractor (Should fail with 403)
+# Note: Replace with contractor token
+GET {{baseUrl}}/api/job/engaged
+Authorization: Bearer CONTRACTOR_TOKEN_HERE
+
+### ============================================
+### PAGINATION TESTS
+### ============================================
+
+### 14. Get First Page
+GET {{baseUrl}}/api/job/engaged?page=1&limit=5
+Authorization: Bearer {{customerToken}}
+
+### 15. Get Second Page
+GET {{baseUrl}}/api/job/engaged?page=2&limit=5
+Authorization: Bearer {{customerToken}}
+
+### 16. Get Large Limit
+GET {{baseUrl}}/api/job/engaged?page=1&limit=50
+Authorization: Bearer {{customerToken}}
+
+### ============================================
+### EDGE CASES
+### ============================================
+
+### 17. Get Engaged Jobs with Invalid Page Number
+GET {{baseUrl}}/api/job/engaged?page=0&limit=10
+Authorization: Bearer {{customerToken}}
+
+### 18. Get Engaged Jobs with Invalid Limit
+GET {{baseUrl}}/api/job/engaged?page=1&limit=-5
+Authorization: Bearer {{customerToken}}
+
+### 19. Get Engaged Jobs with Non-numeric Budget
+GET {{baseUrl}}/api/job/engaged?minBudget=abc&maxBudget=xyz
+Authorization: Bearer {{customerToken}}
+
+### 20. Get Engaged Jobs with Invalid Category ID
+GET {{baseUrl}}/api/job/engaged?category=invalid_id
+Authorization: Bearer {{customerToken}}
+
+### ============================================
+### COMPARISON WITH OTHER ENDPOINTS
+### ============================================
+
+### 21. Compare: Get All Jobs (Public)
+GET {{baseUrl}}/api/job?page=1&limit=10
+Authorization: Bearer {{customerToken}}
+
+### 22. Compare: Get My Jobs (All Customer Jobs)
+GET {{baseUrl}}/api/job/my/jobs?page=1&limit=10
+Authorization: Bearer {{customerToken}}
+
+### 23. Compare: Get Engaged Jobs (Only Jobs with Applications/Offers)
+GET {{baseUrl}}/api/job/engaged?page=1&limit=10
+Authorization: Bearer {{customerToken}}
