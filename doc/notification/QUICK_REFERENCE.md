@@ -1,147 +1,145 @@
-# Quick Reference: Notification Integration
+# Notification System - Quick Reference
 
-## What Was Done
-
-### ✅ Notification Module Refactored
-- Removed unnecessary `example.service.ts` file
-- All 6 functional services are working properly:
-  1. Register FCM token
-  2. Unregister FCM token
-  3. Get notifications
-  4. Mark as read
-  5. Delete notification
-  6. Send notification (Admin only)
-
-### ✅ Job Application Notifications Integrated
-
-#### 3 Automatic Notifications Added:
-
-1. **When Contractor Applies** → Customer gets notified
-   - File: `apply-for-job.service.ts`
-   - Type: `job_application`
-   - Message: "{Name} has applied to your job '{Title}'"
-
-2. **When Application Accepted** → Contractor gets notified
-   - File: `accept-application.service.ts`
-   - Type: `booking_confirmed`
-   - Message: "Congratulations! Your application for '{Title}' has been accepted"
-
-3. **When Application Rejected** → Contractor gets notified
-   - File: `reject-application.service.ts`
-   - Type: `booking_declined`
-   - Message: "Your application for '{Title}' was not selected this time"
-
-## How It Works
-
-```
-Contractor applies to job
-         ↓
-Application created in database
-         ↓
-NotificationService.sendToUser() called
-         ↓
-Notification saved to database
-         ↓
-FCM tokens fetched for user
-         ↓
-Push notification sent via Firebase
-         ↓
-Customer's device receives notification
-```
-
-## Code Example
+## Import
 
 ```typescript
-// Send notification to user
+import { NotificationService, NotificationHelpers } from "@/common/service";
+```
+
+## New Notification Types (5 Added)
+
+| Type | When to Use | Helper Method |
+|------|-------------|---------------|
+| `job_invite` | Customer invites contractor | `NotificationHelpers.notifyJobInvite()` |
+| `job_request` | Contractor requests job | `NotificationHelpers.notifyJobRequest()` |
+| `sent_offer` | Customer sends offer | `NotificationHelpers.notifySentOffer()` |
+| `accept_offer` | Contractor accepts offer | `NotificationHelpers.notifyAcceptOffer()` |
+| `payment_complete` | Payment held by admin | `NotificationHelpers.notifyPaymentComplete()` |
+
+## Quick Usage
+
+### Job Invitation
+```typescript
+await NotificationHelpers.notifyJobInvite(
+  contractorId,      // string
+  customerName,      // string
+  jobTitle,          // string
+  jobId              // string
+);
+```
+
+### Job Request
+```typescript
+await NotificationHelpers.notifyJobRequest(
+  customerId,        // string
+  contractorName,    // string
+  jobTitle,          // string
+  jobId              // string
+);
+```
+
+### Send Offer
+```typescript
+await NotificationHelpers.notifySentOffer(
+  contractorId,      // string
+  customerName,      // string
+  jobTitle,          // string
+  offerAmount,       // number
+  offerId            // string
+);
+```
+
+### Accept Offer
+```typescript
+await NotificationHelpers.notifyAcceptOffer(
+  customerId,        // string
+  contractorName,    // string
+  jobTitle,          // string
+  offerId            // string
+);
+```
+
+### Payment Complete
+```typescript
+await NotificationHelpers.notifyPaymentComplete(
+  contractorId,      // string
+  customerId,        // string
+  jobTitle,          // string
+  amount,            // number
+  jobId              // string
+);
+// Note: This sends notifications to BOTH contractor and customer
+```
+
+## Existing Notification Methods (Still Available)
+
+```typescript
+// New job posted (to all contractors)
+await NotificationService.notifyNewJob(jobId, jobTitle);
+
+// Job application received
+await NotificationService.notifyJobApplication(customerId, contractorName, jobTitle);
+
+// Booking confirmed
+await NotificationService.notifyBookingConfirmed(contractorId, jobTitle);
+
+// New message
+await NotificationService.notifyNewMessage(recipientId, senderName);
+
+// Payment received
+await NotificationService.notifyPaymentReceived(contractorId, amount);
+```
+
+## Generic Notification
+
+```typescript
+// Send to specific user
 await NotificationService.sendToUser({
-  userId: "user_id",
-  title: "Notification Title",
-  body: "Notification message",
-  type: "job_application",
-  data: {
-    jobId: "job_123",
-    applicationId: "app_456"
-  }
+  userId: userId,
+  title: "Your Title",
+  body: "Your message",
+  type: "general", // or any other type
+  data: { key: "value" } // optional
 });
+
+// Broadcast to role
+await NotificationService.sendToRole(
+  "contractor", // or "customer" or "admin"
+  "Title",
+  "Message body",
+  "general",
+  { key: "value" } // optional
+);
 ```
 
-## Testing
+## All 15 Notification Types
 
-### 1. Register Device Token (Mobile App)
-```bash
-POST /api/notification/register-token
-Authorization: Bearer {token}
-{
-  "token": "fcm_device_token",
-  "deviceId": "device_123",
-  "deviceType": "android"
-}
-```
+1. `job_posted`
+2. `job_application`
+3. `job_invite` ⭐ NEW
+4. `job_request` ⭐ NEW
+5. `sent_offer` ⭐ NEW
+6. `accept_offer` ⭐ NEW
+7. `booking_confirmed`
+8. `booking_declined`
+9. `message_received`
+10. `payment_complete` ⭐ NEW
+11. `payment_received`
+12. `payment_released`
+13. `job_completed`
+14. `review_submitted`
+15. `general`
 
-### 2. Apply for Job (Contractor)
-```bash
-POST /api/job-request/apply/:jobId
-Authorization: Bearer {contractor_token}
-{
-  "message": "I'm interested"
-}
-```
+## Files Changed
 
-### 3. Check Notifications (Customer)
-```bash
-GET /api/notification
-Authorization: Bearer {customer_token}
-```
+- ✅ `src/api/notification/notification.validation.ts` - Added new types
+- ✅ `src/db/models/notification.model.ts` - Updated schema
+- ✅ `src/common/service/notification.service.ts` - Updated types
+- ✅ `src/common/service/notification-helpers.ts` - NEW helper methods
+- ✅ `src/common/service/index.ts` - Added exports
 
-### 4. Accept Application (Customer)
-```bash
-PATCH /api/job-request/:applicationId/accept
-Authorization: Bearer {customer_token}
-```
+## Documentation
 
-### 5. Check Notifications (Contractor)
-```bash
-GET /api/notification
-Authorization: Bearer {contractor_token}
-```
-
-## Files Modified
-
-### Notification Module
-- ❌ Deleted: `src/api/notification/services/example.service.ts`
-
-### Job Request Module
-- ✏️ Modified: `src/api/job-request/services/apply-for-job.service.ts`
-- ✏️ Modified: `src/api/job-request/services/accept-application.service.ts`
-- ✏️ Modified: `src/api/job-request/services/reject-application.service.ts`
-
-### Documentation
-- ✅ Created: `NOTIFICATION_INTEGRATION.md` (detailed guide)
-- ✅ Created: `QUICK_REFERENCE.md` (this file)
-
-## Key Features
-
-✅ Automatic notifications on job application events
-✅ Multi-device support (one user can have multiple devices)
-✅ Notification history stored in database
-✅ Failed token cleanup (invalid tokens auto-deactivated)
-✅ Type-safe with TypeScript
-✅ Error handling (won't break main flow if notification fails)
-✅ Firebase Cloud Messaging integration
-✅ OpenAPI documentation included
-
-## Next Steps
-
-1. **Test the integration** with real devices
-2. **Configure Firebase** in mobile app
-3. **Implement notification handling** in Flutter app
-4. **Add more notification types** as needed (payment, messages, etc.)
-5. **Consider adding** notification preferences for users
-
-## Support
-
-For detailed information, see `NOTIFICATION_INTEGRATION.md`
-
-For project structure, see `.ruler/structure.md`
-
-For features overview, see `.ruler/features.md`
+- 📖 Full guide: `doc/notification/NOTIFICATION_TYPES.md`
+- 📝 Changelog: `doc/notification/CHANGELOG_NOTIFICATION_TYPES.md`
+- ⚡ This file: `doc/notification/QUICK_REFERENCE.md`

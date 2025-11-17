@@ -39,10 +39,10 @@ notification.get("/", requireAuth, getNotifications);
 
 // Mark notifications as read (requires authentication)
 notification.post(
-	"/mark-read",
-	requireAuth,
-	validateBody(MarkAsReadSchema),
-	markAsRead,
+  "/mark-read",
+  requireAuth,
+  validateBody(MarkAsReadSchema),
+  markAsRead
 );
 
 // Delete notification (requires authentication)
