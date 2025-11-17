@@ -1,8 +1,8 @@
 import { db } from "@/db";
 import {
-  exceptionErrorHandler,
-  sendSuccess,
-  validatePagination,
+	exceptionErrorHandler,
+	sendSuccess,
+	validatePagination,
 } from "@/helpers";
 import type { RequestHandler } from "express";
 import type { SearchJob } from "../job.validation";
@@ -20,226 +20,228 @@ import type { SearchJob } from "../job.validation";
  * @access Private (Customer only)
  */
 export const getEngagedJobs: RequestHandler<
-  unknown,
-  unknown,
-  unknown,
-  SearchJob
+	unknown,
+	unknown,
+	unknown,
+	SearchJob
 > = async (req, res) => {
-  try {
-    const customerId = req.user?.userId;
+	try {
+		const customerId = req.user?.userId;
 
-    if (!customerId) {
-      return exceptionErrorHandler(
-        new Error("Unauthorized"),
-        res,
-        "Unauthorized access"
-      );
-    }
+		if (!customerId) {
+			return exceptionErrorHandler(
+				new Error("Unauthorized"),
+				res,
+				"Unauthorized access",
+			);
+		}
 
-    const {
-      search,
-      category,
-      status,
-      minBudget,
-      maxBudget,
-      location,
-      page,
-      limit,
-    } = req.query;
+		const {
+			search,
+			category,
+			status,
+			minBudget,
+			maxBudget,
+			location,
+			page,
+			limit,
+		} = req.query;
 
-    // Validate and sanitize pagination
-    const {
-      page: pageNum,
-      limit: limitNum,
-      skip,
-    } = validatePagination(page, limit);
+		// Validate and sanitize pagination
+		const {
+			page: pageNum,
+			limit: limitNum,
+			skip,
+		} = validatePagination(page, limit);
 
-    // Step 1: Find all jobs owned by this customer
-    const customerJobs = await db.job.find({ customerId }).select("_id").lean();
-    const customerJobIds = customerJobs.map((job) => job._id);
+		// Step 1: Find all jobs owned by this customer
+		const customerJobs = await db.job.find({ customerId }).select("_id").lean();
+		const customerJobIds = customerJobs.map((job) => job._id);
 
-    if (customerJobIds.length === 0) {
-      // Customer has no jobs, return empty result
-      return sendSuccess(res, 200, "No engaged jobs found", {
-        jobs: [],
-        total: 0,
-        page: pageNum,
-        limit: limitNum,
-        totalPages: 0,
-      });
-    }
+		if (customerJobIds.length === 0) {
+			// Customer has no jobs, return empty result
+			return sendSuccess(res, 200, "No engaged jobs found", {
+				jobs: [],
+				total: 0,
+				page: pageNum,
+				limit: limitNum,
+				totalPages: 0,
+			});
+		}
 
-    // Step 2: Find jobs that have applications OR offers
-    const [jobsWithApplications, jobsWithOffers] = await Promise.all([
-      // Jobs that have received applications
-      db.jobApplicationRequest
-        .find({ job: { $in: customerJobIds } })
-        .distinct("job"),
+		// Step 2: Find jobs that have applications OR offers
+		const [jobsWithApplications, jobsWithOffers] = await Promise.all([
+			// Jobs that have received applications
+			db.jobApplicationRequest
+				.find({ job: { $in: customerJobIds } })
+				.distinct("job"),
 
-      // Jobs that have offers sent
-      db.offer.find({ job: { $in: customerJobIds } }).distinct("job"),
-    ]);
+			// Jobs that have offers sent
+			db.offer
+				.find({ job: { $in: customerJobIds } })
+				.distinct("job"),
+		]);
 
-    // Combine and deduplicate job IDs
-    const engagedJobIds = [
-      ...new Set([
-        ...jobsWithApplications.map((id) => id.toString()),
-        ...jobsWithOffers.map((id) => id.toString()),
-      ]),
-    ];
+		// Combine and deduplicate job IDs
+		const engagedJobIds = [
+			...new Set([
+				...jobsWithApplications.map((id) => id.toString()),
+				...jobsWithOffers.map((id) => id.toString()),
+			]),
+		];
 
-    if (engagedJobIds.length === 0) {
-      // No engaged jobs found
-      return sendSuccess(res, 200, "No engaged jobs found", {
-        jobs: [],
-        total: 0,
-        page: pageNum,
-        limit: limitNum,
-        totalPages: 0,
-      });
-    }
+		if (engagedJobIds.length === 0) {
+			// No engaged jobs found
+			return sendSuccess(res, 200, "No engaged jobs found", {
+				jobs: [],
+				total: 0,
+				page: pageNum,
+				limit: limitNum,
+				totalPages: 0,
+			});
+		}
 
-    // Step 3: Build query for engaged jobs with filters
-    const query: any = {
-      _id: { $in: engagedJobIds },
-      customerId, // Ensure jobs belong to this customer
-    };
+		// Step 3: Build query for engaged jobs with filters
+		const query: any = {
+			_id: { $in: engagedJobIds },
+			customerId, // Ensure jobs belong to this customer
+		};
 
-    // Apply search filter
-    if (search) {
-      query.$or = [
-        { title: { $regex: search, $options: "i" } },
-        { description: { $regex: search, $options: "i" } },
-      ];
-    }
+		// Apply search filter
+		if (search) {
+			query.$or = [
+				{ title: { $regex: search, $options: "i" } },
+				{ description: { $regex: search, $options: "i" } },
+			];
+		}
 
-    // Apply category filter
-    if (category) {
-      query.category = category;
-    }
+		// Apply category filter
+		if (category) {
+			query.category = category;
+		}
 
-    // Apply status filter
-    if (status) {
-      query.status = status;
-    }
+		// Apply status filter
+		if (status) {
+			query.status = status;
+		}
 
-    // Apply budget range filter
-    if (minBudget || maxBudget) {
-      query.budget = {};
-      if (minBudget) query.budget.$gte = Number.parseInt(minBudget, 10);
-      if (maxBudget) query.budget.$lte = Number.parseInt(maxBudget, 10);
-    }
+		// Apply budget range filter
+		if (minBudget || maxBudget) {
+			query.budget = {};
+			if (minBudget) query.budget.$gte = Number.parseInt(minBudget, 10);
+			if (maxBudget) query.budget.$lte = Number.parseInt(maxBudget, 10);
+		}
 
-    // Apply location filter
-    if (location) {
-      query.location = location;
-    }
+		// Apply location filter
+		if (location) {
+			query.location = location;
+		}
 
-    // Step 4: Get jobs with pagination and populate related data
-    const [jobs, total] = await Promise.all([
-      db.job
-        .find(query)
-        .populate("category", "name icon description")
-        .populate("customerId", "full_name email profile_img phone")
-        .populate("location", "name state coordinates")
-        .populate("contractorId", "full_name email profile_img skills")
-        .skip(skip)
-        .limit(limitNum)
-        .sort({ createdAt: -1 })
-        .lean(),
-      db.job.countDocuments(query),
-    ]);
+		// Step 4: Get jobs with pagination and populate related data
+		const [jobs, total] = await Promise.all([
+			db.job
+				.find(query)
+				.populate("category", "name icon description")
+				.populate("customerId", "full_name email profile_img phone")
+				.populate("location", "name state coordinates")
+				.populate("contractorId", "full_name email profile_img skills")
+				.skip(skip)
+				.limit(limitNum)
+				.sort({ createdAt: -1 })
+				.lean(),
+			db.job.countDocuments(query),
+		]);
 
-    // Step 5: Enrich jobs with engagement statistics
-    const jobIds = jobs.map((job) => job._id);
+		// Step 5: Enrich jobs with engagement statistics
+		const jobIds = jobs.map((job) => job._id);
 
-    const [applicationCounts, offerCounts] = await Promise.all([
-      // Count applications per job
-      db.jobApplicationRequest.aggregate([
-        { $match: { job: { $in: jobIds } } },
-        {
-          $group: {
-            _id: "$job",
-            totalApplications: { $sum: 1 },
-            pendingApplications: {
-              $sum: { $cond: [{ $eq: ["$status", "pending"] }, 1, 0] },
-            },
-            acceptedApplications: {
-              $sum: { $cond: [{ $eq: ["$status", "accepted"] }, 1, 0] },
-            },
-          },
-        },
-      ]),
+		const [applicationCounts, offerCounts] = await Promise.all([
+			// Count applications per job
+			db.jobApplicationRequest.aggregate([
+				{ $match: { job: { $in: jobIds } } },
+				{
+					$group: {
+						_id: "$job",
+						totalApplications: { $sum: 1 },
+						pendingApplications: {
+							$sum: { $cond: [{ $eq: ["$status", "pending"] }, 1, 0] },
+						},
+						acceptedApplications: {
+							$sum: { $cond: [{ $eq: ["$status", "accepted"] }, 1, 0] },
+						},
+					},
+				},
+			]),
 
-      // Count offers per job
-      db.offer.aggregate([
-        { $match: { job: { $in: jobIds } } },
-        {
-          $group: {
-            _id: "$job",
-            totalOffers: { $sum: 1 },
-            pendingOffers: {
-              $sum: { $cond: [{ $eq: ["$status", "pending"] }, 1, 0] },
-            },
-            acceptedOffers: {
-              $sum: { $cond: [{ $eq: ["$status", "accepted"] }, 1, 0] },
-            },
-          },
-        },
-      ]),
-    ]);
+			// Count offers per job
+			db.offer.aggregate([
+				{ $match: { job: { $in: jobIds } } },
+				{
+					$group: {
+						_id: "$job",
+						totalOffers: { $sum: 1 },
+						pendingOffers: {
+							$sum: { $cond: [{ $eq: ["$status", "pending"] }, 1, 0] },
+						},
+						acceptedOffers: {
+							$sum: { $cond: [{ $eq: ["$status", "accepted"] }, 1, 0] },
+						},
+					},
+				},
+			]),
+		]);
 
-    // Create lookup maps for quick access
-    const applicationMap = new Map(
-      applicationCounts.map((item) => [item._id.toString(), item])
-    );
-    const offerMap = new Map(
-      offerCounts.map((item) => [item._id.toString(), item])
-    );
+		// Create lookup maps for quick access
+		const applicationMap = new Map(
+			applicationCounts.map((item) => [item._id.toString(), item]),
+		);
+		const offerMap = new Map(
+			offerCounts.map((item) => [item._id.toString(), item]),
+		);
 
-    // Step 6: Add engagement statistics to each job
-    const enrichedJobs = jobs.map((job) => {
-      const jobId = job._id.toString();
-      const appStats = applicationMap.get(jobId) || {
-        totalApplications: 0,
-        pendingApplications: 0,
-        acceptedApplications: 0,
-      };
-      const offerStats = offerMap.get(jobId) || {
-        totalOffers: 0,
-        pendingOffers: 0,
-        acceptedOffers: 0,
-      };
+		// Step 6: Add engagement statistics to each job
+		const enrichedJobs = jobs.map((job) => {
+			const jobId = job._id.toString();
+			const appStats = applicationMap.get(jobId) || {
+				totalApplications: 0,
+				pendingApplications: 0,
+				acceptedApplications: 0,
+			};
+			const offerStats = offerMap.get(jobId) || {
+				totalOffers: 0,
+				pendingOffers: 0,
+				acceptedOffers: 0,
+			};
 
-      return {
-        ...job,
-        engagement: {
-          applications: {
-            total: appStats.totalApplications,
-            pending: appStats.pendingApplications,
-            accepted: appStats.acceptedApplications,
-          },
-          offers: {
-            total: offerStats.totalOffers,
-            pending: offerStats.pendingOffers,
-            accepted: offerStats.acceptedOffers,
-          },
-          hasApplications: appStats.totalApplications > 0,
-          hasOffers: offerStats.totalOffers > 0,
-        },
-      };
-    });
+			return {
+				...job,
+				engagement: {
+					applications: {
+						total: appStats.totalApplications,
+						pending: appStats.pendingApplications,
+						accepted: appStats.acceptedApplications,
+					},
+					offers: {
+						total: offerStats.totalOffers,
+						pending: offerStats.pendingOffers,
+						accepted: offerStats.acceptedOffers,
+					},
+					hasApplications: appStats.totalApplications > 0,
+					hasOffers: offerStats.totalOffers > 0,
+				},
+			};
+		});
 
-    const totalPages = Math.ceil(total / limitNum);
+		const totalPages = Math.ceil(total / limitNum);
 
-    return sendSuccess(res, 200, "Engaged jobs retrieved successfully", {
-      jobs: enrichedJobs,
-      total,
-      page: pageNum,
-      limit: limitNum,
-      totalPages,
-    });
-  } catch (error) {
-    return exceptionErrorHandler(error, res, "Failed to retrieve engaged jobs");
-  }
+		return sendSuccess(res, 200, "Engaged jobs retrieved successfully", {
+			jobs: enrichedJobs,
+			total,
+			page: pageNum,
+			limit: limitNum,
+			totalPages,
+		});
+	} catch (error) {
+		return exceptionErrorHandler(error, res, "Failed to retrieve engaged jobs");
+	}
 };

@@ -10,4 +10,3 @@ export * from "./update-Job-owner";
 export * from "./cancel-job.service";
 export * from "./complete-job.service";
 export * from "./update-job-status.service";
-
