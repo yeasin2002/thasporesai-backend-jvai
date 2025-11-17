@@ -1,16 +1,17 @@
 import { openAPITags } from "@/common/constants";
 import { registry } from "@/lib/openapi";
 import {
-	ErrorResponseSchema,
-	InviteIdParamSchema,
-	InviteResponseSchema,
-	InvitesResponseSchema,
-	JobIdParamSchema,
-	RejectInviteSchema,
-	SearchReceivedInvitesSchema,
-	SearchSentInvitesSchema,
-	SendInviteSchema,
-	SuccessResponseSchema,
+  ErrorResponseSchema,
+  InviteIdParamSchema,
+  InviteResponseSchema,
+  InvitesResponseSchema,
+  JobIdParamSchema,
+  RejectInviteSchema,
+  SearchAvailableContractorsSchema,
+  SearchReceivedInvitesSchema,
+  SearchSentInvitesSchema,
+  SendInviteSchema,
+  SuccessResponseSchema,
 } from "./job-invite.validation";
 
 // Register schemas
@@ -20,6 +21,10 @@ registry.register("JobIdParam", JobIdParamSchema);
 registry.register("InviteIdParam", InviteIdParamSchema);
 registry.register("SearchSentInvites", SearchSentInvitesSchema);
 registry.register("SearchReceivedInvites", SearchReceivedInvitesSchema);
+registry.register(
+  "SearchAvailableContractors",
+  SearchAvailableContractorsSchema
+);
 registry.register("InviteResponse", InviteResponseSchema);
 registry.register("InvitesResponse", InvitesResponseSchema);
 registry.register("JobInviteSuccessResponse", SuccessResponseSchema);
@@ -27,74 +32,186 @@ registry.register("JobInviteErrorResponse", ErrorResponseSchema);
 
 // POST /api/job-invite/send/:jobId - Send invite to contractor
 registry.registerPath({
-	method: "post",
-	path: `${openAPITags.job_invite.basepath}/send/{jobId}`,
-	description:
-		"Customer sends a job invite to a specific contractor. Only one invite per contractor per job is allowed.",
-	summary: "Send job invite",
-	tags: [openAPITags.job_invite.name],
-	security: [{ bearerAuth: [] }],
-	request: {
-		params: JobIdParamSchema,
-		body: {
-			content: {
-				"application/json": {
-					schema: SendInviteSchema,
-				},
-			},
-		},
-	},
-	responses: {
-		201: {
-			description: "Invite sent successfully",
-			content: {
-				"application/json": {
-					schema: InviteResponseSchema,
-				},
-			},
-		},
-		400: {
-			description:
-				"Bad request - already invited, contractor already applied, or job not open",
-			content: {
-				"application/json": {
-					schema: ErrorResponseSchema,
-				},
-			},
-		},
-		401: {
-			description: "Unauthorized",
-			content: {
-				"application/json": {
-					schema: ErrorResponseSchema,
-				},
-			},
-		},
-		403: {
-			description: "Forbidden - not job owner",
-			content: {
-				"application/json": {
-					schema: ErrorResponseSchema,
-				},
-			},
-		},
-		404: {
-			description: "Job or contractor not found",
-			content: {
-				"application/json": {
-					schema: ErrorResponseSchema,
-				},
-			},
-		},
-		500: {
-			description: "Internal server error",
-			content: {
-				"application/json": {
-					schema: ErrorResponseSchema,
-				},
-			},
-		},
-	},
+  method: "post",
+  path: `${openAPITags.job_invite.basepath}/send/{jobId}`,
+  description:
+    "Customer sends a job invite to a specific contractor. Only one invite per contractor per job is allowed. Note: Customers can invite contractors even if they have already applied to the job.",
+  summary: "Send job invite",
+  tags: [openAPITags.job_invite.name],
+  security: [{ bearerAuth: [] }],
+  request: {
+    params: JobIdParamSchema,
+    body: {
+      content: {
+        "application/json": {
+          schema: SendInviteSchema,
+        },
+      },
+    },
+  },
+  responses: {
+    201: {
+      description: "Invite sent successfully",
+      content: {
+        "application/json": {
+          schema: InviteResponseSchema,
+        },
+      },
+    },
+    400: {
+      description: "Bad request - already invited or job not open",
+      content: {
+        "application/json": {
+          schema: ErrorResponseSchema,
+        },
+      },
+    },
+    401: {
+      description: "Unauthorized",
+      content: {
+        "application/json": {
+          schema: ErrorResponseSchema,
+        },
+      },
+    },
+    403: {
+      description: "Forbidden - not job owner",
+      content: {
+        "application/json": {
+          schema: ErrorResponseSchema,
+        },
+      },
+    },
+    404: {
+      description: "Job or contractor not found",
+      content: {
+        "application/json": {
+          schema: ErrorResponseSchema,
+        },
+      },
+    },
+    500: {
+      description: "Internal server error",
+      content: {
+        "application/json": {
+          schema: ErrorResponseSchema,
+        },
+      },
+    },
+  },
+});
+
+// GET /api/job-invite/available/:jobId - Get available contractors
+registry.registerPath({
+  method: "get",
+  path: `${openAPITags.job_invite.basepath}/available/{jobId}`,
+  description:
+    "Get contractors who are available to be invited for a specific job. Returns only contractors who have NOT applied to the job and have NOT been invited yet. Supports search and filtering by category, location, and budget.",
+  summary: "Get available contractors",
+  tags: [openAPITags.job_invite.name],
+  security: [{ bearerAuth: [] }],
+  request: {
+    params: JobIdParamSchema,
+    query: SearchAvailableContractorsSchema,
+  },
+  responses: {
+    200: {
+      description:
+        "Available contractors retrieved successfully with pagination and exclusion information",
+      content: {
+        "application/json": {
+          schema: {
+            type: "object",
+            properties: {
+              status: { type: "number", example: 200 },
+              message: {
+                type: "string",
+                example: "Available contractors retrieved successfully",
+              },
+              data: {
+                type: "object",
+                properties: {
+                  contractors: {
+                    type: "array",
+                    items: {
+                      type: "object",
+                      properties: {
+                        _id: { type: "string" },
+                        full_name: { type: "string" },
+                        email: { type: "string" },
+                        profile_img: { type: "string" },
+                        bio: { type: "string" },
+                        skills: { type: "array", items: { type: "string" } },
+                        starting_budget: { type: "number" },
+                        hourly_charge: { type: "number" },
+                        category: { type: "array" },
+                        location: { type: "object" },
+                      },
+                    },
+                  },
+                  total: {
+                    type: "number",
+                    description: "Total available contractors",
+                  },
+                  page: { type: "number", description: "Current page" },
+                  limit: { type: "number", description: "Items per page" },
+                  totalPages: {
+                    type: "number",
+                    description: "Total pages",
+                  },
+                  excludedCount: {
+                    type: "number",
+                    description:
+                      "Number of contractors excluded (already applied or invited)",
+                  },
+                  jobInfo: {
+                    type: "object",
+                    properties: {
+                      id: { type: "string" },
+                      title: { type: "string" },
+                      budget: { type: "number" },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+    401: {
+      description: "Unauthorized",
+      content: {
+        "application/json": {
+          schema: ErrorResponseSchema,
+        },
+      },
+    },
+    403: {
+      description: "Forbidden - not job owner",
+      content: {
+        "application/json": {
+          schema: ErrorResponseSchema,
+        },
+      },
+    },
+    404: {
+      description: "Job not found",
+      content: {
+        "application/json": {
+          schema: ErrorResponseSchema,
+        },
+      },
+    },
+    500: {
+      description: "Internal server error",
+      content: {
+        "application/json": {
+          schema: ErrorResponseSchema,
+        },
+      },
+    },
+  },
 });
 
 // GET /api/job-invite/sent - Get customer's sent invites

@@ -2,32 +2,44 @@ import "./job-invite.openapi";
 
 import { requireAuth, requireRole } from "@/middleware/auth.middleware";
 import {
-	validateBody,
-	validateParams,
-	validateQuery,
+  validateBody,
+  validateParams,
+  validateQuery,
 } from "@/middleware/validation.middleware";
 import express, { type Router } from "express";
 import {
-	InviteIdParamSchema,
-	JobIdParamSchema,
-	RejectInviteSchema,
-	SearchReceivedInvitesSchema,
-	SearchSentInvitesSchema,
-	SendInviteSchema,
+  InviteIdParamSchema,
+  JobIdParamSchema,
+  RejectInviteSchema,
+  SearchAvailableContractorsSchema,
+  SearchReceivedInvitesSchema,
+  SearchSentInvitesSchema,
+  SendInviteSchema,
 } from "./job-invite.validation";
 import {
-	acceptInvite,
-	cancelInvite,
-	getInvite,
-	getReceivedInvites,
-	getSentInvites,
-	rejectInvite,
-	sendInvite,
+  acceptInvite,
+  cancelInvite,
+  getAvailableContractors,
+  getInvite,
+  getReceivedInvites,
+  getSentInvites,
+  rejectInvite,
+  sendInvite,
 } from "./services";
 
 export const jobInvite: Router = express.Router();
 
 // Customer routes
+// Get available contractors for a job (who haven't applied or been invited)
+jobInvite.get(
+	"/available/:jobId",
+	requireAuth,
+	requireRole("customer"),
+	validateParams(JobIdParamSchema),
+	validateQuery(SearchAvailableContractorsSchema),
+	getAvailableContractors,
+);
+
 // Send invite to contractor
 jobInvite.post(
 	"/send/:jobId",

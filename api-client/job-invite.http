@@ -11,7 +11,31 @@
 ### CUSTOMER ENDPOINTS
 ### ============================================
 
-### 1. Send Invite to Contractor
+### 1. Get Available Contractors for Job (NEW - Excludes applied & invited)
+GET {{baseUrl}}/api/job-invite/available/{{jobId}}
+Authorization: Bearer {{customerToken}}
+
+### 2. Get Available Contractors with Search
+GET {{baseUrl}}/api/job-invite/available/{{jobId}}?search=plumbing
+Authorization: Bearer {{customerToken}}
+
+### 3. Get Available Contractors with Category Filter
+GET {{baseUrl}}/api/job-invite/available/{{jobId}}?category=CATEGORY_ID
+Authorization: Bearer {{customerToken}}
+
+### 4. Get Available Contractors with Location Filter
+GET {{baseUrl}}/api/job-invite/available/{{jobId}}?location=LOCATION_ID
+Authorization: Bearer {{customerToken}}
+
+### 5. Get Available Contractors with Budget Filter
+GET {{baseUrl}}/api/job-invite/available/{{jobId}}?minBudget=50&maxBudget=150
+Authorization: Bearer {{customerToken}}
+
+### 6. Get Available Contractors with Combined Filters
+GET {{baseUrl}}/api/job-invite/available/{{jobId}}?search=repair&category=CATEGORY_ID&location=LOCATION_ID&page=1&limit=10
+Authorization: Bearer {{customerToken}}
+
+### 7. Send Invite to Contractor
 POST {{baseUrl}}/api/job-invite/send/{{jobId}}
 Content-Type: application/json
 Authorization: Bearer {{customerToken}}
@@ -21,23 +45,33 @@ Authorization: Bearer {{customerToken}}
   "message": "I'd like to invite you to work on this project. Your skills match perfectly!"
 }
 
-### 2. Get Sent Invites (All)
+### 8. Send Invite to Contractor Who Already Applied (Now Allowed!)
+POST {{baseUrl}}/api/job-invite/send/{{jobId}}
+Content-Type: application/json
+Authorization: Bearer {{customerToken}}
+
+{
+  "contractorId": "CONTRACTOR_WHO_APPLIED_ID",
+  "message": "I saw your application and would like to discuss further..."
+}
+
+### 9. Get Sent Invites (All)
 GET {{baseUrl}}/api/job-invite/sent
 Authorization: Bearer {{customerToken}}
 
-### 3. Get Sent Invites (Filtered by Job)
+### 10. Get Sent Invites (Filtered by Job)
 GET {{baseUrl}}/api/job-invite/sent?jobId={{jobId}}
 Authorization: Bearer {{customerToken}}
 
-### 4. Get Sent Invites (Filtered by Status)
+### 11. Get Sent Invites (Filtered by Status)
 GET {{baseUrl}}/api/job-invite/sent?status=pending
 Authorization: Bearer {{customerToken}}
 
-### 5. Get Sent Invites (Paginated)
+### 12. Get Sent Invites (Paginated)
 GET {{baseUrl}}/api/job-invite/sent?page=1&limit=5
 Authorization: Bearer {{customerToken}}
 
-### 6. Cancel Invite
+### 13. Cancel Invite
 DELETE {{baseUrl}}/api/job-invite/{{inviteId}}
 Authorization: Bearer {{customerToken}}
 
@@ -45,30 +79,30 @@ Authorization: Bearer {{customerToken}}
 ### CONTRACTOR ENDPOINTS
 ### ============================================
 
-### 7. Get Received Invites (All)
+### 14. Get Received Invites (All)
 GET {{baseUrl}}/api/job-invite/received
 Authorization: Bearer {{contractorToken}}
 
-### 8. Get Received Invites (Filtered by Status)
+### 15. Get Received Invites (Filtered by Status)
 GET {{baseUrl}}/api/job-invite/received?status=pending
 Authorization: Bearer {{contractorToken}}
 
-### 9. Get Received Invites (Paginated)
+### 16. Get Received Invites (Paginated)
 GET {{baseUrl}}/api/job-invite/received?page=1&limit=5
 Authorization: Bearer {{contractorToken}}
 
-### 10. Accept Invite
+### 17. Accept Invite
 PATCH {{baseUrl}}/api/job-invite/{{inviteId}}/accept
 Authorization: Bearer {{contractorToken}}
 
-### 11. Reject Invite (Without Reason)
+### 18. Reject Invite (Without Reason)
 PATCH {{baseUrl}}/api/job-invite/{{inviteId}}/reject
 Content-Type: application/json
 Authorization: Bearer {{contractorToken}}
 
 {}
 
-### 12. Reject Invite (With Reason)
+### 19. Reject Invite (With Reason)
 PATCH {{baseUrl}}/api/job-invite/{{inviteId}}/reject
 Content-Type: application/json
 Authorization: Bearer {{contractorToken}}
@@ -81,11 +115,11 @@ Authorization: Bearer {{contractorToken}}
 ### SHARED ENDPOINTS
 ### ============================================
 
-### 13. Get Invite Details (Customer)
+### 20. Get Invite Details (Customer)
 GET {{baseUrl}}/api/job-invite/{{inviteId}}
 Authorization: Bearer {{customerToken}}
 
-### 14. Get Invite Details (Contractor)
+### 21. Get Invite Details (Contractor)
 GET {{baseUrl}}/api/job-invite/{{inviteId}}
 Authorization: Bearer {{contractorToken}}
 
@@ -93,7 +127,10 @@ Authorization: Bearer {{contractorToken}}
 ### ERROR CASES
 ### ============================================
 
-### 15. Send Invite Without Auth (Should fail with 401)
+### 22. Get Available Contractors Without Auth (Should fail with 401)
+GET {{baseUrl}}/api/job-invite/available/{{jobId}}
+
+### 23. Send Invite Without Auth (Should fail with 401)
 POST {{baseUrl}}/api/job-invite/send/{{jobId}}
 Content-Type: application/json
 
@@ -102,7 +139,7 @@ Content-Type: application/json
   "message": "Test"
 }
 
-### 16. Send Duplicate Invite (Should fail with 400)
+### 24. Send Duplicate Invite (Should fail with 400)
 POST {{baseUrl}}/api/job-invite/send/{{jobId}}
 Content-Type: application/json
 Authorization: Bearer {{customerToken}}
@@ -112,15 +149,15 @@ Authorization: Bearer {{customerToken}}
   "message": "Duplicate invite test"
 }
 
-### 17. Accept Already Processed Invite (Should fail with 400)
+### 25. Accept Already Processed Invite (Should fail with 400)
 PATCH {{baseUrl}}/api/job-invite/{{inviteId}}/accept
 Authorization: Bearer {{contractorToken}}
 
-### 18. Cancel Already Processed Invite (Should fail with 400)
+### 26. Cancel Already Processed Invite (Should fail with 400)
 DELETE {{baseUrl}}/api/job-invite/{{inviteId}}
 Authorization: Bearer {{customerToken}}
 
-### 19. Contractor Tries to Send Invite (Should fail with 403)
+### 27. Contractor Tries to Send Invite (Should fail with 403)
 POST {{baseUrl}}/api/job-invite/send/{{jobId}}
 Content-Type: application/json
 Authorization: Bearer {{contractorToken}}
@@ -130,6 +167,37 @@ Authorization: Bearer {{contractorToken}}
   "message": "Test"
 }
 
-### 20. Customer Tries to Accept Invite (Should fail with 403)
+### 28. Customer Tries to Accept Invite (Should fail with 403)
 PATCH {{baseUrl}}/api/job-invite/{{inviteId}}/accept
+Authorization: Bearer {{customerToken}}
+
+### 29. Get Available Contractors for Someone Else's Job (Should fail with 403)
+GET {{baseUrl}}/api/job-invite/available/SOMEONE_ELSES_JOB_ID
+Authorization: Bearer {{customerToken}}
+
+### ============================================
+### TESTING NEW BEHAVIOR
+### ============================================
+
+### 30. Verify: Contractor Applies to Job
+POST {{baseUrl}}/api/job-request/apply/{{jobId}}
+Content-Type: application/json
+Authorization: Bearer {{contractorToken}}
+
+{
+  "message": "I'm interested in this job"
+}
+
+### 31. Verify: Customer Can Still Invite That Contractor (NEW BEHAVIOR)
+POST {{baseUrl}}/api/job-invite/send/{{jobId}}
+Content-Type: application/json
+Authorization: Bearer {{customerToken}}
+
+{
+  "contractorId": "{{contractorId}}",
+  "message": "I saw your application. Let's discuss!"
+}
+
+### 32. Verify: Contractor No Longer Appears in Available List
+GET {{baseUrl}}/api/job-invite/available/{{jobId}}
 Authorization: Bearer {{customerToken}}

@@ -92,6 +92,46 @@ export const SearchReceivedInvitesSchema = z
 	})
 	.openapi("SearchReceivedInvites");
 
+// Search/Filter Query Schema for Available Contractors
+export const SearchAvailableContractorsSchema = z
+	.object({
+		search: z
+			.string()
+			.optional()
+			.openapi({
+				description: "Search in contractor name, bio, or skills",
+			}),
+		category: z
+			.string()
+			.optional()
+			.openapi({ description: "Filter by category ID" }),
+		location: z
+			.string()
+			.optional()
+			.openapi({ description: "Filter by location ID" }),
+		minBudget: z
+			.string()
+			.regex(/^\d+$/, "Must be a number")
+			.optional()
+			.openapi({ description: "Minimum budget" }),
+		maxBudget: z
+			.string()
+			.regex(/^\d+$/, "Must be a number")
+			.optional()
+			.openapi({ description: "Maximum budget" }),
+		page: z
+			.string()
+			.regex(/^\d+$/, "Page must be a number")
+			.optional()
+			.openapi({ description: "Page number" }),
+		limit: z
+			.string()
+			.regex(/^\d+$/, "Limit must be a number")
+			.optional()
+			.openapi({ description: "Items per page" }),
+	})
+	.openapi("SearchAvailableContractors");
+
 // Invite data schema
 const InviteDataSchema = z.object({
 	_id: z.string(),
@@ -151,6 +191,9 @@ export type JobIdParam = z.infer<typeof JobIdParamSchema>;
 export type InviteIdParam = z.infer<typeof InviteIdParamSchema>;
 export type SearchSentInvites = z.infer<typeof SearchSentInvitesSchema>;
 export type SearchReceivedInvites = z.infer<typeof SearchReceivedInvitesSchema>;
+export type SearchAvailableContractors = z.infer<
+  typeof SearchAvailableContractorsSchema
+>;
 export type InviteResponse = z.infer<typeof InviteResponseSchema>;
 export type InvitesResponse = z.infer<typeof InvitesResponseSchema>;
 export type SuccessResponse = z.infer<typeof SuccessResponseSchema>;
