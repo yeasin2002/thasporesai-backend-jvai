@@ -1,0 +1,137 @@
+### Get Own Jobs with Contractor Filter - API Tests
+### Base URL
+@baseUrl = http://localhost:4000
+@customerToken = YOUR_CUSTOMER_TOKEN_HERE
+@contractorId = YOUR_CONTRACTOR_ID_HERE
+
+### ============================================
+### BASIC USAGE (WITHOUT CONTRACTOR FILTER)
+### ============================================
+
+### 1. Get All Own Jobs (Original Behavior)
+GET {{baseUrl}}/api/job/my/jobs
+Authorization: Bearer {{customerToken}}
+
+### 2. Get Own Jobs with Pagination
+GET {{baseUrl}}/api/job/my/jobs?page=1&limit=10
+Authorization: Bearer {{customerToken}}
+
+### 3. Get Own Jobs with Status Filter
+GET {{baseUrl}}/api/job/my/jobs?status=open
+Authorization: Bearer {{customerToken}}
+
+### ============================================
+### NEW FEATURE: CONTRACTOR FILTER
+### ============================================
+
+### 4. Get Jobs Available for Specific Contractor (NEW)
+# Returns only jobs where the contractor has NOT been invited and has NOT applied
+GET {{baseUrl}}/api/job/my/jobs?contractorId={{contractorId}}
+Authorization: Bearer {{customerToken}}
+
+### 5. Get Jobs Available for Contractor with Status Filter
+# Useful for finding open jobs to invite a contractor to
+GET {{baseUrl}}/api/job/my/jobs?contractorId={{contractorId}}&status=open
+Authorization: Bearer {{customerToken}}
+
+### 6. Get Jobs Available for Contractor with Search
+# Find specific jobs to invite contractor to
+GET {{baseUrl}}/api/job/my/jobs?contractorId={{contractorId}}&search=plumbing
+Authorization: Bearer {{customerToken}}
+
+### 7. Get Jobs Available for Contractor with Category Filter
+GET {{baseUrl}}/api/job/my/jobs?contractorId={{contractorId}}&category=CATEGORY_ID
+Authorization: Bearer {{customerToken}}
+
+### 8. Get Jobs Available for Contractor with Budget Range
+GET {{baseUrl}}/api/job/my/jobs?contractorId={{contractorId}}&minBudget=100&maxBudget=500
+Authorization: Bearer {{customerToken}}
+
+### 9. Get Jobs Available for Contractor with Combined Filters
+GET {{baseUrl}}/api/job/my/jobs?contractorId={{contractorId}}&status=open&search=repair&page=1&limit=5
+Authorization: Bearer {{customerToken}}
+
+### ============================================
+### USE CASE SCENARIOS
+### ============================================
+
+### Scenario 1: Customer wants to invite a contractor
+# Step 1: Get jobs where contractor hasn't been invited or applied
+GET {{baseUrl}}/api/job/my/jobs?contractorId={{contractorId}}&status=open
+Authorization: Bearer {{customerToken}}
+
+# Step 2: Send invite to contractor for one of the returned jobs
+POST {{baseUrl}}/api/job-invite/send/JOB_ID_FROM_STEP_1
+Content-Type: application/json
+Authorization: Bearer {{customerToken}}
+
+{
+  "contractorId": "{{contractorId}}",
+  "message": "I'd like to invite you to work on this project"
+}
+
+### Scenario 2: Customer wants to send offer to contractor who applied
+# Step 1: Get jobs where contractor has applied
+GET {{baseUrl}}/api/job-request/customer/all?status=pending
+Authorization: Bearer {{customerToken}}
+
+# Step 2: Send offer to contractor
+POST {{baseUrl}}/api/offer/APPLICATION_ID/send
+Content-Type: application/json
+Authorization: Bearer {{customerToken}}
+
+{
+  "amount": 500,
+  "timeline": "7 days",
+  "description": "Work details as discussed"
+}
+
+### ============================================
+### VERIFICATION TESTS
+### ============================================
+
+### 10. Verify: Get all jobs (should show all customer's jobs)
+GET {{baseUrl}}/api/job/my/jobs
+Authorization: Bearer {{customerToken}}
+
+### 11. Verify: Contractor applies to a job
+POST {{baseUrl}}/api/job-request/apply/JOB_ID
+Content-Type: application/json
+Authorization: Bearer CONTRACTOR_TOKEN
+
+{
+  "message": "I'm interested in this job"
+}
+
+### 12. Verify: Get jobs with contractor filter (should exclude the job from step 11)
+GET {{baseUrl}}/api/job/my/jobs?contractorId={{contractorId}}
+Authorization: Bearer {{customerToken}}
+
+### 13. Verify: Customer invites contractor to another job
+POST {{baseUrl}}/api/job-invite/send/ANOTHER_JOB_ID
+Content-Type: application/json
+Authorization: Bearer {{customerToken}}
+
+{
+  "contractorId": "{{contractorId}}",
+  "message": "Invitation message"
+}
+
+### 14. Verify: Get jobs with contractor filter (should exclude both jobs)
+GET {{baseUrl}}/api/job/my/jobs?contractorId={{contractorId}}
+Authorization: Bearer {{customerToken}}
+
+### ============================================
+### ERROR CASES
+### ============================================
+
+### 15. Invalid Contractor ID Format (Should fail validation)
+GET {{baseUrl}}/api/job/my/jobs?contractorId=invalid_id
+Authorization: Bearer {{customerToken}}
+
+### 16. Without Authentication (Should fail with 401)
+GET {{baseUrl}}/api/job/my/jobs?contractorId={{contractorId}}
+
+### 17. Contractor Trying to Access (Should fail with 403)
+GET {{baseUrl}}/api/job/my/jobs?contractorId={{contractorId}}
+Authorization: Bearer CONTRACTOR_TOKEN

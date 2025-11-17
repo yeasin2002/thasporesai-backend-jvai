@@ -2,14 +2,14 @@ import { openAPITags } from "@/common/constants";
 import { registry } from "@/lib/openapi";
 import { z } from "zod";
 import {
-	CreateJobSchema,
-	ErrorResponseSchema,
-	JobIdSchema,
-	JobResponseSchema,
-	JobsResponseSchema,
-	SearchJobSchema,
-	SuccessResponseSchema,
-	UpdateJobSchema,
+  CreateJobSchema,
+  ErrorResponseSchema,
+  JobIdSchema,
+  JobResponseSchema,
+  JobsResponseSchema,
+  SearchJobSchema,
+  SuccessResponseSchema,
+  UpdateJobSchema,
 } from "./job.validation";
 
 // Register schemas
@@ -94,50 +94,50 @@ registry.registerPath({
 
 // GET /api/job/my/jobs - Get customer's own jobs with search and filters
 registry.registerPath({
-	method: "get",
-	path: `${openAPITags.job.basepath}/my/jobs`,
-	description:
-		"Get all jobs posted by the authenticated customer with optional search and filters",
-	summary: "Get my jobs",
-	tags: [openAPITags.job.name],
-	security: [{ bearerAuth: [] }],
-	request: {
-		query: SearchJobSchema,
-	},
-	responses: {
-		200: {
-			description: "Jobs retrieved successfully",
-			content: {
-				"application/json": {
-					schema: JobsResponseSchema,
-				},
-			},
-		},
-		401: {
-			description: "Unauthorized",
-			content: {
-				"application/json": {
-					schema: ErrorResponseSchema,
-				},
-			},
-		},
-		403: {
-			description: "Forbidden - Customer only",
-			content: {
-				"application/json": {
-					schema: ErrorResponseSchema,
-				},
-			},
-		},
-		500: {
-			description: "Internal server error",
-			content: {
-				"application/json": {
-					schema: ErrorResponseSchema,
-				},
-			},
-		},
-	},
+  method: "get",
+  path: `${openAPITags.job.basepath}/my/jobs`,
+  description:
+    "Get all jobs posted by the authenticated customer with optional search and filters. When contractorId is provided, returns only jobs where that contractor has NOT been invited and has NOT applied - useful for finding jobs to invite a specific contractor to.",
+  summary: "Get my jobs",
+  tags: [openAPITags.job.name],
+  security: [{ bearerAuth: [] }],
+  request: {
+    query: SearchJobSchema,
+  },
+  responses: {
+    200: {
+      description: "Jobs retrieved successfully",
+      content: {
+        "application/json": {
+          schema: JobsResponseSchema,
+        },
+      },
+    },
+    401: {
+      description: "Unauthorized",
+      content: {
+        "application/json": {
+          schema: ErrorResponseSchema,
+        },
+      },
+    },
+    403: {
+      description: "Forbidden - Customer only",
+      content: {
+        "application/json": {
+          schema: ErrorResponseSchema,
+        },
+      },
+    },
+    500: {
+      description: "Internal server error",
+      content: {
+        "application/json": {
+          schema: ErrorResponseSchema,
+        },
+      },
+    },
+  },
 });
 
 // GET /api/job/engaged - Get engaged jobs (jobs with applications or offers)
