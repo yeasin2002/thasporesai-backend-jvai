@@ -194,7 +194,6 @@ providus_org/
 - **`logger.ts`**: Winston logger configuration
   - Daily rotating file logs (error, combined, http)
   - Console logging with colors
-  - Helper functions: `logError()`, `logInfo()`, `logWarn()`, `logDebug()`, `logHttp()`
 - **`connect-mongo.ts`**: MongoDB connection logic
   - `connectDB()` - Connect to MongoDB with Mongoose
 - **`multer.ts`**: File upload configuration

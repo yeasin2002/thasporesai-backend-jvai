@@ -1,5 +1,5 @@
 import { sendError, sendSuccess } from "@/helpers";
-import { API_BASE_URL, getFileUrl, logError, logInfo } from "@/lib";
+import { API_BASE_URL, getFileUrl, logError, logger } from "@/lib";
 import type { RequestHandler } from "express";
 
 /**
@@ -20,7 +20,7 @@ export const uploadImage: RequestHandler = async (req, res) => {
 			return sendError(res, 400, "No image file provided");
 		}
 
-		logInfo("Image upload started", {
+		logger.info("Image upload started", {
 			userId: (req as any).user?.id,
 			filename: req.file.originalname,
 			size: req.file.size,
@@ -42,7 +42,7 @@ export const uploadImage: RequestHandler = async (req, res) => {
 			mimetype: req.file.mimetype,
 		};
 
-		logInfo("Image uploaded successfully", {
+		logger.info("Image uploaded successfully", {
 			userId: (req as any).user?.id,
 			filename: req.file.filename,
 			url: imageUrl,

@@ -121,29 +121,13 @@ export const logError = (
 	}
 };
 
-export const logInfo = (message: string, meta?: any) => {
-	logger.info(message, meta);
-};
-
-export const logWarn = (message: string, meta?: any) => {
-	logger.warn(message, meta);
-};
-
-export const logDebug = (message: string, meta?: any) => {
-	logger.debug(message, meta);
-};
-
-export const logHttp = (message: string, meta?: any) => {
-	logger.http(message, meta);
-};
-
 // Log unhandled rejections and exceptions
 process.on("unhandledRejection", (reason: Error | any) => {
-	logError("Unhandled Rejection", reason);
+	logError("Unhandled Rejection <Logger>", reason);
 });
 
 process.on("uncaughtException", (error: Error) => {
-	logError("Uncaught Exception", error);
+	logError("Uncaught Exception <Logger 2>", error);
 	// Give logger time to write before exiting
 	setTimeout(() => {
 		process.exit(1);

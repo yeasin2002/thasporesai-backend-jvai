@@ -180,7 +180,7 @@ import { Router } from "express";
 import Stripe from "stripe";
 import { db } from "@/db";
 import { NotificationService } from "@/common/service/notification.service";
-import { logError, logInfo } from "@/lib/logger";
+
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: "2024-11-20.acacia",
@@ -202,11 +202,11 @@ stripeWebhook.post("/", async (req, res) => {
       process.env.STRIPE_WEBHOOK_SECRET!
     );
   } catch (err: any) {
-    logError(`Webhook signature verification failed: ${err.message}`);
+    
     return res.status(400).send(`Webhook Error: ${err.message}`);
   }
 
-  logInfo(`Received webhook event: ${event.type}`);
+  
 
   // Handle the event
   try {
@@ -254,12 +254,12 @@ stripeWebhook.post("/", async (req, res) => {
         break;
 
       default:
-        logInfo(`Unhandled event type: ${event.type}`);
+        
     }
 
     res.json({ received: true });
   } catch (error: any) {
-    logError(`Error handling webhook: ${error.message}`);
+    
     res.status(500).json({ error: "Webhook handler failed" });
   }
 });
@@ -275,12 +275,12 @@ stripeWebhook.post("/", async (req, res) => {
 async function handlePaymentIntentSucceeded(
   paymentIntent: Stripe.PaymentIntent
 ) {
-  logInfo(`Payment succeeded: ${paymentIntent.id}`);
+  
 
   const { userId, transactionId } = paymentIntent.metadata;
 
   if (!userId || !transactionId) {
-    logError("Missing metadata in payment intent");
+    
     return;
   }
 
@@ -305,7 +305,7 @@ async function handlePaymentIntentSucceeded(
     },
   });
 
-  logInfo(`Payment processed successfully for user ${userId}`);
+  
 }
 
 /**
@@ -313,12 +313,12 @@ async function handlePaymentIntentSucceeded(
  * This alerts customer their deposit failed
  */
 async function handlePaymentIntentFailed(paymentIntent: Stripe.PaymentIntent) {
-  logError(`Payment failed: ${paymentIntent.id}`);
+  
 
   const { userId, transactionId } = paymentIntent.metadata;
 
   if (!userId || !transactionId) {
-    logError("Missing metadata in payment intent");
+    
     return;
   }
 
@@ -353,7 +353,7 @@ async function handlePaymentIntentFailed(paymentIntent: Stripe.PaymentIntent) {
     },
   });
 
-  logError(`Payment failed for user ${userId}: ${failureReason}`);
+  
 }
 
 /**
@@ -362,7 +362,7 @@ async function handlePaymentIntentFailed(paymentIntent: Stripe.PaymentIntent) {
 async function handlePaymentIntentCanceled(
   paymentIntent: Stripe.PaymentIntent
 ) {
-  logInfo(`Payment canceled: ${paymentIntent.id}`);
+  
 
   const { userId, transactionId } = paymentIntent.metadata;
 
@@ -381,7 +381,7 @@ async function handlePaymentIntentCanceled(
  * This confirms payout to contractor was initiated
  */
 async function handleTransferCreated(transfer: Stripe.Transfer) {
-  logInfo(`Transfer created: ${transfer.id}`);
+  
 
   const { offerId, contractorId } = transfer.metadata;
 
@@ -394,7 +394,7 @@ async function handleTransferCreated(transfer: Stripe.Transfer) {
     stripeTransferId: transfer.id,
   });
 
-  logInfo(`Transfer initiated for contractor ${contractorId}`);
+  
 }
 
 /**
@@ -402,7 +402,7 @@ async function handleTransferCreated(transfer: Stripe.Transfer) {
  * This confirms contractor received their payout
  */
 async function handleTransferPaid(transfer: Stripe.Transfer) {
-  logInfo(`Transfer paid: ${transfer.id}`);
+  
 
   const { offerId, contractorId, jobId } = transfer.metadata;
 
@@ -439,7 +439,7 @@ async function handleTransferPaid(transfer: Stripe.Transfer) {
     },
   });
 
-  logInfo(`Transfer completed for contractor ${contractorId}`);
+  
 }
 
 /**
@@ -447,7 +447,7 @@ async function handleTransferPaid(transfer: Stripe.Transfer) {
  * This alerts admin that contractor payout failed
  */
 async function handleTransferFailed(transfer: Stripe.Transfer) {
-  logError(`Transfer failed: ${transfer.id}`);
+  
 
   const { offerId, contractorId, jobId } = transfer.metadata;
 
@@ -484,7 +484,7 @@ async function handleTransferFailed(transfer: Stripe.Transfer) {
   }
 
   // Notify admin (you'll need to implement this)
-  logError(`Transfer failed for contractor ${contractorId}: ${failureReason}`);
+  
 
   // TODO: Send email to admin about failed transfer
 }
@@ -493,7 +493,7 @@ async function handleTransferFailed(transfer: Stripe.Transfer) {
  * Handle refund completed
  */
 async function handleChargeRefunded(charge: Stripe.Charge) {
-  logInfo(`Charge refunded: ${charge.id}`);
+  
 
   // Refunds are already handled in your reject/cancel logic
   // This webhook just confirms it completed successfully
@@ -504,7 +504,7 @@ async function handleChargeRefunded(charge: Stripe.Charge) {
  * This tracks contractor onboarding status
  */
 async function handleAccountUpdated(account: Stripe.Account) {
-  logInfo(`Account updated: ${account.id}`);
+  
 
   const isOnboarded = account.charges_enabled && account.payouts_enabled;
 
@@ -535,13 +535,13 @@ async function handleAccountUpdated(account: Stripe.Account) {
  * This alerts admin about chargebacks
  */
 async function handleDisputeCreated(dispute: Stripe.Dispute) {
-  logError(`Dispute created: ${dispute.id}`);
+  
 
   // TODO: Implement admin notification system
   // This is critical - you need to respond to disputes within 7 days
 
-  logError(`Dispute amount: $${(dispute.amount / 100).toFixed(2)}`);
-  logError(`Dispute reason: ${dispute.reason}`);
+  
+  
 }
 ```
 
@@ -876,7 +876,7 @@ try {
   await handlePaymentIntentSucceeded(paymentIntent);
   res.json({ received: true });
 } catch (error) {
-  logError(`Webhook handler failed: ${error.message}`);
+  
   // Return 200 to prevent Stripe retries
   res.json({ received: true, error: error.message });
 }
@@ -885,9 +885,9 @@ try {
 ### 5. Log Everything
 
 ```typescript
-logInfo(`Webhook received: ${event.type}`);
-logInfo(`Event ID: ${event.id}`);
-logInfo(`Metadata: ${JSON.stringify(event.data.object.metadata)}`);
+
+
+
 ```
 
 ---
@@ -1017,10 +1017,10 @@ STRIPE_WEBHOOK_SECRET=whsec_...
 
 ```typescript
 // Log all webhook events
-logInfo(`Webhook: ${event.type} - ${event.id}`);
+
 
 // Log errors with context
-logError(`Webhook failed: ${event.type}`, {
+
   eventId: event.id,
   error: error.message,
   metadata: event.data.object.metadata,

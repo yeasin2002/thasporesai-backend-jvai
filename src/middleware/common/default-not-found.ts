@@ -1,4 +1,4 @@
-import { logWarn } from "@/lib/logger";
+import logger from "@/lib/logger";
 import type { NextFunction, Request, Response } from "express";
 
 export function notFoundHandler(
@@ -7,7 +7,7 @@ export function notFoundHandler(
 	_next: NextFunction,
 ) {
 	// Log 404 errors
-	logWarn("Route Not Found", {
+	logger.warn("Route Not Found", {
 		route: req.originalUrl,
 		method: req.method,
 		ip: req.ip,
