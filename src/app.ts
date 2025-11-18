@@ -3,7 +3,6 @@ import consola from "consola";
 import cors from "cors";
 import "dotenv/config";
 import express from "express";
-import morgan from "morgan";
 import { createServer } from "node:http";
 import swaggerUi from "swagger-ui-express";
 
@@ -27,6 +26,7 @@ import { connectDB, generateOpenAPIDocument, initializeFirebase } from "@/lib";
 import {
 	errorHandler,
 	notFoundHandler,
+	pinoHttpMiddleware,
 	requireAuth,
 	requireRole,
 } from "@/middleware";
@@ -35,7 +35,6 @@ import { initializeSocketIO } from "./api/chat/socket";
 import { common } from "./api/common/common.route";
 import { startOfferExpirationJob } from "./jobs/expire-offers";
 import { getLocalIP } from "./lib/get-my-ip";
-import { morganDevFormat } from "./lib/morgan";
 
 const app = express();
 const httpServer = createServer(app);
@@ -44,7 +43,9 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.use("/uploads", express.static("uploads"));
-app.use(morgan(morganDevFormat));
+
+// Pino HTTP logging middleware (replaces Morgan)
+app.use(pinoHttpMiddleware);
 
 app.use(
 	cors({

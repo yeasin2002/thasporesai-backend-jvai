@@ -1,4 +1,4 @@
-import { logger } from "@/lib";
+import { logError } from "@/lib/pino";
 import type { Response } from "express";
 import type { Error as MongooseError } from "mongoose";
 import { isValidObjectId } from "mongoose";
@@ -16,8 +16,7 @@ export const exceptionErrorHandler = (
 	res: Response,
 	defaultMessage = "Database operation failed",
 ) => {
-	console.error("MongoDB Error:", error);
-	logger.error("MongoDB Error:", error);
+	logError("MongoDB Error", error);
 
 	if (error && typeof error === "object" && "name" in error) {
 		const mongoError = error as MongooseError;

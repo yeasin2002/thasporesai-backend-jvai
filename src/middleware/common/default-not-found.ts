@@ -1,4 +1,4 @@
-import { logWarn } from "@/lib/logger";
+import { logWarn } from "@/lib/pino";
 import type { NextFunction, Request, Response } from "express";
 
 export function notFoundHandler(

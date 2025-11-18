@@ -1,4 +1,4 @@
-import { logger } from "@/lib";
+import { logResponse } from "@/lib/pino";
 import type { Response } from "express";
 
 /**
@@ -28,6 +28,13 @@ export function sendSuccess<T = any>(
 	message: string,
 	data: T | null = null,
 ): Response<ApiResponse<T>> {
+	// Log successful response
+	logResponse(statusCode, message, {
+		method: res.req?.method,
+		url: res.req?.originalUrl,
+		hasData: data !== null,
+	});
+
 	return res.status(statusCode).json({
 		status: statusCode,
 		message,
@@ -49,7 +56,18 @@ export function sendError(
 	message: string,
 	errors?: Array<{ path: string; message: string }>,
 ): Response<ApiResponse<null>> {
-	logger.error("500 Error: ", message);
+	// Log error response with full context
+	logResponse(statusCode, message, {
+		method: res.req?.method,
+		url: res.req?.originalUrl,
+		body: res.req?.body,
+		params: res.req?.params,
+		query: res.req?.query,
+		errors: errors,
+		ip: res.req?.ip,
+		userAgent: res.req?.get("user-agent"),
+	});
+
 	const response: ApiResponse<null> = {
 		status: statusCode,
 		message,
@@ -97,7 +115,6 @@ export function sendBadRequest(
 	message: string = "Bad Request",
 	errors?: Array<{ path: string; message: string }>,
 ): Response<ApiResponse<null>> {
-	logger.error("400 Error: ", message);
 	return sendError(res, 400, message, errors);
 }
 
@@ -110,7 +127,6 @@ export function sendUnauthorized(
 	res: Response,
 	message: string = "Unauthorized",
 ): Response<ApiResponse<null>> {
-	logger.error("401 Error: ", message);
 	return sendError(res, 401, message);
 }
 
@@ -123,7 +139,6 @@ export function sendForbidden(
 	res: Response,
 	message: string = "Forbidden",
 ): Response<ApiResponse<null>> {
-	logger.error("403 Error: ", message);
 	return sendError(res, 403, message);
 }
 
@@ -136,7 +151,6 @@ export function sendNotFound(
 	res: Response,
 	message: string = "Not Found",
 ): Response<ApiResponse<null>> {
-	logger.error("404 Error: ", message);
 	return sendError(res, 404, message);
 }
 
@@ -149,7 +163,6 @@ export function sendInternalError(
 	res: Response,
 	message: string = "Internal Server Error",
 ): Response<ApiResponse<null>> {
-	logger.error("500 Error: ", message);
 	return sendError(res, 500, message);
 }
 

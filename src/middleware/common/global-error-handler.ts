@@ -1,5 +1,5 @@
 import { sendError } from "@/helpers/response-handler";
-import { logError } from "@/lib/logger";
+import { logError } from "@/lib/pino";
 import type { ErrorRequestHandler } from "express";
 
 export const errorHandler: ErrorRequestHandler = (err, req, res, _next) => {
