@@ -1,184 +1,369 @@
-# JobSphere Backend
+# JobSphere Backend API
 
-Backend API for JobSphere - a mobile marketplace connecting customers with local freelance contractors (electricians, plumbers, cleaners, carpenters, etc.).
+> A comprehensive backend service for a mobile marketplace connecting customers with local freelance contractors.
 
-## Tech Stack
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.9-blue.svg)](https://www.typescriptlang.org/)
+[![Express](https://img.shields.io/badge/Express-5.1-green.svg)](https://expressjs.com/)
+[![MongoDB](https://img.shields.io/badge/MongoDB-8.19-green.svg)](https://www.mongodb.com/)
+[![Socket.IO](https://img.shields.io/badge/Socket.IO-4.8-black.svg)](https://socket.io/)
 
-- **Runtime**: Node.js with TypeScript
+## 📋 Table of Contents
+
+- [About](#about)
+- [Key Features](#key-features)
+- [Technology Stack](#technology-stack)
+- [Getting Started](#getting-started)
+- [Project Structure](#project-structure)
+- [API Documentation](#api-documentation)
+- [User Roles](#user-roles)
+- [Core Workflows](#core-workflows)
+- [Contributing](#contributing)
+- [License](#license)
+
+## 🎯 About
+
+JobSphere is a mobile-first marketplace platform that connects customers with skilled local contractors across various service categories including:
+
+- 🔌 Electricians
+- 🔧 Plumbers
+- 🧹 Cleaners
+- 🔨 Carpenters
+- 🎨 Painters
+- And many more...
+
+The platform facilitates the entire job lifecycle from posting to completion, with secure payments, real-time communication, and comprehensive contractor profiles.
+
+## ✨ Key Features
+
+### 🔐 Authentication & Authorization
+- JWT-based authentication with access and refresh token rotation
+- Role-based access control (Customer, Contractor, Admin)
+- OTP-based password recovery via email
+- Secure token management with JTI tracking
+
+### 💼 Job Management
+- **Job Posting**: Customers post jobs with budgets, categories, and locations
+- **Job Applications**: Contractors apply to open jobs
+- **Job Invitations**: Customers invite specific contractors
+- **Offer System**: Customers send offers with payment terms
+- **Job Lifecycle**: Complete status tracking from open to completed
+
+### 💰 Payment & Wallet System
+- Internal wallet system for all users
+- Escrow-based secure payments
+- Commission structure: 5% platform fee + 20% service fee
+- Contractor receives 80% of job budget
+- Transaction history and audit trail
+- Withdrawal system for contractors
+- Future: Stripe integration for external payments
+
+### 💬 Real-Time Communication
+- Socket.IO-based one-to-one chat
+- Message history with pagination
+- Typing indicators and read receipts
+- Online/offline status tracking
+- File sharing (images, documents)
+- JWT authentication for socket connections
+
+### 🔔 Push Notifications
+- Firebase Cloud Messaging (FCM) integration
+- Multi-device support per user
+- 10 notification types (job updates, messages, payments, etc.)
+- Notification history persistence
+- Read/unread tracking
+
+### 👤 User Profiles
+- Comprehensive contractor portfolios
+- Work experience tracking
+- Certifications management
+- Work samples gallery
+- Skills and availability
+- Review and rating system
+
+### 📁 File Management
+- Profile and cover images
+- Portfolio images
+- Certification documents
+- Chat attachments
+- Local storage with future cloud migration
+
+### 📊 Admin Dashboard
+- User management (suspend/unsuspend)
+- Job monitoring
+- Payment oversight
+- Dispute resolution
+- System analytics
+
+## 🛠 Technology Stack
+
+### Core Technologies
+- **Runtime**: Node.js with TypeScript (ESNext)
 - **Framework**: Express.js v5.1.0
-- **Database**: MongoDB with Mongoose ODM
-- **Package Manager**: Bun
-- **Authentication**: JWT with refresh token rotation
-- **Real-Time**: Socket.IO for WebSocket chat
-- **Payments**: Stripe with escrow system
-- **Notifications**: Firebase Cloud Messaging (FCM)
-- **File Upload**: Local storage (future AWS S3 migration)
+- **Database**: MongoDB with Mongoose ODM v8.19.2
+- **Package Manager**: Bun (pnpm compatible)
 
-## Key Features
+### Real-Time & Communication
+- **WebSocket**: Socket.IO v4.8.1
+- **Push Notifications**: Firebase Admin SDK v13.5.0
+- **Email**: Nodemailer v7.0.10
 
-- JWT authentication with access/refresh tokens
-- Role-based access (Customer, Contractor, Admin)
-- Real-time chat between users
-- Push notifications for mobile app with Firebase
-- Stripe payment processing with escrow
-- File upload system
-- OTP-based password recovery
+### Security & Validation
+- **Authentication**: JWT (jsonwebtoken v9.0.2)
+- **Password Hashing**: bcryptjs v3.0.2
+- **Validation**: Zod v4.1.12
+- **CORS**: cors v2.8.5
 
-## Getting Started
+### Development Tools
+- **Build**: tsdown v0.15.9
+- **Type Checking**: TypeScript v5.9.3
+- **Linting**: oxlint v1.24.0
+- **Formatting**: Biome v2.2.6
+- **Git Hooks**: Husky v9.1.7 + lint-staged
 
-### Prerequisites
+### Documentation
+- **OpenAPI**: @asteasolutions/zod-to-openapi v8.1.0
+- **Swagger UI**: swagger-ui-express v5.0.1
+- **Scalar UI**: @scalar/express-api-reference v0.8.22
 
-- Node.js 18+
-- Bun package manager
-- MongoDB instance
-- Stripe account (for payments)
-- Firebase project (for notifications)
+### Logging & Monitoring
+- **Logger**: Winston v3.18.3
+- **HTTP Logger**: Morgan v1.10.1
+- **Daily Rotation**: winston-daily-rotate-file v5.0.0
 
-### Installation
+### Future Integrations
+- **Payments**: Stripe v19.3.1 (planned)
+- **Cloud Storage**: AWS S3 (planned)
+
+## 🚀 Getting Started
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed setup instructions, development guidelines, and contribution workflow.
+
+### Quick Start
 
 ```bash
+# Install dependencies
 bun install
+
+# Setup environment
+cp .env.example .env
+# Edit .env with your configuration
+
+# Start development server
+bun dev
+
+# Access API documentation
+open http://localhost:4000/swagger
 ```
 
-### Environment Setup
-
-Create a `.env` file in the root directory:
-
-```env
-# Server
-PORT=4000
-NODE_ENV=development
-
-# Database
-MONGODB_URI=mongodb://localhost:27017/jobsphere
-
-# JWT
-JWT_ACCESS_SECRET=your_access_secret
-JWT_REFRESH_SECRET=your_refresh_secret
-JWT_ACCESS_EXPIRY=15m
-JWT_REFRESH_EXPIRY=7d
-
-# Email (for OTP)
-SMTP_HOST=smtp.gmail.com
-SMTP_PORT=587
-SMTP_USER=your_email@gmail.com
-SMTP_PASS=your_app_password
-
-# WebSocket
-SOCKET_PORT=3001
-
-# File Upload
-UPLOAD_DIR=./upload
-MAX_FILE_SIZE=10485760
-
-# Stripe
-STRIPE_SECRET_KEY=sk_test_...
-STRIPE_PUBLISHABLE_KEY=pk_test_...
-STRIPE_WEBHOOK_SECRET=whsec_...
-STRIPE_COMMISSION_PERCENT=10
-
-# Firebase (FCM)
-FCM_SERVER_KEY=...
-FCM_PROJECT_ID=...
-```
-
-### Development
-
-```bash
-bun dev          # Start with hot reload
-bun dev:b        # Start with Bun hot reload
-```
-
-### Production
-
-```bash
-bun build        # Build the project
-bun start        # Start production server
-```
-
-### Code Quality
-
-```bash
-bun check        # Run oxlint
-bun check-types  # TypeScript type checking
-```
-
-### Module Generator
-
-Quickly scaffold new API modules with boilerplate code:
-
-```bash
-bun run generate:module
-```
-
-This will prompt for a module name and create:
-- `[module].route.ts` - Express router with CRUD endpoints
-- `[module].service.ts` - Business logic handlers
-- `[module].schema.ts` - Zod validation schemas with OpenAPI docs
-
-See `script/README.md` for detailed usage.
-
-## Project Structure
+## 📁 Project Structure
 
 ```
-jobsphere-backend/
-├── src/
-│   ├── db/              # Database connection and models
-│   ├── routers/         # API route handlers
-│   │   ├── auth.ts      # Authentication routes
-│   │   ├── user.ts      # User management
-│   │   ├── job.ts       # Job postings
-│   │   ├── payment.ts   # Payment processing
-│   │   └── chat.ts      # Chat endpoints
-│   ├── middleware/      # Auth, validation, error handling
-│   ├── services/        # Business logic
-│   ├── utils/           # Helper functions
-│   └── index.ts         # Application entry point
-├── upload/              # File upload directory
-└── .kiro/steering/      # Project documentation
+src/
+├── app.ts                  # Application entry point
+├── db/                     # Database layer
+│   ├── models/             # Mongoose models
+│   └── index.ts            # Model exports
+├── lib/                    # Core utilities
+│   ├── firebase.ts         # FCM initialization
+│   ├── openapi.ts          # OpenAPI registry
+│   ├── jwt.ts              # Token management
+│   ├── logger.ts           # Winston logger
+│   └── connect-mongo.ts    # DB connection
+├── middleware/             # Express middleware
+│   ├── auth.middleware.ts  # JWT auth & RBAC
+│   └── validation.middleware.ts
+├── helpers/                # Response & error handlers
+├── common/                 # Shared resources
+│   ├── constants.ts        # API paths & tags
+│   ├── email/              # Email templates
+│   └── service/            # Shared services
+└── api/                    # API modules
+    ├── auth/               # Authentication
+    ├── job/                # Job management
+    ├── job-request/        # Applications
+    ├── job-invite/         # Invitations
+    ├── offer/              # Offer management
+    ├── wallet/             # Wallet & transactions
+    ├── chat/               # Real-time chat
+    ├── notification/       # Push notifications
+    ├── review/             # Reviews & ratings
+    ├── users/              # User profiles
+    │   ├── profile/
+    │   ├── certifications/
+    │   ├── experience/
+    │   └── work_samples/
+    └── admin/              # Admin panel
+        ├── auth-admin/
+        └── admin-user/
 ```
 
-## User Roles
+## 📚 API Documentation
 
-- **Customer**: Posts jobs, hires contractors, makes payments
-- **Contractor**: Offers services, accepts jobs, receives payments
-- **Admin**: Monitors platform, manages disputes, oversees transactions
+### Interactive Documentation
 
-## API Endpoints
+- **Swagger UI**: http://localhost:4000/swagger
+- **Scalar UI**: http://localhost:4000/scaler
+- **OpenAPI JSON**: http://localhost:4000/api-docs.json
 
-### Authentication
+### API Endpoints Overview
 
-- `POST /api/auth/register` - User registration
-- `POST /api/auth/login` - User login
-- `POST /api/auth/forgot-password` - Request OTP
-- `POST /api/auth/reset-password` - Reset with OTP
-- `POST /api/auth/refresh` - Refresh access token
-- `POST /api/auth/logout` - Logout user
+#### Authentication (`/api/auth`)
+- Register, Login, Logout
+- Password reset with OTP
+- Token refresh
 
-### Payments
+#### Jobs (`/api/job`)
+- CRUD operations
+- Search with filters
+- Job lifecycle management
+- Engaged jobs (with applications/offers)
 
-- `POST /api/payments/create-intent` - Create payment
-- `POST /api/payments/confirm` - Confirm payment
-- `POST /api/payouts/withdraw` - Contractor withdrawal
-- `POST /api/webhooks/stripe` - Stripe webhooks
+#### Applications (`/api/job-request`)
+- Apply to jobs
+- Accept/reject applications
+- Application management
 
-### File Upload
+#### Invitations (`/api/job-invite`)
+- Send invitations
+- Accept/reject invitations
+- Available contractors list
 
-- `POST /api/upload` - Upload file
-- `GET /api/files/:filename` - Get file
+#### Offers (`/api/offer`)
+- Send offers
+- Accept/reject offers
+- Payment integration
 
-## Payment Flow
+#### Wallet (`/api/wallet`)
+- Balance management
+- Deposit/withdraw
+- Transaction history
 
-1. Customer posts job with budget
-2. Contractor accepts job
-3. Customer pays via Stripe (held in escrow)
-4. Job completed → Payment auto-released to contractor
-5. Contractor withdraws to bank account
+#### Chat (`/api/chat`)
+- Conversations
+- Messages
+- File sharing
 
-## Contributing
+#### Notifications (`/api/notification`)
+- Register device tokens
+- Get notifications
+- Mark as read
 
-This project uses Husky for pre-commit hooks to ensure code quality. All commits are automatically linted and type-checked.
+#### User Profiles (`/api/user`)
+- Profile management
+- Experience, certifications, work samples
+- Public profiles
 
-## License
+#### Admin (`/api/admin`)
+- User management
+- System monitoring
+
+## 👥 User Roles
+
+### Customer (Buyer)
+- Post jobs with budgets and requirements
+- Review contractor applications
+- Send invitations to contractors
+- Send offers with payment terms
+- Manage payments through wallet
+- Chat with contractors
+- Leave reviews after job completion
+
+### Contractor (Seller)
+- Browse and apply to jobs
+- Receive and respond to invitations
+- Accept/reject offers
+- Manage portfolio (experience, certifications, work samples)
+- Receive payments to wallet
+- Withdraw earnings
+- Chat with customers
+- Build reputation through reviews
+
+### Admin
+- Monitor all platform activities
+- Manage users (suspend/unsuspend)
+- Oversee transactions
+- Handle disputes
+- Access system analytics
+- Manage categories and locations
+
+## 🔄 Core Workflows
+
+### Job Posting to Completion
+
+```
+1. Customer posts job (status: open)
+   ↓
+2. Contractors apply OR Customer invites contractors
+   ↓
+3. Customer reviews applications
+   ↓
+4. Customer sends offer (wallet charged: budget + 5% platform fee)
+   ↓
+5. Contractor accepts offer
+   - Platform fee (5%) → Admin wallet
+   - Remaining amount → Escrow
+   - Job status → assigned
+   ↓
+6. Contractor starts work (status: in_progress)
+   ↓
+7. Customer marks job complete
+   - Service fee (20%) → Admin wallet
+   - Contractor payout (80%) → Contractor wallet
+   - Job status → completed
+   ↓
+8. Contractor withdraws earnings
+```
+
+### Payment Flow
+
+```
+Job Budget: $100
+
+Customer Pays: $105 (budget + 5% platform fee)
+   ↓
+On Offer Acceptance:
+   - Platform Fee: $5 → Admin
+   - Escrow: $100 → Held
+   ↓
+On Job Completion:
+   - Service Fee: $20 → Admin
+   - Contractor: $80 → Contractor Wallet
+   ↓
+Admin Total: $25 (5% + 20%)
+Contractor Total: $80
+```
+
+### Real-Time Chat
+
+```
+1. User connects with JWT token
+   ↓
+2. Socket.IO authenticates user
+   ↓
+3. User joins conversation room
+   ↓
+4. Send/receive messages in real-time
+   ↓
+5. Typing indicators, read receipts
+   ↓
+6. File sharing support
+```
+
+## 🤝 Contributing
+
+We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for:
+
+- Development setup
+- Coding standards
+- Module generator usage
+- Testing guidelines
+- Pull request process
+- Code review checklist
+
+## 📄 License
 
 Private - All rights reserved
+
+---
+
+**Built with ❤️ for connecting customers with skilled contractors**
