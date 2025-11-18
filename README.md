@@ -6,6 +6,9 @@
 [![Express](https://img.shields.io/badge/Express-5.1-green.svg)](https://expressjs.com/)
 [![MongoDB](https://img.shields.io/badge/MongoDB-8.19-green.svg)](https://www.mongodb.com/)
 [![Socket.IO](https://img.shields.io/badge/Socket.IO-4.8-black.svg)](https://socket.io/)
+[![License](https://img.shields.io/badge/License-Proprietary-red.svg)](LICENSE)
+
+> **⚠️ PROPRIETARY SOFTWARE**: This code is publicly visible for transparency and educational purposes only. Unauthorized use, copying, modification, or distribution is strictly prohibited. See [LICENSE](LICENSE) for details.
 
 ## 📋 Table of Contents
 
@@ -362,7 +365,13 @@ We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for:
 
 ## 📄 License
 
-Private - All rights reserved
+This project is proprietary and confidential. The source code is publicly visible for transparency and educational purposes only.
+
+**⚠️ IMPORTANT**: You are NOT permitted to use, copy, modify, or distribute this software without explicit written permission from the owner.
+
+See [LICENSE](LICENSE) for full terms and conditions.
+
+For licensing inquiries, please contact: [Your Contact Email]
 
 ---
 

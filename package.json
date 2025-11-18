@@ -69,6 +69,16 @@
     "tsx": "^4.20.6",
     "typescript": "^5.9.3"
   },
+  "author": "JobSphere",
+  "license": "Proprietary",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yeasin2002/thasporesai-backend-jvai.git"
+  },
+  "bugs": {
+    "url": "https://github.com/yeasin2002/thasporesai-backend-jvai/issues"
+  },
+  "homepage": "https://github.com/yeasin2002/thasporesai-backend-jvai#readme",
   "lint-staged": {
     "**/*.{js,mjs,cjs,jsx,ts,mts,cts,tsx,vue,astro,svelte}": "oxlint"
   },
