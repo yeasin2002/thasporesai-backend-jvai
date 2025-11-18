@@ -3,11 +3,10 @@ import { logError } from "@/lib/logger";
 import type { ErrorRequestHandler } from "express";
 
 export const errorHandler: ErrorRequestHandler = (err, req, res, _next) => {
+	console.log("🚀 ~ errorHandler ~ err:", err);
 	const status = err.status || err.statusCode || 500;
 	const message = err.message || "Internal Server Error";
-
-	// Log full error with stack and request info
-	logError("Unhandled Error", err, {
+	const request_details = {
 		status,
 		route: req.originalUrl,
 		method: req.method,
@@ -16,7 +15,11 @@ export const errorHandler: ErrorRequestHandler = (err, req, res, _next) => {
 		query: req.query,
 		ip: req.ip,
 		userAgent: req.get("user-agent"),
-	});
+	};
+	console.log("🚀 ~ errorHandler ~ request_details:", request_details);
+
+	// Log full error with stack and request info
+	logError("Unhandled Error", err, request_details);
 
 	// Return safe error to client
 	return sendError(

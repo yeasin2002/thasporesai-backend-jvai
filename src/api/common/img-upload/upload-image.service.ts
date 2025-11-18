@@ -1,6 +1,5 @@
 import { sendError, sendSuccess } from "@/helpers";
-import { API_BASE_URL } from "@/lib";
-import { getFileUrl } from "@/lib/multer";
+import { API_BASE_URL, getFileUrl, logError, logInfo } from "@/lib";
 import type { RequestHandler } from "express";
 
 /**
@@ -10,8 +9,24 @@ import type { RequestHandler } from "express";
 export const uploadImage: RequestHandler = async (req, res) => {
 	try {
 		if (!req.file) {
+			logError(
+				"No image file provided in upload request",
+				new Error("Missing file"),
+				{
+					userId: (req as any).user?.id,
+					url: req.originalUrl,
+				},
+			);
 			return sendError(res, 400, "No image file provided");
 		}
+
+		logInfo("Image upload started", {
+			userId: (req as any).user?.id,
+			filename: req.file.originalname,
+			size: req.file.size,
+			mimetype: req.file.mimetype,
+			savedPath: req.file.path,
+		});
 
 		// Get the base URL from environment or request
 		const baseUrl = API_BASE_URL || `${req.protocol}://${req.get("host")}`;
@@ -26,11 +41,21 @@ export const uploadImage: RequestHandler = async (req, res) => {
 			size: req.file.size,
 			mimetype: req.file.mimetype,
 		};
-		console.log("🚀 ~ uploadImage ~ image_details:", image_details);
+
+		logInfo("Image uploaded successfully", {
+			userId: (req as any).user?.id,
+			filename: req.file.filename,
+			url: imageUrl,
+			size: req.file.size,
+		});
 
 		return sendSuccess(res, 200, "Image uploaded successfully", image_details);
 	} catch (error) {
-		console.error("Image upload error:", error);
+		logError("Image upload failed", error, {
+			userId: (req as any).user?.id,
+			filename: req.file?.originalname,
+			size: req.file?.size,
+		});
 		return sendError(res, 500, "Failed to upload image");
 	}
 };

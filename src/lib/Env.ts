@@ -1,3 +1,5 @@
+import "dotenv/config";
+
 export const API_BASE_URL = process.env.API_BASE_URL || "http://localhost:4000";
 export const PORT = process.env.PORT || 4000;
 export const ACCESS_SECRET = process.env.ACCESS_SECRET as string;

@@ -1,16 +1,21 @@
 import multer from "multer";
+import fs from "node:fs";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+// Get project root directory (works in both dev and production)
+const projectRoot = process.cwd();
+const uploadsDir = path.join(projectRoot, "uploads");
+
+// Ensure uploads directory exists
+if (!fs.existsSync(uploadsDir)) {
+	fs.mkdirSync(uploadsDir, { recursive: true });
+}
 
 // Configure storage
 const storage = multer.diskStorage({
 	destination: (_req, _file, cb) => {
 		// Store in uploads folder at project root
-		const uploadPath = path.join(__dirname, "../../uploads");
-		cb(null, uploadPath);
+		cb(null, uploadsDir);
 	},
 	filename: (_req, file, cb) => {
 		// Generate unique filename: timestamp-randomstring-originalname
@@ -68,11 +73,11 @@ export function getFileUrl(filename: string): string {
 
 // Helper function to delete file
 export async function deleteFile(filename: string): Promise<void> {
-	const fs = await import("node:fs/promises");
-	const filePath = path.join(__dirname, "../../uploads", filename);
+	const fsPromises = await import("node:fs/promises");
+	const filePath = path.join(uploadsDir, filename);
 
 	try {
-		await fs.unlink(filePath);
+		await fsPromises.unlink(filePath);
 	} catch (error) {
 		console.error("Error deleting file:", error);
 	}
