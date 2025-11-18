@@ -23,7 +23,12 @@ import { testNotification } from "@/api/test-notification/test-notification.rout
 import { adminUser } from "@/api/admin/admin-user/admin-user.route";
 
 // common routes
-import { connectDB, generateOpenAPIDocument, initializeFirebase } from "@/lib";
+import {
+	connectDB,
+	generateOpenAPIDocument,
+	initializeFirebase,
+	PORT,
+} from "@/lib";
 import {
 	errorHandler,
 	notFoundHandler,
@@ -113,12 +118,10 @@ app.use("/api/offer", offer);
 app.use(notFoundHandler);
 app.use(errorHandler);
 
-const port = process.env.PORT || 4000;
-
 // Initialize Socket.IO
 initializeSocketIO(httpServer);
 
-httpServer.listen(port, async () => {
+httpServer.listen(PORT, async () => {
 	await connectDB();
 
 	// Initialize Firebase Admin SDK for push notifications
@@ -134,10 +137,10 @@ httpServer.listen(port, async () => {
 	// Start offer expiration job
 	startOfferExpirationJob();
 
-	consola.log(`🚀 Server is running on port http://localhost:${port}`);
-	consola.log(`✨ Server is running on port http://${getLocalIP()}:${port} \n`);
+	consola.log(`🚀 Server is running on port http://localhost:${PORT}`);
+	consola.log(`✨ Server is running on port http://${getLocalIP()}:${PORT} \n`);
 
 	consola.info("Doc: ");
-	consola.log(`✍️  Swagger doc: http://localhost:${port}/swagger`);
-	consola.log(`📋 Scaler doc: http://localhost:${port}/scaler \n`);
+	consola.log(`✍️  Swagger doc: http://localhost:${PORT}/swagger`);
+	consola.log(`📋 Scaler doc: http://localhost:${PORT}/scaler \n`);
 });

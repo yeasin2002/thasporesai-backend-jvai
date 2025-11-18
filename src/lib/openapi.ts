@@ -3,6 +3,7 @@ import {
 	OpenApiGeneratorV3,
 } from "@asteasolutions/zod-to-openapi";
 import type { OpenAPIObject } from "openapi3-ts/oas30";
+import { API_BASE_URL } from "./Env";
 
 export const registry = new OpenAPIRegistry();
 
@@ -18,7 +19,7 @@ export const generateOpenAPIDocument = (): OpenAPIObject => {
 		},
 		servers: [
 			{
-				url: process.env.API_BASE_URL || "http://localhost:4000",
+				url: API_BASE_URL || "http://localhost:4000",
 				description: "Development server",
 			},
 		],

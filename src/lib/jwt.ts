@@ -1,14 +1,15 @@
 import bcrypt from "bcryptjs";
 import crypto from "crypto";
 import jwt, { type JwtPayload } from "jsonwebtoken";
+import { ACCESS_SECRET, REFRESH_SECRET } from "./Env";
 
 // const ACCESS_EXPIRES = "15m"; // short-lived
 const ACCESS_EXPIRES = "15d"; // short-lived
 // const ACCESS_EXPIRES = "1m"; // short-lived
 const REFRESH_EXPIRES_DAYS = 30; // refresh token lifetime
 
-const ACCESS_SECRET = process.env.ACCESS_SECRET || "access-secret";
-const REFRESH_SECRET = process.env.REFRESH_SECRET || "refresh-secret";
+// const ACCESS_SECRET = ACCESS_SECRET || "access-secret";
+// const REFRESH_SECRET = REFRESH_SECRET || "refresh-secret";
 
 export interface TokenPayload {
 	userId: string;

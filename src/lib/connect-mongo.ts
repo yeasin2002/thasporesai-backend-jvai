@@ -1,13 +1,14 @@
 import chalk from "chalk";
 import mongoose from "mongoose";
 import applyDefaultsPlugin from "./apply-defaults.mongoose-plugins";
+import { DATABASE_URL } from "./Env";
 
 export const connectDB = async () => {
 	try {
 		// register the plugin globally BEFORE models are compiled
 		mongoose.plugin(applyDefaultsPlugin);
 
-		const conn = await mongoose.connect(process.env.DATABASE_URL as string, {
+		const conn = await mongoose.connect(DATABASE_URL, {
 			// your recommended options
 			// useNewUrlParser and useUnifiedTopology are defaults in modern mongoose,
 			// but you can include options you need here.

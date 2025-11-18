@@ -1,3 +1,4 @@
+import { NODE_ENV, SOCKET_DEBUG } from "@/lib";
 import consola from "consola";
 import type { Server as HTTPServer } from "node:http";
 import { Server } from "socket.io";
@@ -35,10 +36,7 @@ export const initializeSocketIO = (httpServer: HTTPServer) => {
 	io.use(authMiddleware);
 
 	// Apply logging middleware (only in development or when DEBUG is enabled)
-	if (
-		process.env.NODE_ENV !== "production" ||
-		process.env.SOCKET_DEBUG === "true"
-	) {
+	if (NODE_ENV !== "production" || SOCKET_DEBUG === "true") {
 		io.use(loggerMiddleware);
 	}
 

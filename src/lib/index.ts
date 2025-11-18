@@ -1,4 +1,5 @@
 export * from "./connect-mongo";
+export * from "./Env";
 export * from "./firebase";
 export * from "./jwt";
 export * from "./logger";

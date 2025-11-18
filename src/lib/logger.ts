@@ -2,6 +2,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import winston from "winston";
 import DailyRotateFile from "winston-daily-rotate-file";
+import { LOG_LEVEL } from "./Env";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -41,7 +42,9 @@ const consoleFormat = winston.format.combine(
 	winston.format.timestamp({ format: "YYYY-MM-DD HH:mm:ss" }),
 	winston.format.printf(
 		(info) =>
-			`${info.timestamp} ${info.level}: ${info.message}${info.stack ? `\n${info.stack}` : ""}`,
+			`${info.timestamp} ${info.level}: ${info.message}${
+				info.stack ? `\n${info.stack}` : ""
+			}`,
 	),
 );
 
@@ -84,7 +87,7 @@ const transports: winston.transport[] = [
 
 // Create the logger
 export const logger = winston.createLogger({
-	level: process.env.LOG_LEVEL || "info",
+	level: LOG_LEVEL || "info",
 	levels,
 	format,
 	transports,

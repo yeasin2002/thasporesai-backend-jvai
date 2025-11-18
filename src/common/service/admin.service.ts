@@ -1,3 +1,5 @@
+/** biome-ignore-all lint/complexity/noStaticOnlyClass: <> */
+/** biome-ignore-all lint/complexity/noThisInStatic: <> */
 import { db } from "@/db";
 import type { WalletDocument } from "@/db/models/wallet.model";
 

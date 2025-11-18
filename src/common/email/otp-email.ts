@@ -1,3 +1,4 @@
+import { SMTP_USER } from "@/lib";
 import { nodemailerTransporter } from "@/lib/nodemailer";
 
 /**
@@ -12,7 +13,7 @@ export async function sendOTPEmail(
 	name?: string,
 ): Promise<void> {
 	const mailOptions = {
-		from: `"JobSphere" <${process.env.SMTP_USER}>`,
+		from: `"JobSphere" <${SMTP_USER}>`,
 		to: email,
 		subject: "Password Reset OTP - JobSphere",
 		html: `
