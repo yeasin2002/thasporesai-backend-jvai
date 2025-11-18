@@ -371,7 +371,8 @@ This project is proprietary and confidential. The source code is publicly visibl
 
 See [LICENSE](LICENSE) for full terms and conditions.
 
-For licensing inquiries, please contact: [Your Contact Email]
+For licensing inquiries, please contact with Developer: mdkawsarislam2002@gmail.com
+
 
 ---
 
