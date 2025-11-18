@@ -6,4 +6,3 @@ export * from "./get-received-invites.service";
 export * from "./get-sent-invites.service";
 export * from "./reject-invite.service";
 export * from "./send-invite.service";
-

@@ -18,54 +18,54 @@ export const getMyJobs: RequestHandler<
 		const customerId = req.user?.userId as string;
 
 		const {
-      search,
-      category,
-      status,
-      minBudget,
-      maxBudget,
-      location,
-      page,
-      limit,
-      contractorId,
-    } = req.query;
+			search,
+			category,
+			status,
+			minBudget,
+			maxBudget,
+			location,
+			page,
+			limit,
+			contractorId,
+		} = req.query;
 
-    // Validate and sanitize pagination
-    const {
-      page: pageNum,
-      limit: limitNum,
-      skip,
-    } = validatePagination(page, limit);
+		// Validate and sanitize pagination
+		const {
+			page: pageNum,
+			limit: limitNum,
+			skip,
+		} = validatePagination(page, limit);
 
-    // Build query - always filter by customerId
-    const query: any = { customerId };
+		// Build query - always filter by customerId
+		const query: any = { customerId };
 
-    // If contractorId is provided, filter out jobs where:
-    // 1. Contractor has been invited
-    // 2. Contractor has applied
-    if (contractorId && typeof contractorId === "string") {
-      // Get jobs where contractor has been invited
-      const invitedJobIds = await db.jobInvite
-        .find({ contractor: contractorId, customer: customerId })
-        .distinct("job");
+		// If contractorId is provided, filter out jobs where:
+		// 1. Contractor has been invited
+		// 2. Contractor has applied
+		if (contractorId && typeof contractorId === "string") {
+			// Get jobs where contractor has been invited
+			const invitedJobIds = await db.jobInvite
+				.find({ contractor: contractorId, customer: customerId })
+				.distinct("job");
 
-      // Get jobs where contractor has applied
-      const appliedJobIds = await db.jobApplicationRequest
-        .find({ contractor: contractorId })
-        .distinct("job");
+			// Get jobs where contractor has applied
+			const appliedJobIds = await db.jobApplicationRequest
+				.find({ contractor: contractorId })
+				.distinct("job");
 
-      // Combine both lists and exclude these jobs
-      const excludedJobIds = [
-        ...new Set([
-          ...invitedJobIds.map((id) => id.toString()),
-          ...appliedJobIds.map((id) => id.toString()),
-        ]),
-      ];
+			// Combine both lists and exclude these jobs
+			const excludedJobIds = [
+				...new Set([
+					...invitedJobIds.map((id) => id.toString()),
+					...appliedJobIds.map((id) => id.toString()),
+				]),
+			];
 
-      // Exclude jobs where contractor is already engaged
-      if (excludedJobIds.length > 0) {
-        query._id = { $nin: excludedJobIds };
-      }
-    }
+			// Exclude jobs where contractor is already engaged
+			if (excludedJobIds.length > 0) {
+				query._id = { $nin: excludedJobIds };
+			}
+		}
 
 		// Search in title and description
 		if (search) {

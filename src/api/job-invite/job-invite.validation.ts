@@ -95,12 +95,9 @@ export const SearchReceivedInvitesSchema = z
 // Search/Filter Query Schema for Available Contractors
 export const SearchAvailableContractorsSchema = z
 	.object({
-		search: z
-			.string()
-			.optional()
-			.openapi({
-				description: "Search in contractor name, bio, or skills",
-			}),
+		search: z.string().optional().openapi({
+			description: "Search in contractor name, bio, or skills",
+		}),
 		category: z
 			.string()
 			.optional()
@@ -192,7 +189,7 @@ export type InviteIdParam = z.infer<typeof InviteIdParamSchema>;
 export type SearchSentInvites = z.infer<typeof SearchSentInvitesSchema>;
 export type SearchReceivedInvites = z.infer<typeof SearchReceivedInvitesSchema>;
 export type SearchAvailableContractors = z.infer<
-  typeof SearchAvailableContractorsSchema
+	typeof SearchAvailableContractorsSchema
 >;
 export type InviteResponse = z.infer<typeof InviteResponseSchema>;
 export type InvitesResponse = z.infer<typeof InvitesResponseSchema>;

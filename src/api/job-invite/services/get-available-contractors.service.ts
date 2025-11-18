@@ -1,8 +1,8 @@
 import { db } from "@/db";
 import {
-    exceptionErrorHandler,
-    sendSuccess,
-    validatePagination,
+	exceptionErrorHandler,
+	sendSuccess,
+	validatePagination,
 } from "@/helpers";
 import type { RequestHandler } from "express";
 
@@ -21,15 +21,8 @@ export const getAvailableContractors: RequestHandler = async (req, res) => {
 	try {
 		const jobId = req.params.jobId;
 		const customerId = req.user?.userId;
-		const {
-			search,
-			category,
-			location,
-			minBudget,
-			maxBudget,
-			page,
-			limit,
-		} = req.query;
+		const { search, category, location, minBudget, maxBudget, page, limit } =
+			req.query;
 
 		if (!customerId) {
 			return exceptionErrorHandler(

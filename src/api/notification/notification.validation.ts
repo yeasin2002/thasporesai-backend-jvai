@@ -3,21 +3,21 @@ import { z } from "zod";
 
 extendZodWithOpenApi(z);
 const notificationTypes = [
-  "job_posted",
-  "job_application",
-  "job_invite", // Customer invites contractor
-  "job_request", // Contractor requests job from customer
-  "sent_offer", // Customer sends offer to contractor
-  "accept_offer", // Contractor accepts offer
-  "booking_confirmed",
-  "booking_declined",
-  "message_received",
-  "payment_complete", // Payment held by admin (order started)
-  "payment_received",
-  "payment_released",
-  "job_completed",
-  "review_submitted",
-  "general",
+	"job_posted",
+	"job_application",
+	"job_invite", // Customer invites contractor
+	"job_request", // Contractor requests job from customer
+	"sent_offer", // Customer sends offer to contractor
+	"accept_offer", // Contractor accepts offer
+	"booking_confirmed",
+	"booking_declined",
+	"message_received",
+	"payment_complete", // Payment held by admin (order started)
+	"payment_received",
+	"payment_released",
+	"job_completed",
+	"review_submitted",
+	"general",
 ] as const;
 
 // Base notification schema

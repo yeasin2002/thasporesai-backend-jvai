@@ -125,61 +125,61 @@ export const JobIdSchema = z
 
 // Search/Filter Query Schema
 export const SearchJobSchema = z
-  .object({
-    search: z
-      .string()
-      .optional()
-      .openapi({ description: "Search term for title or description" }),
-    category: z
-      .string()
-      .refine((val) => !val || isValidObjectId(val), {
-        message: "Invalid category ID format",
-      })
-      .optional()
-      .openapi({ description: "Filter by category ID" }),
-    status: z
-      .enum(["open", "in_progress", "completed", "cancelled"])
-      .optional()
-      .openapi({ description: "Filter by status" }),
-    minBudget: z
-      .string()
-      .regex(/^\d+$/, "Must be a number")
-      .optional()
-      .openapi({ description: "Minimum budget" }),
-    maxBudget: z
-      .string()
-      .regex(/^\d+$/, "Must be a number")
-      .optional()
-      .openapi({ description: "Maximum budget" }),
-    location: z
-      .string()
-      .refine((val) => !val || isValidObjectId(val), {
-        message: "Invalid location ID format",
-      })
-      .optional()
-      .openapi({ description: "Filter by location ID" }),
-    contractorId: z
-      .string()
-      .refine((val) => !val || isValidObjectId(val), {
-        message: "Invalid contractor ID format",
-      })
-      .optional()
-      .openapi({
-        description:
-          "Filter by contractor ID - excludes jobs where this contractor has been invited or has applied",
-      }),
-    page: z
-      .string()
-      .regex(/^\d+$/, "Page must be a number")
-      .optional()
-      .openapi({ description: "Page number" }),
-    limit: z
-      .string()
-      .regex(/^\d+$/, "Limit must be a number")
-      .optional()
-      .openapi({ description: "Items per page" }),
-  })
-  .openapi("SearchJob");
+	.object({
+		search: z
+			.string()
+			.optional()
+			.openapi({ description: "Search term for title or description" }),
+		category: z
+			.string()
+			.refine((val) => !val || isValidObjectId(val), {
+				message: "Invalid category ID format",
+			})
+			.optional()
+			.openapi({ description: "Filter by category ID" }),
+		status: z
+			.enum(["open", "in_progress", "completed", "cancelled"])
+			.optional()
+			.openapi({ description: "Filter by status" }),
+		minBudget: z
+			.string()
+			.regex(/^\d+$/, "Must be a number")
+			.optional()
+			.openapi({ description: "Minimum budget" }),
+		maxBudget: z
+			.string()
+			.regex(/^\d+$/, "Must be a number")
+			.optional()
+			.openapi({ description: "Maximum budget" }),
+		location: z
+			.string()
+			.refine((val) => !val || isValidObjectId(val), {
+				message: "Invalid location ID format",
+			})
+			.optional()
+			.openapi({ description: "Filter by location ID" }),
+		contractorId: z
+			.string()
+			.refine((val) => !val || isValidObjectId(val), {
+				message: "Invalid contractor ID format",
+			})
+			.optional()
+			.openapi({
+				description:
+					"Filter by contractor ID - excludes jobs where this contractor has been invited or has applied",
+			}),
+		page: z
+			.string()
+			.regex(/^\d+$/, "Page must be a number")
+			.optional()
+			.openapi({ description: "Page number" }),
+		limit: z
+			.string()
+			.regex(/^\d+$/, "Limit must be a number")
+			.optional()
+			.openapi({ description: "Items per page" }),
+	})
+	.openapi("SearchJob");
 
 // Response Schemas
 export const JobResponseSchema = z

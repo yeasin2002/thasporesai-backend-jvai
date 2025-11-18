@@ -2,29 +2,29 @@ import "./job-invite.openapi";
 
 import { requireAuth, requireRole } from "@/middleware/auth.middleware";
 import {
-  validateBody,
-  validateParams,
-  validateQuery,
+	validateBody,
+	validateParams,
+	validateQuery,
 } from "@/middleware/validation.middleware";
 import express, { type Router } from "express";
 import {
-  InviteIdParamSchema,
-  JobIdParamSchema,
-  RejectInviteSchema,
-  SearchAvailableContractorsSchema,
-  SearchReceivedInvitesSchema,
-  SearchSentInvitesSchema,
-  SendInviteSchema,
+	InviteIdParamSchema,
+	JobIdParamSchema,
+	RejectInviteSchema,
+	SearchAvailableContractorsSchema,
+	SearchReceivedInvitesSchema,
+	SearchSentInvitesSchema,
+	SendInviteSchema,
 } from "./job-invite.validation";
 import {
-  acceptInvite,
-  cancelInvite,
-  getAvailableContractors,
-  getInvite,
-  getReceivedInvites,
-  getSentInvites,
-  rejectInvite,
-  sendInvite,
+	acceptInvite,
+	cancelInvite,
+	getAvailableContractors,
+	getInvite,
+	getReceivedInvites,
+	getSentInvites,
+	rejectInvite,
+	sendInvite,
 } from "./services";
 
 export const jobInvite: Router = express.Router();
