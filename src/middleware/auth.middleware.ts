@@ -1,17 +1,12 @@
 import { sendInternalError, sendUnauthorized } from "@/helpers";
 import { verifyAccessToken } from "@/lib/jwt";
+import type { AuthenticatedUser } from "@/types";
 import type { NextFunction, Request, Response } from "express";
 
-// Extend Express Request type to include user
 declare global {
 	namespace Express {
 		interface Request {
-			user?: {
-				id: string; // User ID (also available as userId for backward compatibility)
-				userId: string;
-				email: string;
-				role: "customer" | "contractor" | "admin";
-			};
+			user?: AuthenticatedUser;
 		}
 	}
 }
@@ -26,7 +21,6 @@ export const requireAuth = (
 	next: NextFunction,
 ) => {
 	try {
-		// Get token from Authorization header
 		const authHeader = req.headers.authorization;
 		if (!authHeader || !authHeader.startsWith("Bearer ")) {
 			return sendUnauthorized(res, "Unauthorized - No token provided");
@@ -39,13 +33,12 @@ export const requireAuth = (
 		try {
 			const decoded = verifyAccessToken(token);
 
-			// Add user data to request
 			req.user = {
-				id: decoded.userId, // Primary ID field
-				userId: decoded.userId, // Backward compatibility
+				id: decoded.userId,
+				userId: decoded.userId,
 				email: decoded.email,
 				role: decoded.role,
-			};
+			} as AuthenticatedUser;
 
 			next();
 			// oxlint-disable-next-line no-unused-vars

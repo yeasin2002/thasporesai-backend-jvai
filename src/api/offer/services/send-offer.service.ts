@@ -12,7 +12,7 @@ export const sendOffer: RequestHandler<
 > = async (req, res) => {
 	try {
 		const { applicationId } = req.params;
-		const customerId = req.user!.id;
+		const customerId = req?.user?.id;
 		const { amount, timeline, description } = req.body;
 
 		// 1. Validate application
