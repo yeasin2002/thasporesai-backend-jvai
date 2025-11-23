@@ -37,22 +37,37 @@ export const acceptOffer: RequestHandler = async (req, res) => {
 		job.assignedAt = new Date();
 		await job.save();
 
-		// 4. Update application
-		await db.jobApplicationRequest.findByIdAndUpdate(offer.application, {
-			status: "accepted",
-		});
+		// 4. Update application or invite status
+		if (offer.application) {
+			// Offer was based on application
+			await db.jobApplicationRequest.findByIdAndUpdate(offer.application, {
+				status: "accepted",
+			});
 
-		// 5. Reject other applications
-		await db.jobApplicationRequest.updateMany(
-			{
-				job: job._id,
-				_id: { $ne: offer.application },
-				status: "pending",
-			},
-			{
-				status: "rejected",
-			},
-		);
+			// Reject other applications
+			await db.jobApplicationRequest.updateMany(
+				{
+					job: job._id,
+					_id: { $ne: offer.application },
+					status: "pending",
+				},
+				{
+					status: "rejected",
+				},
+			);
+		} else if (offer.invite) {
+			// Offer was based on invite - no need to update invite status
+			// But reject any pending applications for this job
+			await db.jobApplicationRequest.updateMany(
+				{
+					job: job._id,
+					status: "pending",
+				},
+				{
+					status: "rejected",
+				},
+			);
+		}
 
 		// 6. Get admin wallet
 		const adminWallet = await AdminService.getAdminWallet();

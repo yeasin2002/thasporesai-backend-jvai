@@ -5,7 +5,7 @@ export interface JobInvite {
 	job: Types.ObjectId;
 	customer: Types.ObjectId; // Customer who sent the invite
 	contractor: Types.ObjectId; // Contractor who received the invite
-	status: "pending" | "accepted" | "rejected" | "cancelled";
+	status: "pending" | "accepted" | "rejected" | "cancelled" | "offer_sent";
 	message?: string;
 	rejectionReason?: string;
 }
@@ -31,7 +31,7 @@ export const JobInviteSchema = new Schema<JobInviteDocument>(
 		},
 		status: {
 			type: String,
-			enum: ["pending", "accepted", "rejected", "cancelled"],
+			enum: ["pending", "accepted", "rejected", "cancelled", "offer_sent"],
 			default: "pending",
 		},
 		message: {

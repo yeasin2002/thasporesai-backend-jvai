@@ -4,6 +4,7 @@ import { z } from "zod";
 import {
 	ApplicationIdParamSchema,
 	ErrorResponseSchema,
+	InviteIdParamSchema,
 	OfferIdParamSchema,
 	RejectOfferSchema,
 	SendOfferSchema,
@@ -12,6 +13,7 @@ import {
 // Register offer schemas
 registry.register("SendOffer", SendOfferSchema);
 registry.register("ApplicationIdParam", ApplicationIdParamSchema);
+registry.register("InviteIdParam", InviteIdParamSchema);
 registry.register("OfferIdParam", OfferIdParamSchema);
 registry.register("RejectOffer", RejectOfferSchema);
 registry.register("OfferErrorResponse", ErrorResponseSchema);
@@ -96,13 +98,13 @@ registry.register("SendOfferResponse", SendOfferResponseSchema);
 registry.register("AcceptOfferResponse", AcceptOfferResponseSchema);
 registry.register("RejectOfferResponse", RejectOfferResponseSchema);
 
-// POST /api/offer/:applicationId/send - Send offer (Customer only)
+// POST /api/offer/application/:applicationId/send - Send offer based on application (Customer only)
 registry.registerPath({
 	method: "post",
-	path: `${openAPITags.offer.basepath}/{applicationId}/send`,
+	path: `${openAPITags.offer.basepath}/application/{applicationId}/send`,
 	description:
 		"Customer sends an offer to a contractor based on their job application. Money is moved to escrow. Only one offer per job is allowed. Customer pays job amount + 5% platform fee.",
-	summary: "Send offer to contractor",
+	summary: "Send offer to contractor (from application)",
 	tags: [openAPITags.offer.name],
 	security: [{ bearerAuth: [] }],
 	request: {
@@ -152,6 +154,79 @@ registry.registerPath({
 		},
 		404: {
 			description: "Application not found",
+			content: {
+				[mediaTypeFormat.json]: {
+					schema: ErrorResponseSchema,
+				},
+			},
+		},
+		500: {
+			description: "Internal server error",
+			content: {
+				[mediaTypeFormat.json]: {
+					schema: ErrorResponseSchema,
+				},
+			},
+		},
+	},
+});
+
+// POST /api/offer/invite/:inviteId/send - Send offer based on invite (Customer only)
+registry.registerPath({
+	method: "post",
+	path: `${openAPITags.offer.basepath}/invite/{inviteId}/send`,
+	description:
+		"Customer sends an offer to a contractor based on an accepted job invite. Money is moved to escrow. Only one offer per job is allowed. Customer pays job amount + 5% platform fee. Invite must be in 'accepted' status.",
+	summary: "Send offer to contractor (from invite)",
+	tags: [openAPITags.offer.name],
+	security: [{ bearerAuth: [] }],
+	request: {
+		params: InviteIdParamSchema,
+		body: {
+			content: {
+				[mediaTypeFormat.json]: {
+					schema: SendOfferSchema,
+				},
+			},
+		},
+	},
+	responses: {
+		201: {
+			description:
+				"Offer sent successfully. Money moved to escrow. Contractor notified.",
+			content: {
+				[mediaTypeFormat.json]: {
+					schema: SendOfferResponseSchema,
+				},
+			},
+		},
+		400: {
+			description:
+				"Bad request - Insufficient balance, job not open, invite not accepted, or offer already exists",
+			content: {
+				[mediaTypeFormat.json]: {
+					schema: ErrorResponseSchema,
+				},
+			},
+		},
+		401: {
+			description: "Unauthorized",
+			content: {
+				[mediaTypeFormat.json]: {
+					schema: ErrorResponseSchema,
+				},
+			},
+		},
+		403: {
+			description: "Forbidden - not job owner",
+			content: {
+				[mediaTypeFormat.json]: {
+					schema: ErrorResponseSchema,
+				},
+			},
+		},
+		404: {
+			description: "Invite not found",
 			content: {
 				[mediaTypeFormat.json]: {
 					schema: ErrorResponseSchema,

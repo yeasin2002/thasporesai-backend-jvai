@@ -33,11 +33,19 @@ export const rejectOffer: RequestHandler<
 		offer.rejectionReason = reason;
 		await offer.save();
 
-		// 3. Update application
-		await db.jobApplicationRequest.findByIdAndUpdate(offer.application, {
-			status: "rejected",
-			offerId: undefined, // Clear offer reference
-		});
+		// 3. Update application or invite status
+		if (offer.application) {
+			// Offer was based on application - reset application status
+			await db.jobApplicationRequest.findByIdAndUpdate(offer.application, {
+				status: "pending", // Reset to pending so customer can send new offer
+				offerId: undefined, // Clear offer reference
+			});
+		} else if (offer.invite) {
+			// Offer was based on invite - reset invite status
+			await db.jobInvite.findByIdAndUpdate(offer.invite, {
+				status: "accepted", // Reset to accepted so customer can send new offer
+			});
+		}
 
 		// 4. Refund customer wallet
 		await db.wallet.findOneAndUpdate(

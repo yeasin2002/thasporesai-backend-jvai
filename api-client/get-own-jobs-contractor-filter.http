@@ -75,8 +75,24 @@ Authorization: Bearer {{customerToken}}
 GET {{baseUrl}}/api/job-request/customer/all?status=pending
 Authorization: Bearer {{customerToken}}
 
-# Step 2: Send offer to contractor
-POST {{baseUrl}}/api/offer/APPLICATION_ID/send
+# Step 2: Send offer to contractor (based on application)
+POST {{baseUrl}}/api/offer/application/APPLICATION_ID/send
+Content-Type: application/json
+Authorization: Bearer {{customerToken}}
+
+{
+  "amount": 500,
+  "timeline": "7 days",
+  "description": "Work details as discussed"
+}
+
+### Scenario 3: Customer wants to send offer to contractor who accepted invite
+# Step 1: Get sent invites
+GET {{baseUrl}}/api/job-invite/sent?status=accepted
+Authorization: Bearer {{customerToken}}
+
+# Step 2: Send offer to contractor (based on invite)
+POST {{baseUrl}}/api/offer/invite/INVITE_ID/send
 Content-Type: application/json
 Authorization: Bearer {{customerToken}}
 

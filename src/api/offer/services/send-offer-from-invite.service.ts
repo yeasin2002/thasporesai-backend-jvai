@@ -6,42 +6,51 @@ import type { RequestHandler } from "express";
 import type { SendOffer } from "../offer.validation";
 
 /**
- * Send offer to contractor based on job application
- * POST /api/offer/application/:applicationId/send
+ * Send offer to contractor based on accepted job invite
+ * POST /api/offer/invite/:inviteId/send
  */
-export const sendOffer: RequestHandler<
-	{ applicationId: string },
+export const sendOfferFromInvite: RequestHandler<
+	{ inviteId: string },
 	any,
 	SendOffer
 > = async (req, res) => {
 	try {
-		const { applicationId } = req.params;
+		const { inviteId } = req.params;
 		const customerId = req?.user?.id;
 		const { amount, timeline, description } = req.body;
 
-		// 1. Validate application
-		const application = await db.jobApplicationRequest
-			.findById(applicationId)
+		// 1. Validate invite
+		const invite = await db.jobInvite
+			.findById(inviteId)
 			.populate("job")
 			.populate("contractor", "full_name email");
 
-		if (!application) {
-			return sendBadRequest(res, "Application not found");
+		if (!invite) {
+			return sendBadRequest(res, "Invite not found");
 		}
 
-		const job = application.job as any;
+		// 2. Verify invite is accepted
+		if (invite.status !== "accepted") {
+			return sendBadRequest(
+				res,
+				"Can only send offer to accepted invites. Current status: " +
+					invite.status,
+			);
+		}
 
-		// 2. Verify customer owns the job
+		const job = invite.job as any;
+
+		// 3. Verify customer owns the job
 		if (job.customerId.toString() !== customerId) {
 			return sendBadRequest(res, "Not authorized");
 		}
 
-		// 3. Check job is still open
+		// 4. Check job is still open
 		if (job.status !== "open") {
 			return sendBadRequest(res, "Job is not open for offers");
 		}
 
-		// 4. Check for existing offer
+		// 5. Check for existing offer
 		const existingOffer = await db.offer.findOne({
 			job: job._id,
 			status: { $in: ["pending", "accepted"] },
@@ -51,10 +60,10 @@ export const sendOffer: RequestHandler<
 			return sendBadRequest(res, "An offer already exists for this job");
 		}
 
-		// 5. Calculate payment amounts
+		// 6. Calculate payment amounts
 		const amounts = calculatePaymentAmounts(amount);
 
-		// 6. Check wallet balance
+		// 7. Check wallet balance
 		let wallet = await db.wallet.findOne({ user: customerId });
 		if (!wallet) {
 			wallet = await db.wallet.create({
@@ -71,12 +80,12 @@ export const sendOffer: RequestHandler<
 			);
 		}
 
-		// 7. Create offer
+		// 8. Create offer (linked to invite instead of application)
 		const offer = await db.offer.create({
 			job: job._id,
 			customer: customerId,
-			contractor: application.contractor._id,
-			application: applicationId,
+			contractor: invite.contractor._id,
+			invite: inviteId, // Link to invite instead of application
 			amount: amounts.jobBudget,
 			platformFee: amounts.platformFee,
 			serviceFee: amounts.serviceFee,
@@ -88,13 +97,13 @@ export const sendOffer: RequestHandler<
 			expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
 		});
 
-		// 8. Deduct from wallet and move to escrow
+		// 9. Deduct from wallet and move to escrow
 		wallet.balance -= amounts.totalCharge;
 		wallet.escrowBalance += amounts.totalCharge;
 		wallet.totalSpent += amounts.totalCharge;
 		await wallet.save();
 
-		// 9. Create transaction record
+		// 10. Create transaction record
 		await db.transaction.create({
 			type: "escrow_hold",
 			amount: amounts.totalCharge,
@@ -103,18 +112,17 @@ export const sendOffer: RequestHandler<
 			offer: offer._id,
 			job: job._id,
 			status: "completed",
-			description: `Escrow hold for job offer: ${amounts.totalCharge}`,
+			description: `Escrow hold for job offer (from invite): ${amounts.totalCharge}`,
 			completedAt: new Date(),
 		});
 
-		// 10. Update application status
-		application.status = "offer_sent";
-		application.offerId = offer._id as any;
-		await application.save();
+		// 11. Update invite status to indicate offer sent
+		invite.status = "offer_sent" as any; // You may need to add this status to JobInvite model
+		await invite.save();
 
-		// 11. Send notification to contractor
+		// 12. Send notification to contractor
 		await NotificationService.sendToUser({
-			userId: (application.contractor as any)._id.toString(),
+			userId: (invite.contractor as any)._id.toString(),
 			title: "New Offer Received",
 			body: `You received an offer of ${amount} for "${job.title}"`,
 			type: "booking_confirmed",
@@ -122,7 +130,7 @@ export const sendOffer: RequestHandler<
 				offerId: (offer._id as any).toString(),
 				jobId: job._id.toString(),
 				amount: amount.toString(),
-				source: "application",
+				source: "invite",
 			},
 		});
 
@@ -130,10 +138,10 @@ export const sendOffer: RequestHandler<
 			offer,
 			walletBalance: wallet.balance,
 			amounts,
-			source: "application",
+			source: "invite",
 		});
 	} catch (error) {
-		console.error("Error sending offer:", error);
+		console.error("Error sending offer from invite:", error);
 		return sendInternalError(res, "Failed to send offer");
 	}
 };

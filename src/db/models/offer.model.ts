@@ -1,11 +1,12 @@
 import type { Document, Types } from "mongoose";
-import { model, Schema } from "mongoose";
+import { Schema, model } from "mongoose";
 
 export interface Offer {
 	job: Types.ObjectId;
 	customer: Types.ObjectId;
 	contractor: Types.ObjectId;
-	application: Types.ObjectId;
+	application?: Types.ObjectId; // Optional: for offers from job applications
+	invite?: Types.ObjectId; // Optional: for offers from job invites
 
 	// Amounts
 	amount: number;
@@ -64,7 +65,13 @@ const offerSchema = new Schema<OfferDocument>(
 		application: {
 			type: Schema.Types.ObjectId,
 			ref: "JobApplicationRequest",
-			required: true,
+			required: false, // Optional: for offers from job applications
+			index: true,
+		},
+		invite: {
+			type: Schema.Types.ObjectId,
+			ref: "JobInvite",
+			required: false, // Optional: for offers from job invites
 			index: true,
 		},
 		amount: {

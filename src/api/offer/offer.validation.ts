@@ -26,7 +26,7 @@ export const SendOfferSchema = z
 	})
 	.openapi("SendOffer");
 
-// Application ID parameter schema (for sending offer)
+// Application ID parameter schema (for sending offer based on application)
 export const ApplicationIdParamSchema = z
 	.object({
 		applicationId: z
@@ -35,6 +35,16 @@ export const ApplicationIdParamSchema = z
 			.openapi({ description: "Application ID" }),
 	})
 	.openapi("ApplicationIdParam");
+
+// Invite ID parameter schema (for sending offer based on invite)
+export const InviteIdParamSchema = z
+	.object({
+		inviteId: z
+			.string()
+			.min(1, "Invite ID is required")
+			.openapi({ description: "Job Invite ID" }),
+	})
+	.openapi("InviteIdParam");
 
 // Offer ID parameter schema
 export const OfferIdParamSchema = z
@@ -62,6 +72,7 @@ export const ErrorResponseSchema = z
 // Export types
 export type SendOffer = z.infer<typeof SendOfferSchema>;
 export type ApplicationIdParam = z.infer<typeof ApplicationIdParamSchema>;
+export type InviteIdParam = z.infer<typeof InviteIdParamSchema>;
 export type OfferIdParam = z.infer<typeof OfferIdParamSchema>;
 export type RejectOffer = z.infer<typeof RejectOfferSchema>;
 export type ErrorResponse = z.infer<typeof ErrorResponseSchema>;

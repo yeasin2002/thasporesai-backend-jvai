@@ -8,11 +8,17 @@ import {
 import express, { type Router } from "express";
 import {
 	ApplicationIdParamSchema,
+	InviteIdParamSchema,
 	OfferIdParamSchema,
 	RejectOfferSchema,
 	SendOfferSchema,
 } from "./offer.validation";
-import { acceptOffer, rejectOffer, sendOffer } from "./services";
+import {
+	acceptOffer,
+	rejectOffer,
+	sendOffer,
+	sendOfferFromInvite,
+} from "./services";
 
 export const offer: Router = express.Router();
 
@@ -20,14 +26,24 @@ export const offer: Router = express.Router();
 // OFFER ROUTES (Payment System)
 // ============================================
 
-// Customer sends offer to contractor (based on application)
+// Customer sends offer to contractor (based on job application)
 offer.post(
-	"/:applicationId/send",
+	"/application/:applicationId/send",
 	requireAuth,
 	requireRole("customer"),
 	validateParams(ApplicationIdParamSchema),
 	validateBody(SendOfferSchema),
 	sendOffer,
+);
+
+// Customer sends offer to contractor (based on accepted job invite)
+offer.post(
+	"/invite/:inviteId/send",
+	requireAuth,
+	requireRole("customer"),
+	validateParams(InviteIdParamSchema),
+	validateBody(SendOfferSchema),
+	sendOfferFromInvite,
 );
 
 // Contractor accepts offer
