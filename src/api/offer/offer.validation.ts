@@ -26,6 +26,38 @@ export const SendOfferSchema = z
 	})
 	.openapi("SendOffer");
 
+// Send direct job offer schema (includes contractorId)
+export const SendDirectJobOfferSchema = z
+	.object({
+		contractorId: z
+			.string()
+			.min(1, "Contractor ID is required")
+			.openapi({ description: "Contractor user ID" }),
+		amount: z
+			.number()
+			.positive("Amount must be positive number")
+			.openapi({ description: "Job budget amount" }),
+		timeline: z
+			.string()
+			.min(1, "Timeline is required")
+			.openapi({ description: "Expected completion time" }),
+		description: z
+			.string()
+			.optional()
+			.openapi({ description: "Work description" }),
+	})
+	.openapi("SendDirectJobOffer");
+
+// Job ID parameter schema
+export const JobIdParamSchema = z
+	.object({
+		jobId: z
+			.string()
+			.min(1, "Job ID is required")
+			.openapi({ description: "Job ID" }),
+	})
+	.openapi("JobIdParam");
+
 // Application ID parameter schema (for sending offer based on application)
 export const ApplicationIdParamSchema = z
 	.object({
@@ -71,8 +103,10 @@ export const ErrorResponseSchema = z
 
 // Export types
 export type SendOffer = z.infer<typeof SendOfferSchema>;
+export type SendDirectJobOffer = z.infer<typeof SendDirectJobOfferSchema>;
 export type ApplicationIdParam = z.infer<typeof ApplicationIdParamSchema>;
 export type InviteIdParam = z.infer<typeof InviteIdParamSchema>;
+export type JobIdParam = z.infer<typeof JobIdParamSchema>;
 export type OfferIdParam = z.infer<typeof OfferIdParamSchema>;
 export type RejectOffer = z.infer<typeof RejectOfferSchema>;
 export type ErrorResponse = z.infer<typeof ErrorResponseSchema>;

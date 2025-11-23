@@ -5,15 +5,19 @@ import {
 	ApplicationIdParamSchema,
 	ErrorResponseSchema,
 	InviteIdParamSchema,
+	JobIdParamSchema,
 	OfferIdParamSchema,
 	RejectOfferSchema,
+	SendDirectJobOfferSchema,
 	SendOfferSchema,
 } from "./offer.validation";
 
 // Register offer schemas
 registry.register("SendOffer", SendOfferSchema);
+registry.register("SendDirectJobOffer", SendDirectJobOfferSchema);
 registry.register("ApplicationIdParam", ApplicationIdParamSchema);
 registry.register("InviteIdParam", InviteIdParamSchema);
+registry.register("JobIdParam", JobIdParamSchema);
 registry.register("OfferIdParam", OfferIdParamSchema);
 registry.register("RejectOffer", RejectOfferSchema);
 registry.register("OfferErrorResponse", ErrorResponseSchema);
@@ -227,6 +231,79 @@ registry.registerPath({
 		},
 		404: {
 			description: "Invite not found",
+			content: {
+				[mediaTypeFormat.json]: {
+					schema: ErrorResponseSchema,
+				},
+			},
+		},
+		500: {
+			description: "Internal server error",
+			content: {
+				[mediaTypeFormat.json]: {
+					schema: ErrorResponseSchema,
+				},
+			},
+		},
+	},
+});
+
+// POST /api/offer/direct/:jobId/send - Send direct offer via job ID (Customer only)
+registry.registerPath({
+	method: "post",
+	path: `${openAPITags.offer.basepath}/direct/{jobId}/send`,
+	description:
+		"Customer sends a direct offer to a contractor via job ID. Simplified flow without requiring prior application or invite. Customer specifies the contractor ID directly. Money is moved to escrow. Only one offer per job is allowed. Customer pays job amount + 5% platform fee.",
+	summary: "Send direct offer to contractor (via job ID)",
+	tags: [openAPITags.offer.name],
+	security: [{ bearerAuth: [] }],
+	request: {
+		params: JobIdParamSchema,
+		body: {
+			content: {
+				[mediaTypeFormat.json]: {
+					schema: SendDirectJobOfferSchema,
+				},
+			},
+		},
+	},
+	responses: {
+		201: {
+			description:
+				"Offer sent successfully. Money moved to escrow. Contractor notified.",
+			content: {
+				[mediaTypeFormat.json]: {
+					schema: SendOfferResponseSchema,
+				},
+			},
+		},
+		400: {
+			description:
+				"Bad request - Insufficient balance, job not open, contractor not found, or offer already exists",
+			content: {
+				[mediaTypeFormat.json]: {
+					schema: ErrorResponseSchema,
+				},
+			},
+		},
+		401: {
+			description: "Unauthorized",
+			content: {
+				[mediaTypeFormat.json]: {
+					schema: ErrorResponseSchema,
+				},
+			},
+		},
+		403: {
+			description: "Forbidden - not job owner",
+			content: {
+				[mediaTypeFormat.json]: {
+					schema: ErrorResponseSchema,
+				},
+			},
+		},
+		404: {
+			description: "Job or contractor not found",
 			content: {
 				[mediaTypeFormat.json]: {
 					schema: ErrorResponseSchema,

@@ -37,7 +37,7 @@ export const acceptOffer: RequestHandler = async (req, res) => {
 		job.assignedAt = new Date();
 		await job.save();
 
-		// 4. Update application or invite status
+		// 4. Update application or invite status (if applicable)
 		if (offer.application) {
 			// Offer was based on application
 			await db.jobApplicationRequest.findByIdAndUpdate(offer.application, {
@@ -58,6 +58,18 @@ export const acceptOffer: RequestHandler = async (req, res) => {
 		} else if (offer.invite) {
 			// Offer was based on invite - no need to update invite status
 			// But reject any pending applications for this job
+			await db.jobApplicationRequest.updateMany(
+				{
+					job: job._id,
+					status: "pending",
+				},
+				{
+					status: "rejected",
+				},
+			);
+		} else {
+			// Direct offer (no application or invite)
+			// Just reject any pending applications for this job
 			await db.jobApplicationRequest.updateMany(
 				{
 					job: job._id,

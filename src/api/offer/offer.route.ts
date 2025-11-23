@@ -9,13 +9,16 @@ import express, { type Router } from "express";
 import {
 	ApplicationIdParamSchema,
 	InviteIdParamSchema,
+	JobIdParamSchema,
 	OfferIdParamSchema,
 	RejectOfferSchema,
+	SendDirectJobOfferSchema,
 	SendOfferSchema,
 } from "./offer.validation";
 import {
 	acceptOffer,
 	rejectOffer,
+	sendJobOffer,
 	sendOffer,
 	sendOfferFromInvite,
 } from "./services";
@@ -44,6 +47,16 @@ offer.post(
 	validateParams(InviteIdParamSchema),
 	validateBody(SendOfferSchema),
 	sendOfferFromInvite,
+);
+
+// Customer sends direct offer to contractor (simplified flow via job ID)
+offer.post(
+	"/direct/:jobId/send",
+	requireAuth,
+	requireRole("customer"),
+	validateParams(JobIdParamSchema),
+	validateBody(SendDirectJobOfferSchema),
+	sendJobOffer,
 );
 
 // Contractor accepts offer

@@ -7,14 +7,16 @@
 
 ## Overview
 
-Updated the offer module to support two distinct flows for sending job offers:
+Updated the offer module to support three distinct flows for sending job offers:
 
 1. **Application-Based Offers**: Customer sends offer to contractor who applied to the job
 2. **Invite-Based Offers**: Customer sends offer to contractor who accepted a job invite
+3. **Direct Offers**: Customer sends offer directly to any contractor via job ID (NEW - simplified flow)
 
-This aligns with the JobSphere business model where customers can either:
+This aligns with the JobSphere business model where customers can:
 - Wait for contractors to apply and then send offers
 - Proactively invite contractors and send offers after they accept
+- Send direct offers to any contractor without prior application or invite
 
 ---
 

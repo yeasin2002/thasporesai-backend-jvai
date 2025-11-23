@@ -102,6 +102,19 @@ Authorization: Bearer {{customerToken}}
   "description": "Work details as discussed"
 }
 
+### Scenario 4: Customer wants to send direct offer to contractor (simplified)
+# Send direct offer to contractor via job ID
+POST {{baseUrl}}/api/offer/direct/JOB_ID/send
+Content-Type: application/json
+Authorization: Bearer {{customerToken}}
+
+{
+  "contractorId": "CONTRACTOR_USER_ID",
+  "amount": 500,
+  "timeline": "7 days",
+  "description": "Direct offer for this job"
+}
+
 ### ============================================
 ### VERIFICATION TESTS
 ### ============================================

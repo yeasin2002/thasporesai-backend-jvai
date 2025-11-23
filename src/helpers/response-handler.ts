@@ -28,6 +28,7 @@ export function sendSuccess<T = any>(
 	message: string,
 	data: T | null = null,
 ): Response<ApiResponse<T>> {
+	logger.info("200 Success: ", message);
 	return res.status(statusCode).json({
 		status: statusCode,
 		message,
