@@ -90,7 +90,7 @@ export const sendInvite: RequestHandler = async (req, res) => {
 			body: `${
 				customer?.full_name || "A customer"
 			} has invited you to work on "${job.title}"`,
-			type: "job_posted",
+			type: "job_invite",
 			data: {
 				jobId: jobId,
 				inviteId: String(invite._id),

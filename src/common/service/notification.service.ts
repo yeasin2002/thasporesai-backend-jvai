@@ -3,27 +3,13 @@ import { db } from "@/db";
 import { getMessaging } from "@/lib/firebase";
 import type { MulticastMessage } from "firebase-admin/messaging";
 import type { Types } from "mongoose";
+import type { NotificationListsType } from "../constants";
 
 export interface NotificationPayload {
 	userId: Types.ObjectId | string;
 	title: string;
 	body: string;
-	type?:
-		| "job_posted"
-		| "job_application"
-		| "job_invite" // Customer invites contractor
-		| "job_request" // Contractor requests job from customer
-		| "sent_offer" // Customer sends offer to contractor
-		| "accept_offer" // Contractor accepts offer
-		| "booking_confirmed"
-		| "booking_declined"
-		| "message_received"
-		| "payment_complete" // Payment held by admin (order started)
-		| "payment_received"
-		| "payment_released"
-		| "job_completed"
-		| "review_submitted"
-		| "general";
+	type?: NotificationListsType;
 	data?: Record<string, any>;
 }
 
@@ -31,22 +17,7 @@ export interface BulkNotificationPayload {
 	userIds: (Types.ObjectId | string)[];
 	title: string;
 	body: string;
-	type?:
-		| "job_posted"
-		| "job_application"
-		| "job_invite" // Customer invites contractor
-		| "job_request" // Contractor requests job from customer
-		| "sent_offer" // Customer sends offer to contractor
-		| "accept_offer" // Contractor accepts offer
-		| "booking_confirmed"
-		| "booking_declined"
-		| "message_received"
-		| "payment_complete" // Payment held by admin (order started)
-		| "payment_received"
-		| "payment_released"
-		| "job_completed"
-		| "review_submitted"
-		| "general";
+	type?: NotificationListsType;
 	data?: Record<string, any>;
 }
 
@@ -198,22 +169,7 @@ export class NotificationService {
 		role: "contractor" | "customer" | "admin",
 		title: string,
 		body: string,
-		type?:
-			| "job_posted"
-			| "job_application"
-			| "job_invite"
-			| "job_request"
-			| "sent_offer"
-			| "accept_offer"
-			| "booking_confirmed"
-			| "booking_declined"
-			| "message_received"
-			| "payment_complete"
-			| "payment_received"
-			| "payment_released"
-			| "job_completed"
-			| "review_submitted"
-			| "general",
+		type?: NotificationListsType,
 		data?: Record<string, any>,
 	): Promise<{ success: boolean; message: string }> {
 		try {
@@ -282,47 +238,98 @@ export class NotificationService {
 	}
 
 	/**
-	 * Send notification when a booking is confirmed
+	 * Send notification when an offer is accepted
 	 */
-	static async notifyBookingConfirmed(
-		contractorId: string,
+	static async notifyOfferAccepted(
+		customerId: string,
+		contractorName: string,
 		jobTitle: string,
 	): Promise<void> {
 		await this.sendToUser({
-			userId: contractorId,
-			title: "Booking Confirmed",
-			body: `Your application for "${jobTitle}" has been accepted!`,
-			type: "booking_confirmed",
+			userId: customerId,
+			title: "Offer Accepted",
+			body: `${contractorName} has accepted your offer for "${jobTitle}"`,
+			type: "accept_offer",
 		});
 	}
 
 	/**
-	 * Send notification when a new message is received
+	 * Send notification when an offer is sent
 	 */
-	static async notifyNewMessage(
-		recipientId: string,
-		senderName: string,
-	): Promise<void> {
-		await this.sendToUser({
-			userId: recipientId,
-			title: "New Message",
-			body: `${senderName} sent you a message`,
-			type: "message_received",
-		});
-	}
-
-	/**
-	 * Send notification when payment is received
-	 */
-	static async notifyPaymentReceived(
+	static async notifyOfferSent(
 		contractorId: string,
+		jobTitle: string,
 		amount: number,
 	): Promise<void> {
 		await this.sendToUser({
 			userId: contractorId,
-			title: "Payment Received",
-			body: `You received a payment of $${amount}`,
-			type: "payment_received",
+			title: "New Offer Received",
+			body: `You received an offer of $${amount} for "${jobTitle}"`,
+			type: "sent_offer",
+		});
+	}
+
+	/**
+	 * Send notification when a job is completed
+	 */
+	static async notifyJobCompleted(
+		contractorId: string,
+		jobTitle: string,
+		amount: number,
+	): Promise<void> {
+		await this.sendToUser({
+			userId: contractorId,
+			title: "Job Completed",
+			body: `"${jobTitle}" has been marked as complete. You received $${amount}`,
+			type: "job_completed",
+		});
+	}
+
+	/**
+	 * Send notification when a review is submitted
+	 */
+	static async notifyReviewSubmitted(
+		userId: string,
+		reviewerName: string,
+		rating: number,
+	): Promise<void> {
+		await this.sendToUser({
+			userId,
+			title: "New Review",
+			body: `${reviewerName} left you a ${rating}-star review`,
+			type: "review_submitted",
+		});
+	}
+
+	/**
+	 * Send notification when a job invite is sent
+	 */
+	static async notifyJobInvite(
+		contractorId: string,
+		customerName: string,
+		jobTitle: string,
+	): Promise<void> {
+		await this.sendToUser({
+			userId: contractorId,
+			title: "Job Invitation",
+			body: `${customerName} invited you to apply for "${jobTitle}"`,
+			type: "job_invite",
+		});
+	}
+
+	/**
+	 * Send notification when a job request is made
+	 */
+	static async notifyJobRequest(
+		customerId: string,
+		contractorName: string,
+		jobTitle: string,
+	): Promise<void> {
+		await this.sendToUser({
+			userId: customerId,
+			title: "Job Request",
+			body: `${contractorName} requested to work on "${jobTitle}"`,
+			type: "job_request",
 		});
 	}
 }

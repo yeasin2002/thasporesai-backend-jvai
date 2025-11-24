@@ -1,3 +1,4 @@
+import { openAPITags } from "@/common/constants";
 import { registry } from "@/lib/openapi";
 import { z } from "zod";
 import {
@@ -24,10 +25,10 @@ registry.register("ErrorResponse", ErrorResponseSchema);
 // POST /api/notification/register-token - Register FCM token
 registry.registerPath({
 	method: "post",
-	path: "/api/notification/register-token",
+	path: `${openAPITags.notification.basepath}/register-token`,
 	description: "Register FCM device token for push notifications",
 	summary: "Register FCM token",
-	tags: ["notification"],
+	tags: [openAPITags.notification.name],
 	security: [{ bearerAuth: [] }],
 	request: {
 		body: {
@@ -77,10 +78,10 @@ registry.registerPath({
 // DELETE /api/notification/unregister-token - Unregister FCM token
 registry.registerPath({
 	method: "delete",
-	path: "/api/notification/unregister-token",
+	path: `${openAPITags.notification.basepath}/unregister-token`,
 	description: "Unregister FCM device token",
 	summary: "Unregister FCM token",
-	tags: ["notification"],
+	tags: [openAPITags.notification.name],
 	security: [{ bearerAuth: [] }],
 	request: {
 		body: {
@@ -127,10 +128,10 @@ registry.registerPath({
 // GET /api/notification - Get user's notifications
 registry.registerPath({
 	method: "get",
-	path: "/api/notification",
+	path: openAPITags.notification.basepath,
 	description: "Get all notifications for authenticated user",
 	summary: "Get user notifications",
-	tags: ["notification"],
+	tags: [openAPITags.notification.name],
 	security: [{ bearerAuth: [] }],
 	responses: {
 		200: {
@@ -163,10 +164,10 @@ registry.registerPath({
 // POST /api/notification/mark-read - Mark notifications as read
 registry.registerPath({
 	method: "post",
-	path: "/api/notification/mark-read",
+	path: `${openAPITags.notification.basepath}/mark-read`,
 	description: "Mark one or more notifications as read",
 	summary: "Mark notifications as read",
-	tags: ["notification"],
+	tags: [openAPITags.notification.name],
 	security: [{ bearerAuth: [] }],
 	request: {
 		body: {
@@ -208,10 +209,10 @@ registry.registerPath({
 // DELETE /api/notification/{id} - Delete notification
 registry.registerPath({
 	method: "delete",
-	path: "/api/notification/{id}",
+	path: `${openAPITags.notification.basepath}/{id}`,
 	description: "Delete a notification",
 	summary: "Delete notification",
-	tags: ["notification"],
+	tags: [openAPITags.notification.name],
 	security: [{ bearerAuth: [] }],
 	request: {
 		params: NotificationIdSchema,
@@ -255,10 +256,10 @@ registry.registerPath({
 // POST /api/notification/send - Send notification (Admin only)
 registry.registerPath({
 	method: "post",
-	path: "/api/notification/send",
+	path: `${openAPITags.notification.basepath}/send`,
 	description: "Send push notification to a user (Admin only)",
 	summary: "Send notification",
-	tags: ["notification"],
+	tags: [openAPITags.notification.name],
 	security: [{ bearerAuth: [] }],
 	request: {
 		body: {

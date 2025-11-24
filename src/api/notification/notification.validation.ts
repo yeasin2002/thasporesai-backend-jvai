@@ -1,24 +1,8 @@
+import { notificationTypeList } from "@/common/constants";
 import { extendZodWithOpenApi } from "@asteasolutions/zod-to-openapi";
 import { z } from "zod";
 
 extendZodWithOpenApi(z);
-const notificationTypes = [
-	"job_posted",
-	"job_application",
-	"job_invite", // Customer invites contractor
-	"job_request", // Contractor requests job from customer
-	"sent_offer", // Customer sends offer to contractor
-	"accept_offer", // Contractor accepts offer
-	"booking_confirmed",
-	"booking_declined",
-	"message_received",
-	"payment_complete", // Payment held by admin (order started)
-	"payment_received",
-	"payment_released",
-	"job_completed",
-	"review_submitted",
-	"general",
-] as const;
 
 // Base notification schema
 export const NotificationSchema = z.object({
@@ -26,7 +10,9 @@ export const NotificationSchema = z.object({
 	userId: z.string().openapi({ description: "User ID" }),
 	title: z.string().openapi({ description: "Notification title" }),
 	body: z.string().openapi({ description: "Notification body" }),
-	type: z.enum(notificationTypes).openapi({ description: "Notification type" }),
+	type: z
+		.enum(notificationTypeList)
+		.openapi({ description: "Notification type" }),
 	data: z
 		.record(z.string(), z.any())
 		.optional()
@@ -59,7 +45,7 @@ export const SendNotificationSchema = z
 		title: z.string().min(1).openapi({ description: "Notification title" }),
 		body: z.string().min(1).openapi({ description: "Notification body" }),
 		type: z
-			.enum(notificationTypes)
+			.enum(notificationTypeList)
 			.optional()
 			.openapi({ description: "Notification type" }),
 		data: z
