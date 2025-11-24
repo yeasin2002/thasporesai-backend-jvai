@@ -158,27 +158,6 @@ export const sendOffer: RequestHandler<
 		} finally {
 			session.endSession();
 		}
-
-		// 11. Send notification to contractor
-		await NotificationService.sendToUser({
-			userId: (application.contractor as any)._id.toString(),
-			title: "New Offer Received",
-			body: `You received an offer of ${amount} for "${job.title}"`,
-			type: "booking_confirmed",
-			data: {
-				offerId: (offer._id as any).toString(),
-				jobId: job._id.toString(),
-				amount: amount.toString(),
-				source: "application",
-			},
-		});
-
-		return sendSuccess(res, 201, "Offer sent successfully", {
-			offer,
-			walletBalance: wallet.balance,
-			amounts,
-			source: "application",
-		});
 	} catch (error) {
 		console.error("Error sending offer:", error);
 		return sendInternalError(res, "Failed to send offer");
