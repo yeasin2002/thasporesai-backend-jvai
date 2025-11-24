@@ -3,6 +3,7 @@ import { NotificationService } from "@/common/service/notification.service";
 import { db } from "@/db";
 import { sendBadRequest, sendInternalError, sendSuccess } from "@/helpers";
 import type { RequestHandler } from "express";
+import mongoose from "mongoose";
 import type { SendOffer } from "../offer.validation";
 
 /**
@@ -71,46 +72,92 @@ export const sendOffer: RequestHandler<
 			);
 		}
 
-		// 7. Create offer
-		const offer = await db.offer.create({
-			job: job._id,
-			customer: customerId,
-			contractor: application.contractor._id,
-			application: applicationId,
-			amount: amounts.jobBudget,
-			platformFee: amounts.platformFee,
-			serviceFee: amounts.serviceFee,
-			contractorPayout: amounts.contractorPayout,
-			totalCharge: amounts.totalCharge,
-			timeline,
-			description,
-			status: "pending",
-			expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
-		});
+		// 7-10. Execute all database operations atomically
+		const session = await mongoose.startSession();
+		session.startTransaction();
 
-		// 8. Deduct from wallet and move to escrow
-		wallet.balance -= amounts.totalCharge;
-		wallet.escrowBalance += amounts.totalCharge;
-		wallet.totalSpent += amounts.totalCharge;
-		await wallet.save();
+		try {
+			// Create offer
+			const [offer] = await db.offer.create(
+				[
+					{
+						job: job._id,
+						customer: customerId,
+						contractor: application.contractor._id,
+						application: applicationId,
+						amount: amounts.jobBudget,
+						platformFee: amounts.platformFee,
+						serviceFee: amounts.serviceFee,
+						contractorPayout: amounts.contractorPayout,
+						totalCharge: amounts.totalCharge,
+						timeline,
+						description,
+						status: "pending",
+						expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
+					},
+				],
+				{ session },
+			);
 
-		// 9. Create transaction record
-		await db.transaction.create({
-			type: "escrow_hold",
-			amount: amounts.totalCharge,
-			from: customerId,
-			to: customerId, // Escrow is still customer's money
-			offer: offer._id,
-			job: job._id,
-			status: "completed",
-			description: `Escrow hold for job offer: ${amounts.totalCharge}`,
-			completedAt: new Date(),
-		});
+			// Deduct from wallet and move to escrow
+			wallet.balance -= amounts.totalCharge;
+			wallet.escrowBalance += amounts.totalCharge;
+			wallet.totalSpent += amounts.totalCharge;
+			await wallet.save({ session });
 
-		// 10. Update application status
-		application.status = "offer_sent";
-		application.offerId = offer._id as any;
-		await application.save();
+			// Create transaction record
+			await db.transaction.create(
+				[
+					{
+						type: "escrow_hold",
+						amount: amounts.totalCharge,
+						from: customerId,
+						to: customerId, // Escrow is still customer's money
+						offer: offer._id,
+						job: job._id,
+						status: "completed",
+						description: `Escrow hold for job offer: ${amounts.totalCharge}`,
+						completedAt: new Date(),
+					},
+				],
+				{ session },
+			);
+
+			// Update application status
+			application.status = "offer_sent";
+			application.offerId = offer._id as any;
+			await application.save({ session });
+
+			// Commit transaction
+			await session.commitTransaction();
+
+			// 11. Send notification to contractor (outside transaction)
+			await NotificationService.sendToUser({
+				userId: (application.contractor as any)._id.toString(),
+				title: "New Offer Received",
+				body: `You received an offer of ${amount} for "${job.title}"`,
+				type: "booking_confirmed",
+				data: {
+					offerId: (offer._id as any).toString(),
+					jobId: job._id.toString(),
+					amount: amount.toString(),
+					source: "application",
+				},
+			});
+
+			return sendSuccess(res, 201, "Offer sent successfully", {
+				offer,
+				walletBalance: wallet.balance,
+				amounts,
+				source: "application",
+			});
+		} catch (error) {
+			// Rollback transaction on error
+			await session.abortTransaction();
+			throw error;
+		} finally {
+			session.endSession();
+		}
 
 		// 11. Send notification to contractor
 		await NotificationService.sendToUser({
