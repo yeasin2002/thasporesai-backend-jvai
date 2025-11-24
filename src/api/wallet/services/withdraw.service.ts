@@ -13,25 +13,6 @@ export const withdraw: RequestHandler<{}, any, Withdraw> = async (req, res) => {
 			return sendBadRequest(res, "Only contractors can withdraw funds");
 		}
 
-		// Get wallet
-		const wallet = await db.wallet.findOne({ user: userId });
-		if (!wallet) {
-			return sendBadRequest(res, "Wallet not found");
-		}
-
-		// Check if wallet is frozen
-		if (wallet.isFrozen) {
-			return sendBadRequest(res, "Wallet is frozen. Please contact support.");
-		}
-
-		// Check balance
-		if (wallet.balance < amount) {
-			return sendBadRequest(
-				res,
-				`Insufficient balance. Available: $${wallet.balance}`,
-			);
-		}
-
 		// Minimum withdrawal amount
 		if (amount < 10) {
 			return sendBadRequest(res, "Minimum withdrawal amount is $10");
@@ -42,10 +23,39 @@ export const withdraw: RequestHandler<{}, any, Withdraw> = async (req, res) => {
 			return sendBadRequest(res, "Maximum withdrawal amount is $10,000");
 		}
 
-		// Update wallet
-		wallet.balance -= amount;
-		wallet.totalWithdrawals += amount;
-		await wallet.save();
+		// Atomically update wallet with balance check (prevents race conditions)
+		const wallet = await db.wallet.findOneAndUpdate(
+			{
+				user: userId,
+				balance: { $gte: amount }, // Atomic check - ensures sufficient balance
+				isFrozen: false, // Also check wallet is not frozen
+			},
+			{
+				$inc: {
+					balance: -amount,
+					totalWithdrawals: amount,
+				},
+			},
+			{ new: true },
+		);
+
+		// If wallet update failed, check the reason
+		if (!wallet) {
+			const existingWallet = await db.wallet.findOne({ user: userId });
+
+			if (!existingWallet) {
+				return sendBadRequest(res, "Wallet not found");
+			}
+
+			if (existingWallet.isFrozen) {
+				return sendBadRequest(res, "Wallet is frozen. Please contact support.");
+			}
+
+			return sendBadRequest(
+				res,
+				`Insufficient balance. Available: $${existingWallet.balance}`,
+			);
+		}
 
 		// Create transaction
 		await db.transaction.create({

@@ -2,6 +2,7 @@ import { calculatePaymentAmounts } from "@/common/payment-config";
 import { NotificationService } from "@/common/service/notification.service";
 import { db } from "@/db";
 import { sendBadRequest, sendInternalError, sendSuccess } from "@/helpers";
+import { logger } from "@/lib";
 import type { RequestHandler } from "express";
 import mongoose from "mongoose";
 import type { SendOffer } from "../offer.validation";
@@ -55,7 +56,7 @@ export const sendOffer: RequestHandler<
 		// 5. Calculate payment amounts
 		const amounts = calculatePaymentAmounts(amount);
 
-		// 6. Check wallet balance
+		// 6. Get or create wallet (without balance check yet)
 		let wallet = await db.wallet.findOne({ user: customerId });
 		if (!wallet) {
 			wallet = await db.wallet.create({
@@ -65,18 +66,36 @@ export const sendOffer: RequestHandler<
 			});
 		}
 
-		if (wallet.balance < amounts.totalCharge) {
-			return sendBadRequest(
-				res,
-				`Insufficient balance. Required: ${amounts.totalCharge}, Available: ${wallet.balance}`,
-			);
-		}
-
-		// 7-10. Execute all database operations atomically
+		// 7-10. Execute all database operations atomically with optimistic locking
 		const session = await mongoose.startSession();
 		session.startTransaction();
 
 		try {
+			// Atomically deduct from wallet with balance check (prevents race conditions)
+			const updatedWallet = await db.wallet.findOneAndUpdate(
+				{
+					user: customerId,
+					balance: { $gte: amounts.totalCharge }, // Atomic check - ensures sufficient balance
+				},
+				{
+					$inc: {
+						balance: -amounts.totalCharge,
+						escrowBalance: amounts.totalCharge,
+						totalSpent: amounts.totalCharge,
+					},
+				},
+				{ new: true, session },
+			);
+
+			// If wallet update failed, balance was insufficient
+			if (!updatedWallet) {
+				await session.abortTransaction();
+				return sendBadRequest(
+					res,
+					`Insufficient balance. Required: ${amounts.totalCharge}, Available: ${wallet.balance}`,
+				);
+			}
+
 			// Create offer
 			const [offer] = await db.offer.create(
 				[
@@ -98,12 +117,6 @@ export const sendOffer: RequestHandler<
 				],
 				{ session },
 			);
-
-			// Deduct from wallet and move to escrow
-			wallet.balance -= amounts.totalCharge;
-			wallet.escrowBalance += amounts.totalCharge;
-			wallet.totalSpent += amounts.totalCharge;
-			await wallet.save({ session });
 
 			// Create transaction record
 			await db.transaction.create(
@@ -147,7 +160,7 @@ export const sendOffer: RequestHandler<
 
 			return sendSuccess(res, 201, "Offer sent successfully", {
 				offer,
-				walletBalance: wallet.balance,
+				walletBalance: updatedWallet.balance,
 				amounts,
 				source: "application",
 			});
@@ -159,7 +172,7 @@ export const sendOffer: RequestHandler<
 			session.endSession();
 		}
 	} catch (error) {
-		console.error("Error sending offer:", error);
+		logger.error("Error sending offer", error);
 		return sendInternalError(res, "Failed to send offer");
 	}
 };
