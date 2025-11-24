@@ -1,4 +1,7 @@
-import { mediaTypeFormat, openAPITags } from "@/common/constants";
+import {
+	mediaTypeFormat,
+	openAPITags,
+} from "@/common/constants/api-route-tags";
 
 import { registry } from "@/lib/openapi";
 import {

@@ -1,4 +1,4 @@
-import { openAPITags } from "@/common/constants";
+import { openAPITags } from "@/common/constants/api-route-tags";
 import { registry } from "@/lib/openapi";
 import {
 	AuthResponseSchema,

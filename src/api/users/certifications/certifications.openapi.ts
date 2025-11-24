@@ -1,4 +1,4 @@
-import { mediaTypeFormat } from "@/common/constants";
+import { mediaTypeFormat } from "@/common/constants/api-route-tags";
 import { registry } from "@/lib/openapi";
 import {
 	CertificationIdSchema,

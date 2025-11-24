@@ -8,13 +8,16 @@ import type { RequestHandler } from "express";
 import type { SearchJob } from "../job.validation";
 
 /**
- * Get Engaged Jobs
+ * Get Engaged Jobs (Available for Offers)
  * Returns all jobs where the customer has engagement through:
  * 1. Receiving job applications from contractors
- * 2. Sending offers to contractors
+ * 2. NO active offers (pending or accepted)
  *
- * This is used when a customer wants to send offers and needs to see
- * all jobs they are engaged with via applications or offers.
+ * This endpoint filters out jobs that already have active offers,
+ * since the system enforces "one offer per job" rule.
+ *
+ * Jobs with rejected or expired offers ARE included, allowing
+ * the customer to send new offers to those contractors.
  *
  * @route GET /api/job/engaged
  * @access Private (Customer only)
@@ -70,25 +73,35 @@ export const getEngagedJobs: RequestHandler<
 		}
 
 		// Step 2: Find jobs that have applications OR offers
-		const [jobsWithApplications, jobsWithOffers] = await Promise.all([
+		const [jobsWithApplications, jobsWithActiveOffers] = await Promise.all([
 			// Jobs that have received applications
 			db.jobApplicationRequest
 				.find({ job: { $in: customerJobIds } })
 				.distinct("job"),
 
-			// Jobs that have offers sent
+			// Jobs that have ACTIVE offers (pending or accepted)
+			// We exclude these because you can only send one offer per job
 			db.offer
-				.find({ job: { $in: customerJobIds } })
+				.find({
+					job: { $in: customerJobIds },
+					status: { $in: ["pending", "accepted"] },
+				})
 				.distinct("job"),
 		]);
 
-		// Combine and deduplicate job IDs
-		const engagedJobIds = [
-			...new Set([
-				...jobsWithApplications.map((id) => id.toString()),
-				...jobsWithOffers.map((id) => id.toString()),
-			]),
-		];
+		// Convert to strings for easier comparison
+		const jobsWithApplicationsIds = jobsWithApplications.map((id) =>
+			id.toString(),
+		);
+		const jobsWithActiveOffersIds = jobsWithActiveOffers.map((id) =>
+			id.toString(),
+		);
+
+		// Only include jobs that have applications BUT no active offers
+		// This allows sending offers to jobs with rejected/expired offers
+		const engagedJobIds = jobsWithApplicationsIds.filter(
+			(jobId) => !jobsWithActiveOffersIds.includes(jobId),
+		);
 
 		if (engagedJobIds.length === 0) {
 			// No engaged jobs found
@@ -173,7 +186,7 @@ export const getEngagedJobs: RequestHandler<
 				},
 			]),
 
-			// Count offers per job
+			// Count offers per job (including rejected/expired for history)
 			db.offer.aggregate([
 				{ $match: { job: { $in: jobIds } } },
 				{
@@ -185,6 +198,12 @@ export const getEngagedJobs: RequestHandler<
 						},
 						acceptedOffers: {
 							$sum: { $cond: [{ $eq: ["$status", "accepted"] }, 1, 0] },
+						},
+						rejectedOffers: {
+							$sum: { $cond: [{ $eq: ["$status", "rejected"] }, 1, 0] },
+						},
+						expiredOffers: {
+							$sum: { $cond: [{ $eq: ["$status", "expired"] }, 1, 0] },
 						},
 					},
 				},
@@ -211,6 +230,8 @@ export const getEngagedJobs: RequestHandler<
 				totalOffers: 0,
 				pendingOffers: 0,
 				acceptedOffers: 0,
+				rejectedOffers: 0,
+				expiredOffers: 0,
 			};
 
 			return {
@@ -225,9 +246,12 @@ export const getEngagedJobs: RequestHandler<
 						total: offerStats.totalOffers,
 						pending: offerStats.pendingOffers,
 						accepted: offerStats.acceptedOffers,
+						rejected: offerStats.rejectedOffers,
+						expired: offerStats.expiredOffers,
 					},
 					hasApplications: appStats.totalApplications > 0,
 					hasOffers: offerStats.totalOffers > 0,
+					canSendOffer: true, // All jobs in this list can receive offers
 				},
 			};
 		});

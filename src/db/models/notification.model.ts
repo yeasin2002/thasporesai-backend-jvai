@@ -1,25 +1,15 @@
-import { Schema, Types, model, type Document } from "mongoose";
+import {
+	notificationTypeList,
+	type NotificationListsType,
+} from "@/common/constants";
+import type { Document, Types } from "mongoose";
+import { Schema, model } from "mongoose";
 
 export interface Notification {
 	userId: Types.ObjectId;
 	title: string;
 	body: string;
-	type:
-		| "job_posted"
-		| "job_application"
-		| "job_invite" // Customer invites contractor
-		| "job_request" // Contractor requests job from customer
-		| "sent_offer" // Customer sends offer to contractor
-		| "accept_offer" // Contractor accepts offer
-		| "booking_confirmed"
-		| "booking_declined"
-		| "message_received"
-		| "payment_complete" // Payment held by admin (order started)
-		| "payment_received"
-		| "payment_released"
-		| "job_completed"
-		| "review_submitted"
-		| "general";
+	type: NotificationListsType;
 	data?: Record<string, any>;
 	isRead: boolean;
 	isSent: boolean;
@@ -47,23 +37,7 @@ const notificationSchema = new Schema<NotificationDocument>(
 		},
 		type: {
 			type: String,
-			enum: [
-				"job_posted",
-				"job_application",
-				"job_invite", // Customer invites contractor
-				"job_request", // Contractor requests job from customer
-				"sent_offer", // Customer sends offer to contractor
-				"accept_offer", // Contractor accepts offer
-				"booking_confirmed",
-				"booking_declined",
-				"message_received",
-				"payment_complete", // Payment held by admin (order started)
-				"payment_received",
-				"payment_released",
-				"job_completed",
-				"review_submitted",
-				"general",
-			],
+			enum: notificationTypeList,
 			default: "general",
 		},
 		data: {
