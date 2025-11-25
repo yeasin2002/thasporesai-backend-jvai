@@ -92,6 +92,18 @@ export const RejectOfferSchema = z
 	})
 	.openapi("RejectOffer");
 
+// Cancel offer schema
+export const CancelOfferSchema = z
+	.object({
+		reason: z
+			.string()
+			.min(1, "Cancellation reason is required")
+			.max(500, "Reason must be less than 500 characters")
+			.optional()
+			.openapi({ description: "Reason for cancelling the offer" }),
+	})
+	.openapi("CancelOffer");
+
 // Response schemas
 export const ErrorResponseSchema = z
 	.object({
@@ -109,4 +121,5 @@ export type InviteIdParam = z.infer<typeof InviteIdParamSchema>;
 export type JobIdParam = z.infer<typeof JobIdParamSchema>;
 export type OfferIdParam = z.infer<typeof OfferIdParamSchema>;
 export type RejectOffer = z.infer<typeof RejectOfferSchema>;
+export type CancelOffer = z.infer<typeof CancelOfferSchema>;
 export type ErrorResponse = z.infer<typeof ErrorResponseSchema>;

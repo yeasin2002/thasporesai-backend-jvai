@@ -8,6 +8,7 @@ import {
 import express, { type Router } from "express";
 import {
 	ApplicationIdParamSchema,
+	CancelOfferSchema,
 	InviteIdParamSchema,
 	JobIdParamSchema,
 	OfferIdParamSchema,
@@ -17,6 +18,7 @@ import {
 } from "./offer.validation";
 import {
 	acceptOffer,
+	cancelOffer,
 	rejectOffer,
 	sendJobOffer,
 	sendOffer,
@@ -76,4 +78,14 @@ offer.post(
 	validateParams(OfferIdParamSchema),
 	validateBody(RejectOfferSchema),
 	rejectOffer,
+);
+
+// Customer cancels pending offer
+offer.post(
+	"/:offerId/cancel",
+	requireAuth,
+	requireRole("customer"),
+	validateParams(OfferIdParamSchema),
+	validateBody(CancelOfferSchema),
+	cancelOffer,
 );
