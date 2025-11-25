@@ -140,13 +140,13 @@ registry.registerPath({
 	},
 });
 
-// GET /api/job/engaged - Get engaged jobs (jobs with applications or offers)
+// GET /api/job/engaged - Get engaged jobs (jobs with applications but no active offers)
 registry.registerPath({
 	method: "get",
 	path: `${openAPITags.job.basepath}/engaged`,
 	description:
-		"Get all jobs where the customer has engagement through receiving job applications or sending offers. Each job includes engagement statistics showing the number of applications and offers.",
-	summary: "Get engaged jobs",
+		"Get all jobs where the customer has received applications but NO active offers (pending/accepted). These jobs are available for sending new offers. Jobs with rejected or expired offers ARE included. Each job includes detailed engagement statistics, current pending offer details (with offerId for cancellation), and complete offer history. The 'currentOffer.offerId' field enables frontend to implement offer cancellation functionality.",
+	summary: "Get engaged jobs with offer details for management",
 	tags: [openAPITags.job.name],
 	security: [{ bearerAuth: [] }],
 	request: {
@@ -155,7 +155,7 @@ registry.registerPath({
 	responses: {
 		200: {
 			description:
-				"Engaged jobs retrieved successfully with engagement statistics",
+				"Engaged jobs retrieved successfully with detailed offer information including offerId for cancellation",
 			content: {
 				"application/json": {
 					schema: z.object({
@@ -183,17 +183,86 @@ registry.registerPath({
 									updatedAt: z.string(),
 									engagement: z.object({
 										applications: z.object({
-											total: z.number(),
-											pending: z.number(),
-											accepted: z.number(),
+											total: z.number().describe("Total applications received"),
+											pending: z.number().describe("Pending applications"),
+											accepted: z.number().describe("Accepted applications"),
 										}),
 										offers: z.object({
-											total: z.number(),
-											pending: z.number(),
-											accepted: z.number(),
+											total: z.number().describe("Total offers sent"),
+											pending: z.number().describe("Pending offers"),
+											accepted: z.number().describe("Accepted offers"),
+											rejected: z.number().describe("Rejected offers"),
+											expired: z.number().describe("Expired offers"),
 										}),
-										hasApplications: z.boolean(),
-										hasOffers: z.boolean(),
+										hasApplications: z
+											.boolean()
+											.describe("Whether job has received applications"),
+										hasOffers: z
+											.boolean()
+											.describe("Whether job has any offers"),
+										canSendOffer: z
+											.boolean()
+											.describe(
+												"Whether new offers can be sent (always true for jobs in this list)",
+											),
+										currentOffer: z
+											.object({
+												offerId: z
+													.string()
+													.describe(
+														"Offer ID - use this to cancel the offer via POST /api/offer/:offerId/cancel",
+													),
+												status: z
+													.literal("pending")
+													.describe("Always 'pending' for current offers"),
+												amount: z.number().describe("Job amount"),
+												timeline: z
+													.string()
+													.describe("Expected completion timeline"),
+												createdAt: z.string().describe("When offer was sent"),
+												expiresAt: z
+													.string()
+													.describe(
+														"When offer expires (7 days from creation)",
+													),
+												canCancel: z
+													.boolean()
+													.describe("Always true for pending offers"),
+											})
+											.nullable()
+											.describe(
+												"Current pending offer (null if no pending offer exists)",
+											),
+										allOffers: z
+											.array(
+												z.object({
+													offerId: z.string().describe("Offer ID"),
+													status: z
+														.enum([
+															"pending",
+															"accepted",
+															"rejected",
+															"cancelled",
+															"completed",
+															"expired",
+														])
+														.describe("Offer status"),
+													amount: z.number().describe("Job amount"),
+													timeline: z
+														.string()
+														.describe("Expected completion timeline"),
+													description: z
+														.string()
+														.optional()
+														.describe("Offer description"),
+													createdAt: z.string().describe("Offer creation date"),
+													expiresAt: z
+														.string()
+														.optional()
+														.describe("Offer expiration date"),
+												}),
+											)
+											.describe("Complete offer history for this job"),
 									}),
 								}),
 							),
