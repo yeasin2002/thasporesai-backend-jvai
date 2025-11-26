@@ -8,7 +8,7 @@ import mongoose from "mongoose";
 export const acceptOffer: RequestHandler = async (req, res) => {
 	try {
 		const { offerId } = req.params;
-		const contractorId = req.user!.id;
+		const contractorId = req?.user?.id;
 
 		// 1. Validate offer
 		const offer = await db.offer
@@ -130,7 +130,7 @@ export const acceptOffer: RequestHandler = async (req, res) => {
 				userId: offer.customer._id.toString(),
 				title: "Offer Accepted",
 				body: `Your offer has been accepted by the contractor`,
-				type: "booking_confirmed",
+				type: "accept_offer",
 				data: {
 					offerId: offerId.toString(),
 					jobId: job._id.toString(),

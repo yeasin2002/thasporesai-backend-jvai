@@ -14,6 +14,7 @@
     "ruler:apply": "pnpm dlx @intellectronica/ruler@latest apply --local-only",
     "generate:module": "node script/generate-module.js",
     "format": "biome format --write ./src",
+    "lint": "biome lint ./src",
     "lint-staged": "lint-staged",
     "docker:setup": "cp .env.docker .env && mkdir -p uploads logs && echo '✓ Docker setup complete. Edit .env with your configuration.'",
     "docker:start": "docker-compose up -d",

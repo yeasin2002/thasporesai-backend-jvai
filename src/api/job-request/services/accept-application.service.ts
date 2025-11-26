@@ -47,21 +47,9 @@ export const acceptApplication: RequestHandler = async (req, res) => {
 		application.status = "accepted";
 		await application.save();
 
-		// Update job status to in_progress and assign contractor
-		await db.job.findByIdAndUpdate(job._id, {
-			status: "in_progress",
-			contractor: application.contractor,
+		await db.jobApplicationRequest.findByIdAndUpdate(job._id, {
+			status: "accepted",
 		});
-
-		// Reject all other pending applications for this job
-		await db.jobApplicationRequest.updateMany(
-			{
-				job: job._id,
-				_id: { $ne: applicationId },
-				status: "pending",
-			},
-			{ status: "rejected" },
-		);
 
 		await application.populate("contractor", "full_name email profile_img");
 

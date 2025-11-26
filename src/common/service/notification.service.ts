@@ -10,7 +10,7 @@ export interface NotificationPayload {
 	title: string;
 	body: string;
 	type?: NotificationListsType;
-	data?: Record<string, any>;
+	data?: Record<string, unknown>;
 }
 
 export interface BulkNotificationPayload {

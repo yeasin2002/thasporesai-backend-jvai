@@ -42,9 +42,7 @@ const consoleFormat = winston.format.combine(
 	winston.format.timestamp({ format: "YYYY-MM-DD HH:mm:ss" }),
 	winston.format.printf(
 		(info) =>
-			`${info.timestamp} ${info.level}: ${info.message}${
-				info.stack ? `\n${info.stack}` : ""
-			}`,
+			` ${info.level}: ${info.message}${info.stack ? `\n${info.stack}` : ""}`,
 	),
 );
 
@@ -104,8 +102,8 @@ export const morganStream = {
 // Helper functions for common logging patterns
 export const logError = (
 	message: string,
-	error?: Error | unknown,
-	meta?: any,
+	error: Error | unknown,
+	meta?: Record<string, unknown>,
 ) => {
 	if (error instanceof Error) {
 		logger.error(message, {
@@ -122,8 +120,8 @@ export const logError = (
 };
 
 // Log unhandled rejections and exceptions
-process.on("unhandledRejection", (reason: Error | any) => {
-	logError("Unhandled Rejection <Logger>", reason);
+process.on("unhandledRejection", (reason: Error | unknown) => {
+	logError("Unhandled Rejection <Logger>", reason as Error);
 });
 
 process.on("uncaughtException", (error: Error) => {

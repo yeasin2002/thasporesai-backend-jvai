@@ -149,7 +149,7 @@ export const sendOffer: RequestHandler<
 				userId: (application.contractor as any)._id.toString(),
 				title: "New Offer Received",
 				body: `You received an offer of ${amount} for "${job.title}"`,
-				type: "booking_confirmed",
+				type: "sent_offer",
 				data: {
 					offerId: (offer._id as any).toString(),
 					jobId: job._id.toString(),

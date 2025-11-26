@@ -50,7 +50,7 @@ export function sendError(
 	message: string,
 	errors?: Array<{ path: string; message: string }>,
 ): Response<ApiResponse<null>> {
-	logger.error("500 Error: ", message);
+	logger.error("500 Error: ", { message, errors });
 	const response: ApiResponse<null> = {
 		status: statusCode,
 		message,

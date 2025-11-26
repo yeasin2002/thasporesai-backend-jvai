@@ -75,8 +75,10 @@ export const acceptInvite: RequestHandler = async (req, res) => {
 		await NotificationService.sendToUser({
 			userId: invite.customer.toString(),
 			title: "Invite Accepted",
-			body: `${contractor?.full_name || "A contractor"} has accepted your invite for "${job.title}"`,
-			type: "booking_confirmed",
+			body: `${
+				contractor?.full_name || "A contractor"
+			} has accepted your invite for "${job.title}"`,
+			type: "job_invite_accept",
 			data: {
 				jobId: job._id.toString(),
 				inviteId: inviteId,

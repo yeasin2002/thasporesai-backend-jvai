@@ -56,8 +56,10 @@ export const rejectInvite: RequestHandler = async (req, res) => {
 		await NotificationService.sendToUser({
 			userId: invite.customer._id.toString(),
 			title: "Invite Rejected",
-			body: `${contractor?.full_name || "A contractor"} has declined your invite for "${job.title}"`,
-			type: "booking_declined",
+			body: `${
+				contractor?.full_name || "A contractor"
+			} has declined your invite for "${job.title}"`,
+			type: "job_invite_reject",
 			data: {
 				jobId: job._id.toString(),
 				inviteId: inviteId,

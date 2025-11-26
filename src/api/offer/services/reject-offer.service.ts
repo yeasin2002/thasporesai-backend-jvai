@@ -11,7 +11,7 @@ export const rejectOffer: RequestHandler<
 > = async (req, res) => {
 	try {
 		const { offerId } = req.params;
-		const contractorId = req.user!.id;
+		const contractorId = req?.user?.id;
 		const { reason } = req.body;
 
 		// 1. Validate offer
@@ -77,7 +77,7 @@ export const rejectOffer: RequestHandler<
 			userId: offer.customer._id.toString(),
 			title: "Offer Rejected",
 			body: `Your offer was rejected. Reason: ${reason}`,
-			type: "booking_declined",
+			type: "offer_reject",
 			data: {
 				offerId: offerId.toString(),
 				jobId: offer.job.toString(),

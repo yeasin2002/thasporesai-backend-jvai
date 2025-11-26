@@ -8,7 +8,7 @@ import mongoose from "mongoose";
 export const completeJob: RequestHandler = async (req, res) => {
 	try {
 		const { id: jobId } = req.params;
-		const customerId = req.user!.id;
+		const customerId = req?.user?.id;
 
 		// 1. Validate job
 		const job = await db.job.findOne({
@@ -129,7 +129,7 @@ export const completeJob: RequestHandler = async (req, res) => {
 				userId: job.contractorId.toString(),
 				title: "Payment Released",
 				body: `You received $${offer.contractorPayout} for completing the job`,
-				type: "payment_received",
+				type: "job_completed",
 				data: {
 					jobId: jobId.toString(),
 					amount: offer.contractorPayout.toString(),
