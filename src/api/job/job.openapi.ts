@@ -8,6 +8,7 @@ import {
 	JobResponseSchema,
 	JobsResponseSchema,
 	SearchJobSchema,
+	SearchOfferSendJobSchema,
 	SuccessResponseSchema,
 	UpdateJobSchema,
 } from "./job.validation";
@@ -17,6 +18,8 @@ registry.register("CreateJob", CreateJobSchema);
 registry.register("UpdateJob", UpdateJobSchema);
 registry.register("JobIdParam", JobIdSchema);
 registry.register("SearchJob", SearchJobSchema);
+registry.register("SearchOfferSendJob", SearchOfferSendJobSchema);
+
 registry.register("JobResponse", JobResponseSchema);
 registry.register("JobsResponse", JobsResponseSchema);
 registry.register("SuccessResponse", SuccessResponseSchema);
@@ -146,11 +149,11 @@ registry.registerPath({
 	path: `${openAPITags.job.basepath}/pending-jobs`,
 	description:
 		"Get all jobs where the customer has sent offers that are pending contractor response. Shows jobs waiting for contractor to accept or reject. Each job includes offer details (with offerId for cancellation) and contractor information. Excludes jobs in 'in_progress', 'completed', or 'cancelled' status.",
-	summary: "Get jobs with pending offers (waiting for response)",
+	summary: "Get jobs with pending offers (waiting for contractor response)",
 	tags: [openAPITags.job.name],
 	security: [{ bearerAuth: [] }],
 	request: {
-		query: SearchJobSchema,
+		query: SearchOfferSendJobSchema,
 	},
 	responses: {
 		200: {

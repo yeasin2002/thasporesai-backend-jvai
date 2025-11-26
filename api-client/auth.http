@@ -15,9 +15,9 @@ POST {{baseUrl}}/api/auth/register
 Content-Type: {{contentType}}
 
 {
-  "full_name": "Md Kawsar Islam",
-  "email": "mdkawsarislam2002@gmail.com",
-  "password": "yeasin2002",
+  "full_name": "Sabka Bap",
+  "email": "admin@gmail.com",
+  "password": "123456",
   "role": "admin",
   "phone": "+1234567890"
 }
@@ -43,8 +43,8 @@ POST {{baseUrl}}/api/auth/login
 Content-Type: {{contentType}}
 
 {
-  "email": "mdkawsarislam2002@gmail.com",
-  "password": "yeasin2002"
+  "email": "admin@gmail.com",
+  "password": "123456"
 }
 
 
@@ -55,8 +55,8 @@ POST {{baseUrl}}/api/auth/login
 Content-Type: {{contentType}}
 
 {
-  "email": "yeasin2002@gmail.com",
-  "password": "yeasin2002@gmail.com"
+  "email": "contractor@gmail.com",
+  "password": "123456"
 }
 
 

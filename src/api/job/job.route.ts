@@ -16,6 +16,7 @@ import {
 	CreateJobSchema,
 	JobIdSchema,
 	SearchJobSchema,
+	SearchOfferSendJobSchema,
 	UpdateJobSchema,
 	UpdateJobStatusSchema,
 } from "./job.validation";
@@ -62,7 +63,7 @@ job.get(
 	"/pending-jobs",
 	requireAuth,
 	requireRole("customer"),
-	validateQuery(SearchJobSchema),
+	validateQuery(SearchOfferSendJobSchema),
 	getOfferSendJobsList,
 );
 

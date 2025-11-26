@@ -181,6 +181,31 @@ export const SearchJobSchema = z
 	})
 	.openapi("SearchJob");
 
+export const SearchOfferSendJobSchema = z
+	.object({
+		contractorId: z
+			.string()
+			.refine((val) => !val || isValidObjectId(val), {
+				message: "Invalid contractor ID format",
+			})
+			.optional()
+			.openapi({
+				description:
+					"Filter by contractor ID - excludes jobs where this contractor has been invited or has applied",
+			}),
+		page: z
+			.string()
+			.regex(/^\d+$/, "Page must be a number")
+			.optional()
+			.openapi({ description: "Page number" }),
+		limit: z
+			.string()
+			.regex(/^\d+$/, "Limit must be a number")
+			.optional()
+			.openapi({ description: "Items per page" }),
+	})
+	.openapi("SearchOfferSendJob");
+
 // Response Schemas
 export const JobResponseSchema = z
 	.object({
@@ -248,6 +273,7 @@ export type Job = z.infer<typeof JobSchema>;
 export type CreateJob = z.infer<typeof CreateJobSchema>;
 export type UpdateJob = z.infer<typeof UpdateJobSchema>;
 export type SearchJob = z.infer<typeof SearchJobSchema>;
+export type SearchOfferSendJob = z.infer<typeof SearchOfferSendJobSchema>;
 export type JobResponse = z.infer<typeof JobResponseSchema>;
 export type JobsResponse = z.infer<typeof JobsResponseSchema>;
 export type SuccessResponse = z.infer<typeof SuccessResponseSchema>;
