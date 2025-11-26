@@ -5,7 +5,7 @@ import {
 	validatePagination,
 } from "@/helpers";
 import type { RequestHandler } from "express";
-import type { SearchJob } from "../job.validation";
+import type { SearchOfferSendJob } from "../job.validation";
 
 /**
  * Get Jobs with Pending Offers (Offer Sent Jobs)
@@ -17,6 +17,11 @@ import type { SearchJob } from "../job.validation";
  * - Offer details including offerId for cancellation
  * - Job must be in "open" status (not in_progress or completed)
  *
+ * Query Parameters:
+ * - page: Page number for pagination
+ * - limit: Items per page
+ * - contractorId: (Optional) Filter by specific contractor
+ *
  * Use case: Customer wants to see all jobs where they're waiting for contractor response
  *
  * @route GET /api/job/pending-jobs
@@ -26,7 +31,7 @@ export const getOfferSendJobsList: RequestHandler<
 	unknown,
 	unknown,
 	unknown,
-	SearchJob
+	SearchOfferSendJob
 > = async (req, res) => {
 	try {
 		const customerId = req.user?.userId;
@@ -39,16 +44,7 @@ export const getOfferSendJobsList: RequestHandler<
 			);
 		}
 
-		const {
-			search,
-			category,
-			status,
-			minBudget,
-			maxBudget,
-			location,
-			page,
-			limit,
-		} = req.query;
+		const { page, limit, contractorId } = req.query;
 
 		// Validate and sanitize pagination
 		const {
@@ -57,13 +53,19 @@ export const getOfferSendJobsList: RequestHandler<
 			skip,
 		} = validatePagination(page, limit);
 
-		// Step 1: Find all pending offers for this customer's jobs
-		const pendingOffers = await db.offer
-			.find({
-				customer: customerId,
-				status: "pending",
-			})
-			.lean();
+		// Step 1: Build offer query
+		const offerQuery: Record<string, any> = {
+			customer: customerId,
+			status: "pending",
+		};
+
+		// Filter by contractor if provided
+		if (contractorId) {
+			offerQuery.contractor = contractorId;
+		}
+
+		// Find all pending offers for this customer's jobs
+		const pendingOffers = await db.offer.find(offerQuery).lean();
 
 		if (pendingOffers.length === 0) {
 			return sendSuccess(res, 200, "No pending offers found", {
@@ -79,41 +81,11 @@ export const getOfferSendJobsList: RequestHandler<
 		const jobIdsWithPendingOffers = pendingOffers.map((offer) => offer.job);
 
 		// Step 2: Build query for jobs with pending offers
-		const query: any = {
+		const query: Record<string, any> = {
 			_id: { $in: jobIdsWithPendingOffers },
 			customerId, // Ensure jobs belong to this customer
 			status: { $nin: ["in_progress", "completed", "cancelled"] }, // Exclude in_progress jobs
 		};
-
-		// Apply search filter
-		if (search) {
-			query.$or = [
-				{ title: { $regex: search, $options: "i" } },
-				{ description: { $regex: search, $options: "i" } },
-			];
-		}
-
-		// Apply category filter
-		if (category) {
-			query.category = category;
-		}
-
-		// Apply status filter (if provided)
-		if (status) {
-			query.status = status;
-		}
-
-		// Apply budget range filter
-		if (minBudget || maxBudget) {
-			query.budget = {};
-			if (minBudget) query.budget.$gte = Number.parseInt(minBudget, 10);
-			if (maxBudget) query.budget.$lte = Number.parseInt(maxBudget, 10);
-		}
-
-		// Apply location filter
-		if (location) {
-			query.location = location;
-		}
 
 		// Step 3: Get jobs with pagination and populate related data
 		const [jobs, total] = await Promise.all([

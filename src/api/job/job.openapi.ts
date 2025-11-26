@@ -148,7 +148,7 @@ registry.registerPath({
 	method: "get",
 	path: `${openAPITags.job.basepath}/pending-jobs`,
 	description:
-		"Get all jobs where the customer has sent offers that are pending contractor response. Shows jobs waiting for contractor to accept or reject. Each job includes offer details (with offerId for cancellation) and contractor information. Excludes jobs in 'in_progress', 'completed', or 'cancelled' status.",
+		"Get all jobs where the customer has sent offers that are pending contractor response. Shows jobs waiting for contractor to accept or reject. Each job includes offer details (with offerId for cancellation) and contractor information. Excludes jobs in 'in_progress', 'completed', or 'cancelled' status. Supports pagination (page, limit) and optional filtering by contractorId to see offers sent to a specific contractor.",
 	summary: "Get jobs with pending offers (waiting for contractor response)",
 	tags: [openAPITags.job.name],
 	security: [{ bearerAuth: [] }],

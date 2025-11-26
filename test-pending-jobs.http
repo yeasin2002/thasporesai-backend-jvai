@@ -1,5 +1,6 @@
 ### Test Pending Jobs Endpoint (Jobs with Pending Offers)
 ### This endpoint shows jobs where customer sent offers and waiting for contractor response
+### Simplified: Only supports page, limit, and contractorId parameters
 
 ### 1. Get all pending jobs (basic)
 GET http://127.0.0.1:4000/api/job/pending-jobs
@@ -13,8 +14,8 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTAyZ
 
 ###
 
-### 3. Get pending jobs with filters
-GET http://127.0.0.1:4000/api/job/pending-jobs?status=open&category=CATEGORY_ID
+### 3. Get pending jobs for specific contractor
+GET http://127.0.0.1:4000/api/job/pending-jobs?contractorId=CONTRACTOR_ID&page=1&limit=10
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTAyZTI2YjFmOGUxOWNhNWE5NjE3ODIiLCJlbWFpbCI6ImN1c3RvbWVyQGcuY29tIiwicm9sZSI6ImN1c3RvbWVyIiwiaWF0IjoxNzY0MDY5NjEwLCJleHAiOjE3NjUzNjU2MTB9.BW43f9sheMp_imFrZS_4KHTT3byt6Rzn1xZiQJq24jk
 
 ###
