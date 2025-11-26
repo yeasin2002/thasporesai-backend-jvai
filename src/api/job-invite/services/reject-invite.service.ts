@@ -18,7 +18,7 @@ export const rejectInvite: RequestHandler = async (req, res) => {
 		}
 
 		// Find invite
-		const invite = await db.jobInvite
+		const invite = await db.inviteApplication
 			.findById(inviteId)
 			.populate("job", "title")
 			.populate("customer", "full_name email");
@@ -36,16 +36,13 @@ export const rejectInvite: RequestHandler = async (req, res) => {
 			);
 		}
 
-		// Check if invite is still pending
-		if (invite.status !== "pending") {
+		// Check if invite is still pending (invited or engaged status)
+		if (invite.status !== "invited" && invite.status !== "engaged") {
 			return sendError(res, 400, "This invite has already been processed");
 		}
 
-		// Update invite status
-		invite.status = "rejected";
-		if (rejectionReason) {
-			invite.rejectionReason = rejectionReason;
-		}
+		// Update invite status to cancelled (rejected by contractor)
+		invite.status = "cancelled";
 		await invite.save();
 
 		// Get contractor details for notification
@@ -53,21 +50,21 @@ export const rejectInvite: RequestHandler = async (req, res) => {
 		const job = invite.job as any;
 
 		// Send notification to customer
-		await NotificationService.sendToUser({
-			userId: invite.customer._id.toString(),
-			title: "Invite Rejected",
-			body: `${
-				contractor?.full_name || "A contractor"
-			} has declined your invite for "${job.title}"`,
-			type: "job_invite_reject",
-			data: {
-				jobId: job._id.toString(),
-				inviteId: inviteId,
-				contractorId: contractorId,
-				contractorName: contractor?.full_name || "",
-				rejectionReason: rejectionReason || "",
-			},
-		});
+		// await NotificationService.sendToUser({
+		// 	userId: invite.customer._id.toString(),
+		// 	title: "Invite Rejected",
+		// 	body: `${
+		// 		contractor?.full_name || "A contractor"
+		// 	} has declined your invite for "${job.title}"`,
+		// 	type: "job_invite_reject",
+		// 	data: {
+		// 		jobId: job._id.toString(),
+		// 		inviteId: inviteId,
+		// 		contractorId: contractorId,
+		// 		contractorName: contractor?.full_name || "",
+		// 		rejectionReason: rejectionReason || "",
+		// 	},
+		// });
 
 		// Populate invite details for response
 		await invite.populate([

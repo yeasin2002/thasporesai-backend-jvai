@@ -16,10 +16,19 @@ export const cancelApplication: RequestHandler = async (req, res) => {
 		}
 
 		// Find the application
-		const application = await db.jobApplicationRequest.findById(applicationId);
+		const application = await db.inviteApplication.findById(applicationId);
 
 		if (!application) {
 			return sendError(res, 404, "Application not found");
+		}
+
+		// Verify this is a contractor request
+		if (application.sender !== "contractor") {
+			return sendError(
+				res,
+				400,
+				"Invalid application - not a contractor request",
+			);
 		}
 
 		// Check if user is the application owner
@@ -27,8 +36,8 @@ export const cancelApplication: RequestHandler = async (req, res) => {
 			return sendError(res, 403, "You can only cancel your own applications");
 		}
 
-		// Check if application is still pending
-		if (application.status !== "pending") {
+		// Check if application is still pending (requested status)
+		if (application.status !== "requested") {
 			return sendError(
 				res,
 				400,
@@ -36,8 +45,9 @@ export const cancelApplication: RequestHandler = async (req, res) => {
 			);
 		}
 
-		// Delete the application
-		await db.jobApplicationRequest.findByIdAndDelete(applicationId);
+		// Update status to cancelled instead of deleting
+		application.status = "cancelled";
+		await application.save();
 
 		return sendSuccess(res, 200, "Application cancelled successfully", null);
 	} catch (error) {

@@ -17,7 +17,7 @@ export const acceptInvite: RequestHandler = async (req, res) => {
 		}
 
 		// Find invite
-		const invite = await db.jobInvite
+		const invite = await db.inviteApplication
 			.findById(inviteId)
 			.populate("job")
 			.populate("customer", "full_name email");
@@ -35,8 +35,8 @@ export const acceptInvite: RequestHandler = async (req, res) => {
 			);
 		}
 
-		// Check if invite is still pending
-		if (invite.status !== "pending") {
+		// Check if invite is still pending (invited or engaged status)
+		if (invite.status !== "invited" && invite.status !== "engaged") {
 			return sendError(res, 400, "This invite has already been processed");
 		}
 
@@ -46,8 +46,8 @@ export const acceptInvite: RequestHandler = async (req, res) => {
 			return sendError(res, 400, "This job is no longer available");
 		}
 
-		// Update invite status
-		invite.status = "accepted";
+		// Update invite status to engaged (accepted)
+		invite.status = "engaged";
 		await invite.save();
 
 		// Create or get existing conversation
@@ -72,21 +72,21 @@ export const acceptInvite: RequestHandler = async (req, res) => {
 		const contractor = await db.user.findById(contractorId);
 
 		// Send notification to customer
-		await NotificationService.sendToUser({
-			userId: invite.customer.toString(),
-			title: "Invite Accepted",
-			body: `${
-				contractor?.full_name || "A contractor"
-			} has accepted your invite for "${job.title}"`,
-			type: "job_invite_accept",
-			data: {
-				jobId: job._id.toString(),
-				inviteId: inviteId,
-				contractorId: contractorId,
-				contractorName: contractor?.full_name || "",
-				conversationId: conversation?._id?.toString() || "",
-			},
-		});
+		// await NotificationService.sendToUser({
+		//   userId: invite.customer.toString(),
+		//   title: "Invite Accepted",
+		//   body: `${
+		//     contractor?.full_name || "A contractor"
+		//   } has accepted your invite for "${job.title}"`,
+		//   type: "job_invite_accept",
+		//   data: {
+		//     jobId: job._id.toString(),
+		//     inviteId: inviteId,
+		//     contractorId: contractorId,
+		//     contractorName: contractor?.full_name || "",
+		//     conversationId: conversation?._id?.toString() || "",
+		//   },
+		// });
 
 		// Populate invite details for response
 		await invite.populate([

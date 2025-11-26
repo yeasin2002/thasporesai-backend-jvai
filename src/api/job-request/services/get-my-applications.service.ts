@@ -29,20 +29,28 @@ export const getMyApplications: RequestHandler<
 			skip,
 		} = validatePagination(page, limit);
 
-		// Build base query - always filter by contractor
-		const applicationQuery: any = { contractor: contractorId };
+		// Build base query - always filter by contractor and sender
+		const applicationQuery: any = {
+			contractor: contractorId,
+			sender: "contractor", // Only show applications initiated by contractor
+		};
 
-		// Filter by application status (matches model: pending, accepted, rejected, offer_sent)
+		// Filter by application status - map old status to new
 		if (status) {
-			applicationQuery.status = status;
+			const statusMap: Record<string, string> = {
+				pending: "requested",
+				accepted: "engaged",
+				rejected: "cancelled",
+				offer_sent: "offered",
+			};
+			applicationQuery.status = statusMap[status] || status;
 		}
 
 		// Get total count for pagination
-		const total =
-			await db.jobApplicationRequest.countDocuments(applicationQuery);
+		const total = await db.inviteApplication.countDocuments(applicationQuery);
 
 		// Get paginated applications with populated data
-		const applications = await db.jobApplicationRequest
+		const applications = await db.inviteApplication
 			.find(applicationQuery)
 			.populate({
 				path: "job",

@@ -47,43 +47,33 @@ export const acceptOffer: RequestHandler = async (req, res) => {
 			job.assignedAt = new Date();
 			await job.save({ session });
 
-			// Update application or invite status (if applicable)
-			if (offer.application) {
-				// Offer was based on application
-				await db.jobApplicationRequest.findByIdAndUpdate(
-					offer.application,
-					{ status: "accepted" },
+			// Update engaged application/invite status (if applicable)
+			if (offer.engaged) {
+				// Mark the engaged application as accepted
+				await db.inviteApplication.findByIdAndUpdate(
+					offer.engaged,
+					{ status: "engaged" }, // Mark as engaged (accepted)
 					{ session },
 				);
 
-				// Reject other applications
-				await db.jobApplicationRequest.updateMany(
+				// Cancel other applications/invites for this job
+				await db.inviteApplication.updateMany(
 					{
 						job: job._id,
-						_id: { $ne: offer.application },
-						status: "pending",
+						_id: { $ne: offer.engaged },
+						status: { $in: ["requested", "invited"] },
 					},
-					{ status: "rejected" },
-					{ session },
-				);
-			} else if (offer.invite) {
-				// Offer was based on invite - reject any pending applications
-				await db.jobApplicationRequest.updateMany(
-					{
-						job: job._id,
-						status: "pending",
-					},
-					{ status: "rejected" },
+					{ status: "cancelled" },
 					{ session },
 				);
 			} else {
-				// Direct offer - reject any pending applications
-				await db.jobApplicationRequest.updateMany(
+				// Direct offer - cancel any pending applications/invites
+				await db.inviteApplication.updateMany(
 					{
 						job: job._id,
-						status: "pending",
+						status: { $in: ["requested", "invited"] },
 					},
-					{ status: "rejected" },
+					{ status: "cancelled" },
 					{ session },
 				);
 			}
@@ -137,15 +127,15 @@ export const acceptOffer: RequestHandler = async (req, res) => {
 				},
 			});
 
-			// Notify rejected applicants
-			const rejectedApplications = await db.jobApplicationRequest
+			// Notify cancelled applicants/invitees
+			const cancelledApplications = await db.inviteApplication
 				.find({
 					job: job._id,
-					status: "rejected",
+					status: "cancelled",
 				})
 				.populate("contractor", "_id");
 
-			for (const app of rejectedApplications) {
+			for (const app of cancelledApplications) {
 				await NotificationService.sendToUser({
 					userId: (app.contractor as any)._id.toString(),
 					title: "Job Filled",

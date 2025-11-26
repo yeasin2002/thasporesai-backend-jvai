@@ -37,14 +37,42 @@ export const applyForJob: RequestHandler = async (req, res) => {
 			return sendError(res, 400, "You cannot apply to your own job");
 		}
 
-		// Check if already applied
-		const existingApplication = await db.jobApplicationRequest.findOne({
+		// Check if already applied or invited
+		const existingApplication = await db.inviteApplication.findOne({
 			job: jobId,
 			contractor: contractorId,
 		});
 
 		if (existingApplication) {
-			return sendError(res, 400, "You have already applied to this job");
+			// If customer already invited, update to engaged status
+			if (
+				existingApplication.status === "invited" &&
+				existingApplication.sender === "customer"
+			) {
+				existingApplication.status = "engaged";
+				existingApplication.sender = "contractor"; // Contractor is now engaging
+				await existingApplication.save();
+
+				await existingApplication.populate(
+					"contractor",
+					"full_name email profile_img",
+				);
+
+				return sendSuccess(
+					res,
+					200,
+					"Application submitted successfully (engagement updated)",
+					existingApplication,
+				);
+			}
+
+			// If already requested or engaged, return error
+			if (
+				existingApplication.status === "requested" ||
+				existingApplication.status === "engaged"
+			) {
+				return sendError(res, 400, "You have already applied to this job");
+			}
 		}
 
 		// Get contractor details for notification
@@ -53,12 +81,16 @@ export const applyForJob: RequestHandler = async (req, res) => {
 			return sendError(res, 404, "Contractor not found");
 		}
 
+		// Get customer details
+		const customer = await db.user.findById(job.customerId);
+
 		// Create application
-		const application = await db.jobApplicationRequest.create({
+		const application = await db.inviteApplication.create({
 			job: jobId,
+			customer: job.customerId,
 			contractor: contractorId,
-			message: message || "",
-			status: "pending",
+			status: "requested",
+			sender: "contractor",
 		});
 
 		// Populate contractor details

@@ -86,9 +86,11 @@ export const getAllJobs: RequestHandler<
 			const jobIds = jobs.map((job) => job._id);
 
 			// Get all applications by this contractor for these jobs
-			const applications = await db.jobApplicationRequest.find({
+			const applications = await db.inviteApplication.find({
 				job: { $in: jobIds },
 				contractor: contractorId,
+				sender: "contractor", // Only contractor-initiated applications
+				status: { $in: ["requested", "engaged", "offered"] },
 			});
 
 			// Create a Set of job IDs the contractor has applied to

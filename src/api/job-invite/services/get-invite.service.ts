@@ -16,7 +16,7 @@ export const getInvite: RequestHandler = async (req, res) => {
 		}
 
 		// Find invite
-		const invite = await db.jobInvite
+		const invite = await db.inviteApplication
 			.findById(inviteId)
 			.populate("job", "title description budget location category status")
 			.populate("customer", "full_name email profile_img")

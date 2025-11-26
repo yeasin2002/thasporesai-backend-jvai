@@ -16,12 +16,21 @@ export const rejectApplication: RequestHandler = async (req, res) => {
 		}
 
 		// Find the application
-		const application = await db.jobApplicationRequest
+		const application = await db.inviteApplication
 			.findById(applicationId)
 			.populate("job");
 
 		if (!application) {
 			return sendError(res, 404, "Application not found");
+		}
+
+		// Verify this is a contractor request
+		if (application.sender !== "contractor") {
+			return sendError(
+				res,
+				400,
+				"Invalid application - not a contractor request",
+			);
 		}
 
 		// Check if user is the job owner
@@ -34,8 +43,8 @@ export const rejectApplication: RequestHandler = async (req, res) => {
 			);
 		}
 
-		// Check if application is still pending
-		if (application.status !== "pending") {
+		// Check if application is still pending (requested status)
+		if (application.status !== "requested") {
 			return sendError(
 				res,
 				400,
@@ -43,8 +52,8 @@ export const rejectApplication: RequestHandler = async (req, res) => {
 			);
 		}
 
-		// Update application status
-		application.status = "rejected";
+		// Update application status to cancelled (rejected)
+		application.status = "cancelled";
 		await application.save();
 
 		await application.populate("contractor", "full_name email profile_img");

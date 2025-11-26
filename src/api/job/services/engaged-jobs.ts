@@ -74,9 +74,13 @@ export const getEngagedJobs: RequestHandler<
 
 		// Step 2: Find jobs that have applications OR offers
 		const [jobsWithApplications, jobsWithActiveOffers] = await Promise.all([
-			// Jobs that have received applications
-			db.jobApplicationRequest
-				.find({ job: { $in: customerJobIds } })
+			// Jobs that have received applications (contractor requests)
+			db.inviteApplication
+				.find({
+					job: { $in: customerJobIds },
+					sender: "contractor", // Only contractor-initiated applications
+					status: { $in: ["requested", "engaged"] },
+				})
 				.distinct("job"),
 
 			// Jobs that have ACTIVE offers (pending or accepted)
@@ -169,18 +173,23 @@ export const getEngagedJobs: RequestHandler<
 		const jobIds = jobs.map((job) => job._id);
 
 		const [applicationCounts, offerCounts] = await Promise.all([
-			// Count applications per job
-			db.jobApplicationRequest.aggregate([
-				{ $match: { job: { $in: jobIds } } },
+			// Count applications per job (contractor requests only)
+			db.inviteApplication.aggregate([
+				{
+					$match: {
+						job: { $in: jobIds },
+						sender: "contractor", // Only contractor-initiated applications
+					},
+				},
 				{
 					$group: {
 						_id: "$job",
 						totalApplications: { $sum: 1 },
 						pendingApplications: {
-							$sum: { $cond: [{ $eq: ["$status", "pending"] }, 1, 0] },
+							$sum: { $cond: [{ $eq: ["$status", "requested"] }, 1, 0] },
 						},
 						acceptedApplications: {
-							$sum: { $cond: [{ $eq: ["$status", "accepted"] }, 1, 0] },
+							$sum: { $cond: [{ $eq: ["$status", "engaged"] }, 1, 0] },
 						},
 					},
 				},

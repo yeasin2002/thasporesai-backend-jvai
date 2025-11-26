@@ -22,13 +22,21 @@ export const sendOffer: RequestHandler<
 		const { amount, timeline, description } = req.body;
 
 		// 1. Validate application
-		const application = await db.jobApplicationRequest
+		const application = await db.inviteApplication
 			.findById(applicationId)
 			.populate("job")
 			.populate("contractor", "full_name email");
 
 		if (!application) {
 			return sendBadRequest(res, "Application not found");
+		}
+
+		// Verify this is a contractor request (not a customer invite)
+		if (application.sender !== "contractor") {
+			return sendBadRequest(
+				res,
+				"Invalid application - not a contractor request",
+			);
 		}
 
 		const job = application.job as any;
@@ -103,7 +111,7 @@ export const sendOffer: RequestHandler<
 						job: job._id,
 						customer: customerId,
 						contractor: application.contractor._id,
-						application: applicationId,
+						engaged: applicationId, // Link to unified application model
 						amount: amounts.jobBudget,
 						platformFee: amounts.platformFee,
 						serviceFee: amounts.serviceFee,
@@ -136,8 +144,8 @@ export const sendOffer: RequestHandler<
 				{ session },
 			);
 
-			// Update application status
-			application.status = "offer_sent";
+			// Update application status to offered
+			application.status = "offered";
 			application.offerId = offer._id as any;
 			await application.save({ session });
 

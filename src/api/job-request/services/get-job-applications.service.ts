@@ -29,9 +29,12 @@ export const getJobApplications: RequestHandler = async (req, res) => {
 			);
 		}
 
-		// Get all applications for this job
-		const applications = await db.jobApplicationRequest
-			.find({ job: jobId })
+		// Get all applications for this job (contractor requests only)
+		const applications = await db.inviteApplication
+			.find({
+				job: jobId,
+				sender: "contractor", // Only show contractor-initiated applications
+			})
 			.populate("contractor", "full_name email profile_img phone skills")
 			.sort({ createdAt: -1 });
 

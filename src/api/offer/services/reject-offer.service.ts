@@ -33,20 +33,25 @@ export const rejectOffer: RequestHandler<
 		offer.rejectionReason = reason;
 		await offer.save();
 
-		// 3. Update application or invite status (if applicable)
-		if (offer.application) {
-			// Offer was based on application - reset application status
-			await db.jobApplicationRequest.findByIdAndUpdate(offer.application, {
-				status: "pending", // Reset to pending so customer can send new offer
-				offerId: undefined, // Clear offer reference
-			});
-		} else if (offer.invite) {
-			// Offer was based on invite - reset invite status
-			await db.jobInvite.findByIdAndUpdate(offer.invite, {
-				status: "accepted", // Reset to accepted so customer can send new offer
-			});
+		// 3. Update engaged application/invite status (if applicable)
+		if (offer.engaged) {
+			// Get the engaged application to check its sender
+			const engagement = await db.inviteApplication.findById(offer.engaged);
+			if (engagement) {
+				// Reset based on who initiated
+				if (engagement.sender === "contractor") {
+					// Contractor requested - reset to requested
+					engagement.status = "requested";
+				} else {
+					// Customer invited - reset to engaged
+					engagement.status = "engaged";
+				}
+				// Clear offer reference (cast to any to avoid TypeScript error)
+				engagement.offerId = undefined as any;
+				await engagement.save();
+			}
 		}
-		// If direct offer (no application or invite), no status to reset
+		// If direct offer (no engaged reference), no status to reset
 
 		// 4. Refund customer wallet
 		await db.wallet.findOneAndUpdate(

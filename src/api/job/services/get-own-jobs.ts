@@ -39,31 +39,20 @@ export const getMyJobs: RequestHandler<
 		// Build query - always filter by customerId
 		const query: any = { customerId };
 
-		// If contractorId is provided, filter out jobs where:
-		// 1. Contractor has been invited
-		// 2. Contractor has applied
+		// If contractorId is provided, filter out jobs where contractor is already engaged
 		if (contractorId && typeof contractorId === "string") {
-			// Get jobs where contractor has been invited
-			const invitedJobIds = await db.jobInvite
-				.find({ contractor: contractorId, customer: customerId })
+			// Get jobs where contractor has any engagement (invited or applied)
+			const engagedJobIds = await db.inviteApplication
+				.find({
+					contractor: contractorId,
+					customer: customerId,
+					status: { $in: ["invited", "requested", "engaged", "offered"] },
+				})
 				.distinct("job");
-
-			// Get jobs where contractor has applied
-			const appliedJobIds = await db.jobApplicationRequest
-				.find({ contractor: contractorId })
-				.distinct("job");
-
-			// Combine both lists and exclude these jobs
-			const excludedJobIds = [
-				...new Set([
-					...invitedJobIds.map((id) => id.toString()),
-					...appliedJobIds.map((id) => id.toString()),
-				]),
-			];
 
 			// Exclude jobs where contractor is already engaged
-			if (excludedJobIds.length > 0) {
-				query._id = { $nin: excludedJobIds };
+			if (engagedJobIds.length > 0) {
+				query._id = { $nin: engagedJobIds };
 			}
 		}
 

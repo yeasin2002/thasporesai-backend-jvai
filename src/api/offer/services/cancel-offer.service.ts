@@ -115,21 +115,23 @@ export const cancelOffer: RequestHandler<
 			reason || "Cancelled by customer before contractor response";
 		await offer.save({ session });
 
-		// 9. Reset application/invite status to allow new offers
-		if (offer.application) {
-			// Application-based offer: Reset to "pending"
-			await db.jobApplicationRequest.findByIdAndUpdate(
-				offer.application,
-				{ status: "pending" },
-				{ session },
-			);
-		} else if (offer.invite) {
-			// Invite-based offer: Reset to "accepted"
-			await db.jobInvite.findByIdAndUpdate(
-				offer.invite,
-				{ status: "accepted" },
-				{ session },
-			);
+		// 9. Reset engaged application/invite status to allow new offers
+		if (offer.engaged) {
+			// Get the engaged application to check its sender
+			const engagement = await db.inviteApplication
+				.findById(offer.engaged)
+				.session(session);
+			if (engagement) {
+				// Reset based on who initiated
+				if (engagement.sender === "contractor") {
+					// Contractor requested - reset to requested
+					engagement.status = "requested";
+				} else {
+					// Customer invited - reset to engaged
+					engagement.status = "engaged";
+				}
+				await engagement.save({ session });
+			}
 		}
 
 		// 10. Create refund transaction record
