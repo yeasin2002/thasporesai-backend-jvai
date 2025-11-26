@@ -140,6 +140,108 @@ registry.registerPath({
 	},
 });
 
+// GET /api/job/pending-jobs - Get jobs with pending offers
+registry.registerPath({
+	method: "get",
+	path: `${openAPITags.job.basepath}/pending-jobs`,
+	description:
+		"Get all jobs where the customer has sent offers that are pending contractor response. Shows jobs waiting for contractor to accept or reject. Each job includes offer details (with offerId for cancellation) and contractor information. Excludes jobs in 'in_progress', 'completed', or 'cancelled' status.",
+	summary: "Get jobs with pending offers (waiting for response)",
+	tags: [openAPITags.job.name],
+	security: [{ bearerAuth: [] }],
+	request: {
+		query: SearchJobSchema,
+	},
+	responses: {
+		200: {
+			description:
+				"Pending offer jobs retrieved successfully with offer and contractor details",
+			content: {
+				"application/json": {
+					schema: z.object({
+						status: z.number(),
+						message: z.string(),
+						data: z.object({
+							jobs: z.array(
+								z.object({
+									_id: z.string(),
+									title: z.string(),
+									description: z.string(),
+									budget: z.number(),
+									status: z.enum(["open"]),
+									category: z.any(),
+									location: z.any(),
+									customerId: z.any(),
+									createdAt: z.string(),
+									updatedAt: z.string(),
+									offer: z.object({
+										offerId: z
+											.string()
+											.describe(
+												"Offer ID - use this to cancel via POST /api/offer/:offerId/cancel",
+											),
+										amount: z.number().describe("Offer amount"),
+										timeline: z
+											.string()
+											.describe("Expected completion timeline"),
+										description: z.string().describe("Offer message"),
+										status: z
+											.literal("pending")
+											.describe("Always 'pending' for this endpoint"),
+										createdAt: z.string().describe("When offer was sent"),
+										expiresAt: z
+											.string()
+											.describe("When offer expires (7 days from creation)"),
+										canCancel: z
+											.boolean()
+											.describe("Always true - customer can cancel"),
+									}),
+									contractor: z.object({
+										_id: z.string().describe("Contractor user ID"),
+										full_name: z.string().describe("Contractor name"),
+										email: z.string().describe("Contractor email"),
+										profile_img: z.string().describe("Profile image URL"),
+										phone: z.string().describe("Contact phone"),
+										skills: z.array(z.string()).describe("Contractor skills"),
+									}),
+								}),
+							),
+							total: z.number(),
+							page: z.number(),
+							limit: z.number(),
+							totalPages: z.number(),
+						}),
+					}),
+				},
+			},
+		},
+		401: {
+			description: "Unauthorized",
+			content: {
+				"application/json": {
+					schema: ErrorResponseSchema,
+				},
+			},
+		},
+		403: {
+			description: "Forbidden - Customer only",
+			content: {
+				"application/json": {
+					schema: ErrorResponseSchema,
+				},
+			},
+		},
+		500: {
+			description: "Internal server error",
+			content: {
+				"application/json": {
+					schema: ErrorResponseSchema,
+				},
+			},
+		},
+	},
+});
+
 // GET /api/job/engaged - Get engaged jobs (jobs with applications but no active offers)
 registry.registerPath({
 	method: "get",

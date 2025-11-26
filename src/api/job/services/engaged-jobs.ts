@@ -178,6 +178,7 @@ export const getEngagedJobs: RequestHandler<
 				.populate("customerId", "full_name email profile_img phone")
 				.populate("location", "name state coordinates")
 				.populate("contractorId", "full_name email profile_img skills")
+				.populate("offerId", "_id amount")
 				.skip(skip)
 				.limit(limitNum)
 				.sort({ createdAt: -1 })
@@ -232,9 +233,6 @@ export const getEngagedJobs: RequestHandler<
 			// Get offer details for each job (including offerId for cancellation)
 			db.offer
 				.find({ job: { $in: jobIds } })
-				.select(
-					"_id job status amount timeline description createdAt expiresAt",
-				)
 				.lean(),
 		]);
 

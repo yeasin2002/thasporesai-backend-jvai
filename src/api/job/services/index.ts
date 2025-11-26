@@ -9,4 +9,5 @@ export * from "./update-Job-owner";
 // Payment system services (Phase 5)
 export * from "./cancel-job.service";
 export * from "./complete-job.service";
+export * from "./get-offer-send-jobs-list";
 export * from "./update-job-status.service";

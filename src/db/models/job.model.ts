@@ -15,7 +15,7 @@ export interface Job {
 	// Payment system fields
 	contractorId?: Types.ObjectId; // Assigned contractor
 	offerId?: Types.ObjectId; // Accepted offer
-	status: "open" | "assigned" | "in_progress" | "completed" | "cancelled";
+	status: "open" | "in_progress" | "assigned" | "completed" | "cancelled";
 	assignedAt?: Date;
 	completedAt?: Date;
 	cancelledAt?: Date;

@@ -28,6 +28,7 @@ import {
 	getEngagedJobs,
 	getJobById,
 	getMyJobs,
+	getOfferSendJobsList,
 	updateJob,
 	updateJobStatus,
 } from "./services";
@@ -54,6 +55,15 @@ job.get(
 	requireRole("customer"),
 	validateQuery(SearchJobSchema),
 	getEngagedJobs,
+);
+
+// Get jobs with pending offers (waiting for contractor response)
+job.get(
+	"/pending-jobs",
+	requireAuth,
+	requireRole("customer"),
+	validateQuery(SearchJobSchema),
+	getOfferSendJobsList,
 );
 
 job.post(
