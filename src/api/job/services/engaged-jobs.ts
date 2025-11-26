@@ -8,17 +8,13 @@ import type { RequestHandler } from "express";
 import type { SearchJob } from "../job.validation";
 
 /**
- * Get Engaged Jobs (For Offer Management)
+ * Get Engaged Jobs (Available for Offers)
  * Returns all jobs where the customer has engagement through:
  * 1. Receiving job applications from contractors
- * 2. Having pending offers (that can be cancelled)
+ * 2. NO active offers (pending or accepted)
  *
- * This endpoint INCLUDES jobs with pending offers so customers can:
- * - View offer details (including offerId)
- * - Cancel pending offers if needed
- * - Send new offers after cancellation
- *
- * This endpoint EXCLUDES jobs with accepted offers (already assigned).
+ * This endpoint filters out jobs that already have active offers,
+ * since the system enforces "one offer per job" rule.
  *
  * Jobs with rejected or expired offers ARE included, allowing
  * the customer to send new offers to those contractors.
@@ -76,30 +72,19 @@ export const getEngagedJobs: RequestHandler<
 			});
 		}
 
-		// Step 2: Find jobs that have applications OR pending offers
-		const [
-			jobsWithApplications,
-			jobsWithAcceptedOffers,
-			jobsWithPendingOffers,
-		] = await Promise.all([
+		// Step 2: Find jobs that have applications OR offers
+		const [jobsWithApplications, jobsWithActiveOffers] = await Promise.all([
 			// Jobs that have received applications
 			db.jobApplicationRequest
 				.find({ job: { $in: customerJobIds } })
 				.distinct("job"),
 
-			// Jobs that have ACCEPTED offers (exclude these - job already assigned)
+			// Jobs that have ACTIVE offers (pending or accepted)
+			// We exclude these because you can only send one offer per job
 			db.offer
 				.find({
 					job: { $in: customerJobIds },
-					status: "accepted",
-				})
-				.distinct("job"),
-
-			// Jobs that have PENDING offers (include these - customer can cancel)
-			db.offer
-				.find({
-					job: { $in: customerJobIds },
-					status: "pending",
+					status: { $in: ["pending", "accepted"] },
 				})
 				.distinct("job"),
 		]);
@@ -108,20 +93,15 @@ export const getEngagedJobs: RequestHandler<
 		const jobsWithApplicationsIds = jobsWithApplications.map((id) =>
 			id.toString(),
 		);
-		const jobsWithAcceptedOffersIds = jobsWithAcceptedOffers.map((id) =>
-			id.toString(),
-		);
-		const jobsWithPendingOffersIds = jobsWithPendingOffers.map((id) =>
+		const jobsWithActiveOffersIds = jobsWithActiveOffers.map((id) =>
 			id.toString(),
 		);
 
-		// Include jobs that have:
-		// 1. Applications (with or without pending offers)
-		// 2. Pending offers (even without applications)
-		// BUT exclude jobs with accepted offers (already assigned)
-		const engagedJobIds = [
-			...new Set([...jobsWithApplicationsIds, ...jobsWithPendingOffersIds]),
-		].filter((jobId) => !jobsWithAcceptedOffersIds.includes(jobId));
+		// Only include jobs that have applications BUT no active offers
+		// This allows sending offers to jobs with rejected/expired offers
+		const engagedJobIds = jobsWithApplicationsIds.filter(
+			(jobId) => !jobsWithActiveOffersIds.includes(jobId),
+		);
 
 		if (engagedJobIds.length === 0) {
 			// No engaged jobs found
@@ -178,7 +158,6 @@ export const getEngagedJobs: RequestHandler<
 				.populate("customerId", "full_name email profile_img phone")
 				.populate("location", "name state coordinates")
 				.populate("contractorId", "full_name email profile_img skills")
-				.populate("offerId", "_id amount")
 				.skip(skip)
 				.limit(limitNum)
 				.sort({ createdAt: -1 })
@@ -189,7 +168,7 @@ export const getEngagedJobs: RequestHandler<
 		// Step 5: Enrich jobs with engagement statistics
 		const jobIds = jobs.map((job) => job._id);
 
-		const [applicationCounts, offerCounts, offerDetails] = await Promise.all([
+		const [applicationCounts, offerCounts] = await Promise.all([
 			// Count applications per job
 			db.jobApplicationRequest.aggregate([
 				{ $match: { job: { $in: jobIds } } },
@@ -229,11 +208,6 @@ export const getEngagedJobs: RequestHandler<
 					},
 				},
 			]),
-
-			// Get offer details for each job (including offerId for cancellation)
-			db.offer
-				.find({ job: { $in: jobIds } })
-				.lean(),
 		]);
 
 		// Create lookup maps for quick access
@@ -243,16 +217,6 @@ export const getEngagedJobs: RequestHandler<
 		const offerMap = new Map(
 			offerCounts.map((item) => [item._id.toString(), item]),
 		);
-
-		// Create offer details map (group by job)
-		const offerDetailsMap = new Map<string, any[]>();
-		for (const offer of offerDetails) {
-			const jobId = offer.job.toString();
-			if (!offerDetailsMap.has(jobId)) {
-				offerDetailsMap.set(jobId, []);
-			}
-			offerDetailsMap.get(jobId)?.push(offer);
-		}
 
 		// Step 6: Add engagement statistics to each job
 		const enrichedJobs = jobs.map((job) => {
@@ -269,25 +233,6 @@ export const getEngagedJobs: RequestHandler<
 				rejectedOffers: 0,
 				expiredOffers: 0,
 			};
-
-			// Get offer details for this job
-			const jobOffers = offerDetailsMap.get(jobId) || [];
-
-			// Find the most recent pending offer (for cancellation)
-			const pendingOffer = jobOffers.find(
-				(offer) => offer.status === "pending",
-			);
-
-			// Get all offers with their details
-			const offersWithDetails = jobOffers.map((offer) => ({
-				offerId: offer._id,
-				status: offer.status,
-				amount: offer.amount,
-				timeline: offer.timeline,
-				description: offer.description,
-				createdAt: offer.createdAt,
-				expiresAt: offer.expiresAt,
-			}));
 
 			return {
 				...job,
@@ -307,22 +252,6 @@ export const getEngagedJobs: RequestHandler<
 					hasApplications: appStats.totalApplications > 0,
 					hasOffers: offerStats.totalOffers > 0,
 					canSendOffer: true, // All jobs in this list can receive offers
-
-					// Offer details for frontend actions
-					currentOffer: pendingOffer
-						? {
-								offerId: pendingOffer._id,
-								status: pendingOffer.status,
-								amount: pendingOffer.amount,
-								timeline: pendingOffer.timeline,
-								createdAt: pendingOffer.createdAt,
-								expiresAt: pendingOffer.expiresAt,
-								canCancel: true, // Pending offers can be cancelled
-							}
-						: null,
-
-					// All offers history (for reference)
-					allOffers: offersWithDetails,
 				},
 			};
 		});
