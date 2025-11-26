@@ -5,7 +5,6 @@ import {
 	validatePagination,
 } from "@/helpers";
 import type { RequestHandler } from "express";
-import type { SearchJob } from "../job.validation";
 
 /**
  * Get Engaged Jobs (Available for Offers)
@@ -19,15 +18,16 @@ import type { SearchJob } from "../job.validation";
  * Jobs with rejected or expired offers ARE included, allowing
  * the customer to send new offers to those contractors.
  *
+ * Query Parameters:
+ * - status: Filter by job status (open, in_progress, completed, cancelled)
+ * - contractorId: Exclude jobs where this contractor has been invited or applied
+ * - page: Page number for pagination
+ * - limit: Items per page
+ *
  * @route GET /api/job/engaged
  * @access Private (Customer only)
  */
-export const getEngagedJobs: RequestHandler<
-	unknown,
-	unknown,
-	unknown,
-	SearchJob
-> = async (req, res) => {
+export const getEngagedJobs: RequestHandler = async (req, res) => {
 	try {
 		const customerId = req.user?.userId;
 
@@ -39,16 +39,12 @@ export const getEngagedJobs: RequestHandler<
 			);
 		}
 
-		const {
-			search,
-			category,
-			status,
-			minBudget,
-			maxBudget,
-			location,
-			page,
-			limit,
-		} = req.query;
+		const { status, contractorId, page, limit } = req.query as {
+			status?: string;
+			contractorId?: string;
+			page?: string;
+			limit?: string;
+		};
 
 		// Validate and sanitize pagination
 		const {
@@ -75,11 +71,13 @@ export const getEngagedJobs: RequestHandler<
 		// Step 2: Find jobs that have applications OR offers
 		const [jobsWithApplications, jobsWithActiveOffers] = await Promise.all([
 			// Jobs that have received applications (contractor requests)
+			// Include: requested (applied), engaged (mutual interest), offered (offer sent)
+			// Exclude: invited (customer initiated), cancelled (rejected/cancelled)
 			db.inviteApplication
 				.find({
 					job: { $in: customerJobIds },
 					sender: "contractor", // Only contractor-initiated applications
-					status: { $in: ["requested", "engaged"] },
+					status: { $in: ["requested", "engaged", "offered"] }, // Active engagement statuses
 				})
 				.distinct("job"),
 
@@ -124,34 +122,33 @@ export const getEngagedJobs: RequestHandler<
 			customerId, // Ensure jobs belong to this customer
 		};
 
-		// Apply search filter
-		if (search) {
-			query.$or = [
-				{ title: { $regex: search, $options: "i" } },
-				{ description: { $regex: search, $options: "i" } },
-			];
-		}
-
-		// Apply category filter
-		if (category) {
-			query.category = category;
-		}
-
 		// Apply status filter
 		if (status) {
 			query.status = status;
 		}
 
-		// Apply budget range filter
-		if (minBudget || maxBudget) {
-			query.budget = {};
-			if (minBudget) query.budget.$gte = Number.parseInt(minBudget, 10);
-			if (maxBudget) query.budget.$lte = Number.parseInt(maxBudget, 10);
-		}
+		// Apply contractorId filter - exclude jobs where this contractor has been invited or applied
+		if (contractorId && typeof contractorId === "string") {
+			// Get jobs where this contractor has any engagement
+			const contractorEngagedJobIds = await db.inviteApplication
+				.find({
+					contractor: contractorId,
+					customer: customerId,
+					status: { $in: ["invited", "requested", "engaged", "offered"] },
+				})
+				.distinct("job");
 
-		// Apply location filter
-		if (location) {
-			query.location = location;
+			// Exclude these jobs from the results
+			if (contractorEngagedJobIds.length > 0) {
+				query._id = {
+					$in: engagedJobIds.filter(
+						(id) =>
+							!contractorEngagedJobIds
+								.map((cid) => cid.toString())
+								.includes(id),
+					),
+				};
+			}
 		}
 
 		// Step 4: Get jobs with pagination and populate related data
@@ -185,11 +182,17 @@ export const getEngagedJobs: RequestHandler<
 					$group: {
 						_id: "$job",
 						totalApplications: { $sum: 1 },
-						pendingApplications: {
+						requestedApplications: {
 							$sum: { $cond: [{ $eq: ["$status", "requested"] }, 1, 0] },
 						},
-						acceptedApplications: {
+						engagedApplications: {
 							$sum: { $cond: [{ $eq: ["$status", "engaged"] }, 1, 0] },
+						},
+						offeredApplications: {
+							$sum: { $cond: [{ $eq: ["$status", "offered"] }, 1, 0] },
+						},
+						cancelledApplications: {
+							$sum: { $cond: [{ $eq: ["$status", "cancelled"] }, 1, 0] },
 						},
 					},
 				},
@@ -232,8 +235,10 @@ export const getEngagedJobs: RequestHandler<
 			const jobId = job._id.toString();
 			const appStats = applicationMap.get(jobId) || {
 				totalApplications: 0,
-				pendingApplications: 0,
-				acceptedApplications: 0,
+				requestedApplications: 0,
+				engagedApplications: 0,
+				offeredApplications: 0,
+				cancelledApplications: 0,
 			};
 			const offerStats = offerMap.get(jobId) || {
 				totalOffers: 0,
@@ -248,8 +253,10 @@ export const getEngagedJobs: RequestHandler<
 				engagement: {
 					applications: {
 						total: appStats.totalApplications,
-						pending: appStats.pendingApplications,
-						accepted: appStats.acceptedApplications,
+						requested: appStats.requestedApplications, // Contractor applied
+						engaged: appStats.engagedApplications, // Mutual interest
+						offered: appStats.offeredApplications, // Offer sent
+						cancelled: appStats.cancelledApplications, // Rejected/cancelled
 					},
 					offers: {
 						total: offerStats.totalOffers,

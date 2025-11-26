@@ -3,6 +3,7 @@ import { registry } from "@/lib/openapi";
 import { z } from "zod";
 import {
 	CreateJobSchema,
+	engagedJobSchema,
 	ErrorResponseSchema,
 	JobIdSchema,
 	JobResponseSchema,
@@ -255,7 +256,7 @@ registry.registerPath({
 	tags: [openAPITags.job.name],
 	security: [{ bearerAuth: [] }],
 	request: {
-		query: SearchJobSchema,
+		query: engagedJobSchema,
 	},
 	responses: {
 		200: {

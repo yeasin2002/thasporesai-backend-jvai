@@ -11,13 +11,30 @@ export const getJobById: RequestHandler = async (req, res) => {
 			.findById(id)
 			.populate("category", "name icon description")
 			.populate("customerId", "name email phone")
-			.populate("location", "name state coordinates");
+			.populate("location", "name state coordinates")
+			.populate({
+				path: "offerId",
+				select:
+					"amount platformFee serviceFee contractorPayout totalCharge timeline description status acceptedAt rejectedAt cancelledAt completedAt expiresAt rejectionReason cancellationReason",
+				populate: [
+					{ path: "customer", select: "full_name email profile_img" },
+					{ path: "contractor", select: "full_name email profile_img" },
+				],
+			});
 
 		if (!job) {
 			return sendNotFound(res, "Job not found");
 		}
 
-		return sendSuccess(res, 200, "Job retrieved successfully", job);
+		// Convert to plain object and rename offerId to Offer
+		const jobData = job.toObject();
+		const { offerId, ...rest } = jobData;
+		const responseData = {
+			...rest,
+			Offer: offerId || null,
+		};
+
+		return sendSuccess(res, 200, "Job retrieved successfully", responseData);
 	} catch (error) {
 		return exceptionErrorHandler(error, res, "Failed to retrieve job");
 	}
