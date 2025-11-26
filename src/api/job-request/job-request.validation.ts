@@ -76,6 +76,25 @@ export const SearchMyApplicationsSchema = z
 	})
 	.openapi("SearchMyApplications");
 
+export const getMyApplicationsSchema = z
+	.object({
+		status: z
+			.enum(["pending", "accepted", "rejected"])
+			.optional()
+			.openapi({ description: "Filter by application status" }),
+		page: z
+			.string()
+			.regex(/^\d+$/, "Page must be a number")
+			.optional()
+			.openapi({ description: "Page number" }),
+		limit: z
+			.string()
+			.regex(/^\d+$/, "Limit must be a number")
+			.optional()
+			.openapi({ description: "Items per page" }),
+	})
+	.openapi("GetMyApplicationsSchema");
+
 // Search/Filter Query Schema for Customer's Received Applications
 export const SearchCustomerApplicationsSchema = z
 	.object({
@@ -160,6 +179,8 @@ export type SearchMyApplications = z.infer<typeof SearchMyApplicationsSchema>;
 export type SearchCustomerApplications = z.infer<
 	typeof SearchCustomerApplicationsSchema
 >;
+export type GetMyApplicationsQuery = z.infer<typeof getMyApplicationsSchema>;
+
 export type ApplicationResponse = z.infer<typeof ApplicationResponseSchema>;
 export type ApplicationsResponse = z.infer<typeof ApplicationsResponseSchema>;
 export type SuccessResponse = z.infer<typeof SuccessResponseSchema>;

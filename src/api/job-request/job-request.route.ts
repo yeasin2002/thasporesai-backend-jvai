@@ -12,7 +12,7 @@ import {
 	ApplyForJobSchema,
 	JobIdParamSchema,
 	SearchCustomerApplicationsSchema,
-	SearchMyApplicationsSchema,
+	getMyApplicationsSchema,
 } from "./job-request.validation";
 import {
 	acceptApplication,
@@ -42,7 +42,7 @@ jobRequest.get(
 	"/my",
 	requireAuth,
 	requireRole("contractor"),
-	validateQuery(SearchMyApplicationsSchema),
+	validateQuery(getMyApplicationsSchema),
 	getMyApplications,
 );
 

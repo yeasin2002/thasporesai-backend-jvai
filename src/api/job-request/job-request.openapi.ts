@@ -6,6 +6,7 @@ import {
 	ApplicationsResponseSchema,
 	ApplyForJobSchema,
 	ErrorResponseSchema,
+	getMyApplicationsSchema,
 	JobIdParamSchema,
 	SearchCustomerApplicationsSchema,
 	SearchMyApplicationsSchema,
@@ -99,7 +100,7 @@ registry.registerPath({
 	tags: [openAPITags.job_request.name],
 	security: [{ bearerAuth: [] }],
 	request: {
-		query: SearchMyApplicationsSchema,
+		query: getMyApplicationsSchema,
 	},
 	responses: {
 		200: {
