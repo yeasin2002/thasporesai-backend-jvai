@@ -1,7 +1,7 @@
 import type { Document, Types } from "mongoose";
 import { Schema, model } from "mongoose";
 type Status = "invited" | "requested" | "engaged" | "offered" | "cancelled";
-const statusListForInviteAndApplication: Status[] = [
+export const statusListForInviteAndApplication: Status[] = [
 	"invited",
 	"requested",
 	"engaged",
@@ -43,7 +43,7 @@ const JobInviteApplicationSchema = new Schema<JobInviteDocument>(
 			default: "invited",
 		},
 		sender: { type: String },
-		offerId: { type: Schema.Types.ObjectId },
+		offerId: { type: Schema.Types.ObjectId, ref: "Offer" },
 	},
 
 	{ timestamps: true },

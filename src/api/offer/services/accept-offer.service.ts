@@ -162,6 +162,6 @@ export const acceptOffer: RequestHandler = async (req, res) => {
 		}
 	} catch (error) {
 		console.error("Error accepting offer:", error);
-		return sendInternalError(res, "Failed to accept offer");
+		return sendInternalError(res, "Failed to accept offer", error as Error);
 	}
 };

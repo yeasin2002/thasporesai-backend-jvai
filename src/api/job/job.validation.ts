@@ -1,4 +1,5 @@
 import { objectIdSchema } from "@/common/validations";
+import { statusListForInviteAndApplication } from "@/db/models/invite-application-job.model";
 import { extendZodWithOpenApi } from "@asteasolutions/zod-to-openapi";
 import { isValidObjectId } from "mongoose";
 import { z } from "zod";
@@ -184,7 +185,7 @@ export const SearchJobSchema = z
 export const engagedJobSchema = z
 	.object({
 		status: z
-			.enum(["open", "in_progress", "completed", "cancelled"])
+			.enum(statusListForInviteAndApplication)
 			.optional()
 			.openapi({ description: "Filter by status" }),
 

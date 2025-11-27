@@ -126,6 +126,17 @@ export const sendOffer: RequestHandler<
 				{ session },
 			);
 
+			await db.inviteApplication.findOneAndUpdate(
+				{
+					_id: applicationId,
+				},
+				{
+					status: "offered",
+					offerId: offer._id,
+				},
+				{ session },
+			);
+
 			// Create transaction record
 			await db.transaction.create(
 				[
