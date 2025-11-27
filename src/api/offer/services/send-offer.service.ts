@@ -181,6 +181,6 @@ export const sendOffer: RequestHandler<
 		}
 	} catch (error) {
 		logger.error("Error sending offer", error);
-		return sendInternalError(res, "Failed to send offer");
+		return sendInternalError(res, "Failed to send offer", error as Error);
 	}
 };

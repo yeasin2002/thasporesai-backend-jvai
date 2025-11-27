@@ -28,7 +28,7 @@ export function sendSuccess<T = any>(
 	message: string,
 	data: T | null = null,
 ): Response<ApiResponse<T>> {
-	logger.info("200 Success: ", message);
+	logger.info(`200 Success: ${message}`);
 	return res.status(statusCode).json({
 		status: statusCode,
 		message,
@@ -50,7 +50,7 @@ export function sendError(
 	message: string,
 	errors?: Array<{ path: string; message: string }>,
 ): Response<ApiResponse<null>> {
-	logger.error("500 Error: ", { message, errors });
+	logger.error(`500 Error: ${message}`, { errors });
 	const response: ApiResponse<null> = {
 		status: statusCode,
 		message,
@@ -98,7 +98,7 @@ export function sendBadRequest(
 	message: string = "Bad Request",
 	errors?: Array<{ path: string; message: string }>,
 ): Response<ApiResponse<null>> {
-	logger.error("400 Error: ", message);
+	logger.error(`400 Error: ${message}`, { errors });
 	return sendError(res, 400, message, errors);
 }
 
@@ -111,7 +111,7 @@ export function sendUnauthorized(
 	res: Response,
 	message: string = "Unauthorized",
 ): Response<ApiResponse<null>> {
-	logger.error("401 Error: ", message);
+	logger.error(`401 Error: ${message}`);
 	return sendError(res, 401, message);
 }
 
@@ -124,7 +124,7 @@ export function sendForbidden(
 	res: Response,
 	message: string = "Forbidden",
 ): Response<ApiResponse<null>> {
-	logger.error("403 Error: ", message);
+	logger.error(`403 Error: ${message}`);
 	return sendError(res, 403, message);
 }
 
@@ -137,7 +137,7 @@ export function sendNotFound(
 	res: Response,
 	message: string = "Not Found",
 ): Response<ApiResponse<null>> {
-	logger.error("404 Error: ", message);
+	logger.error(`404 Error: ${message}`);
 	return sendError(res, 404, message);
 }
 
@@ -149,9 +149,10 @@ export function sendNotFound(
 export function sendInternalError(
 	res: Response,
 	message: string = "Internal Server Error",
+	error: Error,
 ): Response<ApiResponse<null>> {
-	logger.error("500 Error: ", message);
-	return sendError(res, 500, message);
+	logger.error(`500 Error: ${message}`, { error });
+	return sendError(res, 500, message, [{ path: "", message: error.message }]);
 }
 
 /**
@@ -205,8 +206,9 @@ export class ResponseHandler {
 
 	internalError(
 		message: string = "Internal Server Error",
+		error: Error,
 	): Response<ApiResponse<null>> {
-		return sendInternalError(this.res, message);
+		return sendInternalError(this.res, message, error);
 	}
 }
 

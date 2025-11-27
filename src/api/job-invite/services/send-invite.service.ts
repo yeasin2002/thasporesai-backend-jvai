@@ -1,4 +1,3 @@
-import { NotificationService } from "@/common/service/notification.service";
 import { db } from "@/db";
 import { sendError, sendSuccess } from "@/helpers";
 import type { RequestHandler } from "express";
@@ -103,7 +102,7 @@ export const sendInvite: RequestHandler = async (req, res) => {
 		]);
 
 		// Get customer details for notification
-		const customer = await db.user.findById(customerId);
+		// const customer = await db.user.findById(customerId);
 
 		// Send notification to contractor
 		// await NotificationService.sendToUser({
