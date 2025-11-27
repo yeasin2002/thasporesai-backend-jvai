@@ -48,7 +48,7 @@ export function sendError(
 	res: Response,
 	statusCode: number = 500,
 	message: string,
-	errors?: Array<{ path: string; message: string }>,
+	errors?: any,
 ): Response<ApiResponse<null>> {
 	logger.error(`500 Error: ${message}`, { errors });
 	const response: ApiResponse<null> = {

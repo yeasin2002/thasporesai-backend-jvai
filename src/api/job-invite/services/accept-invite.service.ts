@@ -51,19 +51,21 @@ export const acceptInvite: RequestHandler = async (req, res) => {
 		await invite.save();
 
 		// Create or get existing conversation
+		const customerId = invite.customer._id || invite.customer;
+
 		let conversation = await db.conversation.findOne({
-			participants: { $all: [invite.customer, contractorId] },
+			participants: { $all: [customerId, contractorId] },
 		});
 
 		if (!conversation) {
 			conversation = await db.conversation.create({
-				participants: [invite.customer, contractorId],
+				participants: [customerId, contractorId],
 				lastMessage: {
 					text: "Invite accepted",
 					senderId: contractorId,
 					timestamp: new Date(),
 				},
-				unreadCount: new Map([[invite.customer.toString(), 1]]),
+				unreadCount: new Map([[customerId.toString(), 1]]),
 				jobId: job._id,
 			});
 		}
@@ -73,7 +75,7 @@ export const acceptInvite: RequestHandler = async (req, res) => {
 
 		// Send notification to customer
 		await NotificationService.sendToUser({
-			userId: invite.customer.toString(),
+			userId: customerId.toString(),
 			title: "Invite Accepted",
 			body: `${
 				contractor?.full_name || "A contractor"
@@ -100,6 +102,6 @@ export const acceptInvite: RequestHandler = async (req, res) => {
 		});
 	} catch (error) {
 		console.error("Accept invite error:", error);
-		return sendError(res, 500, "Failed to accept invite");
+		return sendError(res, 500, "Failed to accept invite", error);
 	}
 };
