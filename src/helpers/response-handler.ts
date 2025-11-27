@@ -28,7 +28,7 @@ export function sendSuccess<T = any>(
 	message: string,
 	data: T | null = null,
 ): Response<ApiResponse<T>> {
-	logger.info(`200 Success: ${message}`);
+	// logger.info(`200 Success: ${message}`);
 	return res.status(statusCode).json({
 		status: statusCode,
 		message,
@@ -149,7 +149,7 @@ export function sendNotFound(
 export function sendInternalError(
 	res: Response,
 	message: string = "Internal Server Error",
-	error: Error,
+	error: any,
 ): Response<ApiResponse<null>> {
 	logger.error(`500 Error: ${message}`, { error });
 	return sendError(res, 500, message, [{ path: "", message: error.message }]);

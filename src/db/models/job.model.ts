@@ -4,6 +4,7 @@ export interface Job {
 	title: string;
 	category: Types.ObjectId[]; // Array of category IDs
 	jobApplicationRequest: Types.ObjectId[]; // Array of category IDs
+	JobInviteApplication: Types.ObjectId[]; // Array of category IDs
 	description: string;
 	location: Types.ObjectId;
 	address: string;
@@ -92,6 +93,13 @@ export const JobSchema = new Schema<JobDocument>(
 			type: Schema.Types.ObjectId,
 			ref: "Offer",
 		},
+		JobInviteApplication: [
+			{
+				type: Schema.Types.ObjectId,
+				ref: "invite-application",
+			},
+		],
+
 		assignedAt: Date,
 		completedAt: Date,
 		cancelledAt: Date,

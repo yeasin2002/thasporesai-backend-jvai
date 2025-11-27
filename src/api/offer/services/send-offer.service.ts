@@ -163,6 +163,13 @@ export const sendOffer: RequestHandler<
 			// Commit transaction
 			await session.commitTransaction();
 
+			// Populate offer with customer and contractor details
+			await offer.populate([
+				{ path: "customer", select: "full_name email profile_img role" },
+				{ path: "contractor", select: "full_name email profile_img role" },
+				{ path: "job", select: "title description budget location category" },
+			]);
+
 			// 11. Send notification to contractor (outside transaction)
 			await NotificationService.sendToUser({
 				userId: (application.contractor as any)._id.toString(),

@@ -191,7 +191,7 @@ export const cancelOffer: RequestHandler<
 	} catch (error) {
 		await session.abortTransaction();
 		console.error("Error cancelling offer:", error);
-		return sendInternalError(res, "Failed to cancel offer");
+		return sendInternalError(res, "Failed to cancel offer", error);
 	} finally {
 		session.endSession();
 	}

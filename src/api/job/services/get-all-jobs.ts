@@ -73,6 +73,7 @@ export const getAllJobs: RequestHandler<
 				.populate("category", "name icon")
 				.populate("customerId", "name email")
 				.populate("location", "name state coordinates")
+				.populate("JobInviteApplication")
 				.skip(skip)
 				.limit(limitNum)
 				.sort({ createdAt: -1 }),
