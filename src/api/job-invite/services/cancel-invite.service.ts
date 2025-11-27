@@ -54,18 +54,20 @@ export const cancelInvite: RequestHandler = async (req, res) => {
 		const contractor = invite.contractor as any;
 
 		// Send notification to contractor
-		// await NotificationService.sendToUser({
-		// 	userId: contractor._id.toString(),
-		// 	title: "Invite Cancelled",
-		// 	body: `${customer?.full_name || "A customer"} has cancelled the invite for "${job.title}"`,
-		// 	type: "general",
-		// 	data: {
-		// 		jobId: job._id.toString(),
-		// 		inviteId: inviteId,
-		// 		customerId: customerId,
-		// 		customerName: customer?.full_name || "",
-		// 	},
-		// });
+		await NotificationService.sendToUser({
+			userId: contractor._id.toString(),
+			title: "Invite Cancelled",
+			body: `${
+				customer?.full_name || "A customer"
+			} has cancelled the invite for "${job.title}"`,
+			type: "job_invite_cancel",
+			data: {
+				jobId: job._id.toString(),
+				inviteId: inviteId,
+				customerId: customerId,
+				customerName: customer?.full_name || "",
+			},
+		});
 
 		return sendSuccess(res, 200, "Invite cancelled successfully", null);
 	} catch (error) {

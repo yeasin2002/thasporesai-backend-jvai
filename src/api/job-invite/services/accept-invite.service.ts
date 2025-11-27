@@ -1,3 +1,4 @@
+import { NotificationService } from "@/common/service";
 import { db } from "@/db";
 import { sendError, sendSuccess } from "@/helpers";
 import type { RequestHandler } from "express";
@@ -68,24 +69,24 @@ export const acceptInvite: RequestHandler = async (req, res) => {
 		}
 
 		// Get contractor details for notification
-		// const contractor = await db.user.findById(contractorId);
+		const contractor = await db.user.findById(contractorId);
 
 		// Send notification to customer
-		// await NotificationService.sendToUser({
-		//   userId: invite.customer.toString(),
-		//   title: "Invite Accepted",
-		//   body: `${
-		//     contractor?.full_name || "A contractor"
-		//   } has accepted your invite for "${job.title}"`,
-		//   type: "job_invite_accept",
-		//   data: {
-		//     jobId: job._id.toString(),
-		//     inviteId: inviteId,
-		//     contractorId: contractorId,
-		//     contractorName: contractor?.full_name || "",
-		//     conversationId: conversation?._id?.toString() || "",
-		//   },
-		// });
+		await NotificationService.sendToUser({
+			userId: invite.customer.toString(),
+			title: "Invite Accepted",
+			body: `${
+				contractor?.full_name || "A contractor"
+			} has accepted your invite for "${job.title}"`,
+			type: "job_invite_accept",
+			data: {
+				jobId: job._id.toString(),
+				inviteId: inviteId,
+				contractorId: contractorId,
+				contractorName: contractor?.full_name || "",
+				conversationId: conversation?._id?.toString() || "",
+			},
+		});
 
 		// Populate invite details for response
 		await invite.populate([

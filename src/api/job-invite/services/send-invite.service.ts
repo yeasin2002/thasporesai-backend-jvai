@@ -1,3 +1,4 @@
+import { NotificationService } from "@/common/service";
 import { db } from "@/db";
 import { sendError, sendSuccess } from "@/helpers";
 import type { RequestHandler } from "express";
@@ -102,23 +103,23 @@ export const sendInvite: RequestHandler = async (req, res) => {
 		]);
 
 		// Get customer details for notification
-		// const customer = await db.user.findById(customerId);
+		const customer = await db.user.findById(customerId);
 
 		// Send notification to contractor
-		// await NotificationService.sendToUser({
-		//   userId: contractorId,
-		//   title: "New Job Invite",
-		//   body: `${
-		//     customer?.full_name || "A customer"
-		//   } has invited you to work on "${job.title}"`,
-		//   type: "job_invite",
-		//   data: {
-		//     jobId: jobId,
-		//     inviteId: String(invite._id),
-		//     customerId: customerId,
-		//     customerName: customer?.full_name || "",
-		//   },
-		// });
+		await NotificationService.sendToUser({
+			userId: contractorId,
+			title: "New Job Invite",
+			body: `${
+				customer?.full_name || "A customer"
+			} has invited you to work on "${job.title}"`,
+			type: "job_invite",
+			data: {
+				jobId: jobId,
+				inviteId: String(invite._id),
+				customerId: customerId,
+				customerName: customer?.full_name || "",
+			},
+		});
 
 		return sendSuccess(res, 201, "Invite sent successfully", invite);
 	} catch (error) {

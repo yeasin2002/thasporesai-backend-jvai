@@ -50,21 +50,21 @@ export const rejectInvite: RequestHandler = async (req, res) => {
 		const job = invite.job as any;
 
 		// Send notification to customer
-		// await NotificationService.sendToUser({
-		// 	userId: invite.customer._id.toString(),
-		// 	title: "Invite Rejected",
-		// 	body: `${
-		// 		contractor?.full_name || "A contractor"
-		// 	} has declined your invite for "${job.title}"`,
-		// 	type: "job_invite_reject",
-		// 	data: {
-		// 		jobId: job._id.toString(),
-		// 		inviteId: inviteId,
-		// 		contractorId: contractorId,
-		// 		contractorName: contractor?.full_name || "",
-		// 		rejectionReason: rejectionReason || "",
-		// 	},
-		// });
+		await NotificationService.sendToUser({
+			userId: invite.customer._id.toString(),
+			title: "Invite Rejected",
+			body: `${
+				contractor?.full_name || "A contractor"
+			} has declined your invite for "${job.title}"`,
+			type: "job_invite_reject",
+			data: {
+				jobId: job._id.toString(),
+				inviteId: inviteId,
+				contractorId: contractorId,
+				contractorName: contractor?.full_name || "",
+				rejectionReason: rejectionReason || "",
+			},
+		});
 
 		// Populate invite details for response
 		await invite.populate([
