@@ -101,3 +101,40 @@ registry.registerPath({
 		},
 	},
 });
+
+// POST /api/seed/categories - Seed categories
+registry.registerPath({
+	method: "post",
+	path: "/api/seed/categories",
+	description:
+		"Seed database with 4 categories (Plumbing, Cleaning, Electrical, Carpentry). Only works if category collection is empty. Copies icon files to uploads folder.",
+	summary: "Seed categories",
+	tags: ["Seed - Development "],
+	request: {},
+	responses: {
+		201: {
+			description: "Categories seeded successfully",
+			content: {
+				"application/json": {
+					schema: SeedSuccessResponseSchema,
+				},
+			},
+		},
+		400: {
+			description: "Database already contains categories",
+			content: {
+				"application/json": {
+					schema: SeedErrorResponseSchema,
+				},
+			},
+		},
+		500: {
+			description: "Internal server error",
+			content: {
+				"application/json": {
+					schema: SeedErrorResponseSchema,
+				},
+			},
+		},
+	},
+});

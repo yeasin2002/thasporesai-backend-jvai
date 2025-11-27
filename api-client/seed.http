@@ -14,3 +14,9 @@ Content-Type: {{contentType}}
 ###############################################
 POST {{baseUrl}}/api/seed/users
 Content-Type: {{contentType}}
+
+###############################################
+# 3. Seed Categories (Plumbing, Cleaning, Electrical, Carpentry)
+###############################################
+POST {{baseUrl}}/api/seed/categories
+Content-Type: {{contentType}}
