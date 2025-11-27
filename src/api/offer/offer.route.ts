@@ -82,10 +82,9 @@ offer.post(
 
 // Customer cancels pending offer
 offer.post(
-	"/:offerId/cancel",
+	"/cancel",
 	requireAuth,
 	requireRole("customer"),
-	validateParams(OfferIdParamSchema),
 	validateBody(CancelOfferSchema),
 	cancelOffer,
 );

@@ -95,16 +95,50 @@ export const RejectOfferSchema = z
 // Cancel offer schema
 export const CancelOfferSchema = z
 	.object({
+		customer: z
+			.string()
+			.min(1, "Customer ID is required")
+			.openapi({ description: "Customer user ID" }),
+		contractor: z
+			.string()
+			.min(1, "Contractor ID is required")
+			.openapi({ description: "Contractor user ID" }),
+		jobId: z
+			.string()
+			.min(1, "Job ID is required")
+			.openapi({ description: "Job ID" }),
 		reason: z
 			.string()
-			.min(1, "Cancellation reason is required")
-			.max(500, "Reason must be less than 500 characters")
 			.optional()
 			.openapi({ description: "Reason for cancelling the offer" }),
 	})
 	.openapi("CancelOffer");
 
 // Response schemas
+export const CancelOfferResponseSchema = z
+	.object({
+		status: z.number(),
+		message: z.string(),
+		data: z.object({
+			offer: z.object({
+				_id: z.string(),
+				status: z.string(),
+				cancelledAt: z.string(),
+				cancellationReason: z.string().optional(),
+			}),
+			refund: z.object({
+				amount: z.number(),
+				description: z.string(),
+			}),
+			wallet: z.object({
+				balance: z.number(),
+				escrowBalance: z.number(),
+			}),
+			message: z.string(),
+		}),
+	})
+	.openapi("CancelOfferResponse");
+
 export const ErrorResponseSchema = z
 	.object({
 		status: z.number(),

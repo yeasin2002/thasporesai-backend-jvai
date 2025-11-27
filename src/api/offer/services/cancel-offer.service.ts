@@ -11,55 +11,47 @@ import type { RequestHandler } from "express";
 import mongoose from "mongoose";
 import type { CancelOffer } from "../offer.validation";
 
-/**
- * Cancel Offer Service
- *
- * Allows customers to cancel pending offers if contractor hasn't responded yet.
- *
- * Business Rules:
- * - Only the customer who sent the offer can cancel it
- * - Only pending offers can be cancelled
- * - Full refund (totalCharge) returned to customer wallet
- * - Application/Invite status reset to allow new offers
- * - Contractor receives cancellation notification
- *
- * Money Flow:
- * - Escrow balance decreased by totalCharge
- * - Customer available balance increased by totalCharge
- * - Refund transaction created
- */
-export const cancelOffer: RequestHandler<
-	{ offerId: string },
-	any,
-	CancelOffer
-> = async (req, res) => {
+export const cancelOffer: RequestHandler<any, any, CancelOffer> = async (
+	req,
+	res,
+) => {
 	const session = await mongoose.startSession();
 	session.startTransaction();
 
 	try {
-		const { offerId } = req.params;
 		const userId = req.user?.id;
-		const { reason } = req.body;
+		const {
+			customer: customerId,
+			contractor: contractorId,
+			jobId,
+			reason,
+		} = req.body;
 
 		if (!userId) {
 			await session.abortTransaction();
 			return sendBadRequest(res, "User ID not found");
 		}
 
-		// 1. Find offer
-		const offer = await db.offer.findById(offerId).session(session);
+		// 1. Validate: Authenticated user must be the customer
+		if (customerId !== userId) {
+			await session.abortTransaction();
+			return sendForbidden(res, "You can only cancel your own offers");
+		}
+
+		// 2. Find offer using customer, contractor, and job
+		const offer = await db.offer
+			.findOne({
+				customer: customerId,
+				contractor: contractorId,
+				job: jobId,
+			})
+			.session(session);
 
 		if (!offer) {
 			await session.abortTransaction();
-			return sendNotFound(res, "Offer not found");
-		}
-
-		// 2. Validate: Only customer can cancel
-		if (offer.customer.toString() !== userId) {
-			await session.abortTransaction();
-			return sendForbidden(
+			return sendNotFound(
 				res,
-				"Only the customer who sent the offer can cancel it",
+				"Offer not found for the specified customer, contractor, and job",
 			);
 		}
 
