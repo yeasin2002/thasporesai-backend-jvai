@@ -215,38 +215,3 @@ registry.registerPath({
 		},
 	},
 });
-
-// POST /api/location/seed - Seed locations
-registry.registerPath({
-	method: "post",
-	path: `${openAPITags.location.basepath}/seed`,
-	description: "Seed database with top 50 US cities",
-	summary: "Seed locations",
-	tags: [openAPITags.location.name],
-	responses: {
-		201: {
-			description: "Locations seeded successfully",
-			content: {
-				"application/json": {
-					schema: LocationsResponseSchema,
-				},
-			},
-		},
-		400: {
-			description: "Database already contains locations",
-			content: {
-				"application/json": {
-					schema: ErrorResponseSchema,
-				},
-			},
-		},
-		500: {
-			description: "Internal server error",
-			content: {
-				"application/json": {
-					schema: ErrorResponseSchema,
-				},
-			},
-		},
-	},
-});

@@ -1,0 +1,16 @@
+### JobSphere Seed API Tests
+### Base URL
+@baseUrl = http://localhost:4000
+@contentType = application/json
+
+###############################################
+# 1. Seed Locations (Top 50 US Cities)
+###############################################
+POST {{baseUrl}}/api/seed/locations
+Content-Type: {{contentType}}
+
+###############################################
+# 2. Seed Users (Customer, Contractor, Admin)
+###############################################
+POST {{baseUrl}}/api/seed/users
+Content-Type: {{contentType}}

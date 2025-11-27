@@ -3,7 +3,6 @@ import { db } from "@/db";
 import { sendError, sendSuccess } from "@/helpers/response-handler";
 import type { RequestHandler } from "express";
 
-// Seed locations with top 50 US cities
 export const seedLocations: RequestHandler = async (_req, res) => {
 	try {
 		// Check if locations already exist
