@@ -10,6 +10,7 @@ import swaggerUi from "swagger-ui-express";
 import { auth } from "@/api/auth/auth.route";
 import { category } from "@/api/category/category.route";
 import { chat } from "@/api/chat/chat.route";
+import { delivery } from "@/api/delivery/delivery.route";
 import { jobInvite } from "@/api/job-invite/job-invite.route";
 import { jobRequest } from "@/api/job-request/job-request.route";
 import { job } from "@/api/job/job.route";
@@ -115,6 +116,7 @@ app.use("/api/user/work-samples", workSamples);
 
 app.use("/api/wallet", wallet);
 app.use("/api/offer", offer);
+app.use("/api/delivery", delivery);
 
 // Error handling
 app.use(notFoundHandler);
@@ -129,6 +131,7 @@ httpServer.listen(PORT, async () => {
   // Initialize Firebase Admin SDK for push notifications
   try {
     initializeFirebase();
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
   } catch (_error) {
     consola.warn(
       "⚠️ Firebase initialization failed. Push notifications will not work."

@@ -1,0 +1,84 @@
+### Complete Delivery - Mark Job as Complete
+
+### Variables
+@baseUrl = http://127.0.0.1:4000
+@customerToken = YOUR_CUSTOMER_TOKEN_HERE
+@jobId = YOUR_JOB_ID_HERE
+
+### 1. Mark job as complete (Customer only)
+POST {{baseUrl}}/api/delivery/complete-delivery
+Authorization: Bearer {{customerToken}}
+Content-Type: application/json
+
+{
+  "jobId": "{{jobId}}"
+}
+
+### Expected Response (200 OK):
+# {
+#   "status": 200,
+#   "message": "Job marked as complete successfully",
+#   "data": {
+#     "job": {
+#       "_id": "job_id",
+#       "title": "Job Title",
+#       "status": "completed",
+#       "completedAt": "2025-11-28T..."
+#     },
+#     "payment": {
+#       "jobAmount": 100,
+#       "serviceFee": 20,
+#       "contractorPayout": 80,
+#       "platformFee": 5,
+#       "totalAdminCommission": 25
+#     },
+#     "wallets": {
+#       "customer": {
+#         "balance": 0,
+#         "escrowBalance": 0
+#       },
+#       "contractor": {
+#         "balance": 80,
+#         "totalEarnings": 80
+#       }
+#     },
+#     "message": "Job completed successfully. Contractor received 80 (80% of 100). Service fee of 20 (20%) was deducted."
+#   }
+# }
+
+### Error Cases:
+
+### 2. Try to complete job that's not in_progress (400)
+POST {{baseUrl}}/api/delivery/complete-delivery
+Authorization: Bearer {{customerToken}}
+Content-Type: application/json
+
+{
+  "jobId": "job_with_open_status"
+}
+
+### 3. Try to complete someone else's job (403)
+POST {{baseUrl}}/api/delivery/complete-delivery
+Authorization: Bearer {{customerToken}}
+Content-Type: application/json
+
+{
+  "jobId": "someone_elses_job_id"
+}
+
+### 4. Try as contractor (should fail - customer only) (403)
+POST {{baseUrl}}/api/delivery/complete-delivery
+Authorization: Bearer YOUR_CONTRACTOR_TOKEN
+Content-Type: application/json
+
+{
+  "jobId": "{{jobId}}"
+}
+
+### 5. Missing jobId (400)
+POST {{baseUrl}}/api/delivery/complete-delivery
+Authorization: Bearer {{customerToken}}
+Content-Type: application/json
+
+{
+}

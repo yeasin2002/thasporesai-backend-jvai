@@ -62,6 +62,10 @@ export const openAPITags = {
     name: "offer",
     basepath: "/api/offer",
   },
+  delivery: {
+    name: "delivery",
+    basepath: "/api/delivery",
+  },
 };
 
 export const mediaTypeFormat = {
