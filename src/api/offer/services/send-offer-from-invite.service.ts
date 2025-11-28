@@ -21,7 +21,7 @@ export const sendOfferFromInvite: RequestHandler<
 		const { amount, timeline, description } = req.body;
 
 		// 1. Validate invite
-		const invite = await db.jobInvite
+		const invite = await db.inviteApplication
 			.findById(inviteId)
 			.populate("job")
 			.populate("contractor", "full_name email");
@@ -30,8 +30,13 @@ export const sendOfferFromInvite: RequestHandler<
 			return sendBadRequest(res, "Invite not found");
 		}
 
-		// 2. Verify invite is accepted
-		if (invite.status !== "accepted") {
+		// Verify this is a customer invite (not a contractor request)
+		if (invite.sender !== "customer") {
+			return sendBadRequest(res, "Invalid invite - not a customer invite");
+		}
+
+		// 2. Verify invite is accepted (engaged status)
+		if (invite.status !== "engaged") {
 			return sendBadRequest(
 				res,
 				"Can only send offer to accepted invites. Current status: " +
@@ -104,14 +109,14 @@ export const sendOfferFromInvite: RequestHandler<
 				);
 			}
 
-			// Create offer (linked to invite instead of application)
+			// Create offer (linked to unified application model)
 			const [offer] = await db.offer.create(
 				[
 					{
 						job: job._id,
 						customer: customerId,
 						contractor: invite.contractor._id,
-						invite: inviteId, // Link to invite instead of application
+						engaged: inviteId, // Link to unified application model
 						amount: amounts.jobBudget,
 						platformFee: amounts.platformFee,
 						serviceFee: amounts.serviceFee,
@@ -144,8 +149,8 @@ export const sendOfferFromInvite: RequestHandler<
 				{ session },
 			);
 
-			// Update invite status to indicate offer sent
-			invite.status = "offer_sent" as any;
+			// Update invite status to offered
+			invite.status = "offered";
 			await invite.save({ session });
 
 			// Commit transaction

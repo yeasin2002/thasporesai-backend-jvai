@@ -1,4 +1,5 @@
 import { objectIdSchema } from "@/common/validations";
+import { statusListForInviteAndApplication } from "@/db/models/invite-application-job.model";
 import { extendZodWithOpenApi } from "@asteasolutions/zod-to-openapi";
 import { isValidObjectId } from "mongoose";
 import { z } from "zod";
@@ -181,6 +182,37 @@ export const SearchJobSchema = z
 	})
 	.openapi("SearchJob");
 
+export const engagedJobSchema = z
+	.object({
+		status: z
+			.enum(statusListForInviteAndApplication)
+			.optional()
+			.openapi({ description: "Filter by status" }),
+
+		contractorId: z
+			.string()
+			.refine((val) => !val || isValidObjectId(val), {
+				message: "Invalid contractor ID format",
+			})
+			.optional()
+			.openapi({
+				description:
+					"Filter by contractor ID - excludes jobs where this contractor has been invited or has applied",
+			}),
+
+		page: z
+			.string()
+			.regex(/^\d+$/, "Page must be a number")
+			.optional()
+			.openapi({ description: "Page number" }),
+		limit: z
+			.string()
+			.regex(/^\d+$/, "Limit must be a number")
+			.optional()
+			.openapi({ description: "Items per page" }),
+	})
+	.openapi("SearchJob");
+
 export const SearchOfferSendJobSchema = z
 	.object({
 		contractorId: z
@@ -276,6 +308,8 @@ export type SearchJob = z.infer<typeof SearchJobSchema>;
 export type SearchOfferSendJob = z.infer<typeof SearchOfferSendJobSchema>;
 export type JobResponse = z.infer<typeof JobResponseSchema>;
 export type JobsResponse = z.infer<typeof JobsResponseSchema>;
+export type EngagedJob = z.infer<typeof engagedJobSchema>;
+
 export type SuccessResponse = z.infer<typeof SuccessResponseSchema>;
 export type ErrorResponse = z.infer<typeof ErrorResponseSchema>;
 export type UpdateJobStatus = z.infer<typeof UpdateJobStatusSchema>;

@@ -56,9 +56,21 @@ export const SearchSentInvitesSchema = z
 			.optional()
 			.openapi({ description: "Filter by specific job ID" }),
 		status: z
-			.enum(["pending", "accepted", "rejected", "cancelled"])
+			.enum([
+				"pending",
+				"accepted",
+				"rejected",
+				"cancelled",
+				"invited",
+				"engaged",
+				"requested",
+				"offered",
+			])
 			.optional()
-			.openapi({ description: "Filter by invite status" }),
+			.openapi({
+				description:
+					"Filter by invite status (supports both old and new status values)",
+			}),
 		page: z
 			.string()
 			.regex(/^\d+$/, "Page must be a number")
@@ -76,9 +88,21 @@ export const SearchSentInvitesSchema = z
 export const SearchReceivedInvitesSchema = z
 	.object({
 		status: z
-			.enum(["pending", "accepted", "rejected", "cancelled"])
+			.enum([
+				"pending",
+				"accepted",
+				"rejected",
+				"cancelled",
+				"invited",
+				"engaged",
+				"requested",
+				"offered",
+			])
 			.optional()
-			.openapi({ description: "Filter by invite status" }),
+			.openapi({
+				description:
+					"Filter by invite status (supports both old and new status values)",
+			}),
 		page: z
 			.string()
 			.regex(/^\d+$/, "Page must be a number")
@@ -135,9 +159,9 @@ const InviteDataSchema = z.object({
 	job: z.any(),
 	customer: z.any(),
 	contractor: z.any(),
-	status: z.enum(["pending", "accepted", "rejected", "cancelled"]),
-	message: z.string().optional(),
-	rejectionReason: z.string().optional(),
+	status: z.enum(["invited", "requested", "engaged", "offered", "cancelled"]),
+	sender: z.string(),
+	offerId: z.string().optional(),
 	createdAt: z.coerce.date(),
 	updatedAt: z.coerce.date(),
 });

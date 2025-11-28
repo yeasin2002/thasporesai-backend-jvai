@@ -17,6 +17,7 @@ import { location } from "@/api/location/location.route";
 import { notification } from "@/api/notification/notification.route";
 import { offer } from "@/api/offer/offer.route";
 import { review } from "@/api/review/review.route";
+import { seed } from "@/api/seed/seed.route";
 import { testNotification } from "@/api/test-notification/test-notification.route";
 
 // admin- dashboard routes
@@ -91,6 +92,7 @@ app.use("/api/common", common);
 app.use("/api/notification", notification);
 app.use("/api/test-notification", testNotification);
 app.use("/api/chat", chat);
+app.use("/api/seed", seed);
 
 // Admin routes
 app.use("/api/admin/auth", authAdmin);

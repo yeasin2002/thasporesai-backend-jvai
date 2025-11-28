@@ -1,4 +1,4 @@
-import { NotificationService } from "@/common/service/notification.service";
+import { NotificationService } from "@/common/service";
 import { db } from "@/db";
 import { sendError, sendSuccess } from "@/helpers";
 import type { RequestHandler } from "express";
@@ -17,7 +17,7 @@ export const acceptInvite: RequestHandler = async (req, res) => {
 		}
 
 		// Find invite
-		const invite = await db.jobInvite
+		const invite = await db.inviteApplication
 			.findById(inviteId)
 			.populate("job")
 			.populate("customer", "full_name email");
@@ -35,8 +35,8 @@ export const acceptInvite: RequestHandler = async (req, res) => {
 			);
 		}
 
-		// Check if invite is still pending
-		if (invite.status !== "pending") {
+		// Check if invite is still pending (invited or engaged status)
+		if (invite.status !== "invited" && invite.status !== "engaged") {
 			return sendError(res, 400, "This invite has already been processed");
 		}
 
@@ -46,24 +46,26 @@ export const acceptInvite: RequestHandler = async (req, res) => {
 			return sendError(res, 400, "This job is no longer available");
 		}
 
-		// Update invite status
-		invite.status = "accepted";
+		// Update invite status to engaged (accepted)
+		invite.status = "engaged";
 		await invite.save();
 
 		// Create or get existing conversation
+		const customerId = invite.customer._id || invite.customer;
+
 		let conversation = await db.conversation.findOne({
-			participants: { $all: [invite.customer, contractorId] },
+			participants: { $all: [customerId, contractorId] },
 		});
 
 		if (!conversation) {
 			conversation = await db.conversation.create({
-				participants: [invite.customer, contractorId],
+				participants: [customerId, contractorId],
 				lastMessage: {
 					text: "Invite accepted",
 					senderId: contractorId,
 					timestamp: new Date(),
 				},
-				unreadCount: new Map([[invite.customer.toString(), 1]]),
+				unreadCount: new Map([[customerId.toString(), 1]]),
 				jobId: job._id,
 			});
 		}
@@ -73,7 +75,7 @@ export const acceptInvite: RequestHandler = async (req, res) => {
 
 		// Send notification to customer
 		await NotificationService.sendToUser({
-			userId: invite.customer.toString(),
+			userId: customerId.toString(),
 			title: "Invite Accepted",
 			body: `${
 				contractor?.full_name || "A contractor"
@@ -100,6 +102,6 @@ export const acceptInvite: RequestHandler = async (req, res) => {
 		});
 	} catch (error) {
 		console.error("Accept invite error:", error);
-		return sendError(res, 500, "Failed to accept invite");
+		return sendError(res, 500, "Failed to accept invite", error);
 	}
 };

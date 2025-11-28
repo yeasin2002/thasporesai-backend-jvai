@@ -15,7 +15,6 @@ import {
 	deleteLocation,
 	getAllLocations,
 	getLocationById,
-	seedLocations,
 	updateLocation,
 } from "./services";
 
@@ -31,5 +30,4 @@ location
 		validateBody(UpdateLocationSchema),
 		updateLocation,
 	)
-	.delete("/:id", validateParams(LocationIdSchema), deleteLocation)
-	.post("/seed", seedLocations);
+	.delete("/:id", validateParams(LocationIdSchema), deleteLocation);

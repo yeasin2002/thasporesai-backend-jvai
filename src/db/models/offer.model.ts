@@ -5,8 +5,10 @@ export interface Offer {
 	job: Types.ObjectId;
 	customer: Types.ObjectId;
 	contractor: Types.ObjectId;
-	application?: Types.ObjectId; // Optional: for offers from job applications
-	invite?: Types.ObjectId; // Optional: for offers from job invites
+
+	// application?: Types.ObjectId; // Optional: for offers from job applications
+	// invite?: Types.ObjectId; // Optional: for offers from job invites
+	engaged?: Types.ObjectId; // Optional: for offers from job engagements
 
 	// Amounts
 	amount: number;
@@ -62,18 +64,25 @@ const offerSchema = new Schema<OfferDocument>(
 			required: true,
 			index: true,
 		},
-		application: {
+		// application: {
+		// 	type: Schema.Types.ObjectId,
+		// 	ref: "JobApplicationRequest",
+		// 	required: false, // Optional: for offers from job applications
+		// 	index: true,
+		// },
+		// invite: {
+		// 	type: Schema.Types.ObjectId,
+		// 	ref: "JobInvite",
+		// 	required: false, // Optional: for offers from job invites
+		// 	index: true,
+		// },
+
+		engaged: {
 			type: Schema.Types.ObjectId,
-			ref: "JobApplicationRequest",
-			required: false, // Optional: for offers from job applications
-			index: true,
+			ref: "JobInviteApplication",
+			required: false,
 		},
-		invite: {
-			type: Schema.Types.ObjectId,
-			ref: "JobInvite",
-			required: false, // Optional: for offers from job invites
-			index: true,
-		},
+
 		amount: {
 			type: Number,
 			required: true,

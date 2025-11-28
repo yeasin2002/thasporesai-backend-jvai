@@ -17,7 +17,7 @@ export const cancelInvite: RequestHandler = async (req, res) => {
 		}
 
 		// Find invite
-		const invite = await db.jobInvite
+		const invite = await db.inviteApplication
 			.findById(inviteId)
 			.populate("job", "title")
 			.populate("contractor", "full_name email");
@@ -35,8 +35,8 @@ export const cancelInvite: RequestHandler = async (req, res) => {
 			);
 		}
 
-		// Check if invite is still pending
-		if (invite.status !== "pending") {
+		// Check if invite is still pending (invited or engaged status)
+		if (invite.status !== "invited" && invite.status !== "engaged") {
 			return sendError(
 				res,
 				400,
@@ -57,8 +57,10 @@ export const cancelInvite: RequestHandler = async (req, res) => {
 		await NotificationService.sendToUser({
 			userId: contractor._id.toString(),
 			title: "Invite Cancelled",
-			body: `${customer?.full_name || "A customer"} has cancelled the invite for "${job.title}"`,
-			type: "general",
+			body: `${
+				customer?.full_name || "A customer"
+			} has cancelled the invite for "${job.title}"`,
+			type: "job_invite_cancel",
 			data: {
 				jobId: job._id.toString(),
 				inviteId: inviteId,

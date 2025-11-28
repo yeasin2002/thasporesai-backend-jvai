@@ -53,11 +53,23 @@ export const expireOffers = async () => {
 					completedAt: new Date(),
 				});
 
-				// Reset application status to allow new offers
-				await db.jobApplicationRequest.findByIdAndUpdate(offer.application, {
-					status: "pending",
-					offerId: undefined,
-				});
+				// Reset engaged application/invite status to allow new offers
+				if (offer.engaged) {
+					const engagement = await db.inviteApplication.findById(offer.engaged);
+					if (engagement) {
+						// Reset based on who initiated
+						if (engagement.sender === "contractor") {
+							// Contractor requested - reset to requested
+							engagement.status = "requested";
+						} else {
+							// Customer invited - reset to engaged
+							engagement.status = "engaged";
+						}
+						// Clear offer reference (cast to any to avoid TypeScript error)
+						engagement.offerId = undefined as any;
+						await engagement.save();
+					}
+				}
 
 				// Notify customer
 				await NotificationService.sendToUser({

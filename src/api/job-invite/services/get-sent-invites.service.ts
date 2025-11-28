@@ -15,15 +15,25 @@ export const getSentInvites: RequestHandler = async (req, res) => {
 			return sendError(res, 401, "Unauthorized");
 		}
 
-		// Build query
-		const query: any = { customer: customerId };
+		// Build query - only show invites sent by customer
+		const query: any = {
+			customer: customerId,
+			sender: "customer", // Only show invites initiated by customer
+		};
 
 		if (jobId) {
 			query.job = jobId;
 		}
 
 		if (status) {
-			query.status = status;
+			// Map old status values to new ones
+			const statusMap: Record<string, string> = {
+				pending: "invited",
+				accepted: "engaged",
+				rejected: "cancelled",
+				cancelled: "cancelled",
+			};
+			query.status = statusMap[status as string] || status;
 		}
 
 		// Pagination
@@ -32,10 +42,10 @@ export const getSentInvites: RequestHandler = async (req, res) => {
 		const skip = (pageNum - 1) * limitNum;
 
 		// Get total count
-		const total = await db.jobInvite.countDocuments(query);
+		const total = await db.inviteApplication.countDocuments(query);
 
 		// Get invites
-		const invites = await db.jobInvite
+		const invites = await db.inviteApplication
 			.find(query)
 			.populate("job", "title description budget location category status")
 			.populate("contractor", "full_name email profile_img skills")

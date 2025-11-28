@@ -1,4 +1,4 @@
-import { NotificationService } from "@/common/service/notification.service";
+import { NotificationService } from "@/common/service";
 import { db } from "@/db";
 import { sendError, sendSuccess } from "@/helpers";
 import type { RequestHandler } from "express";
@@ -11,7 +11,7 @@ export const sendInvite: RequestHandler = async (req, res) => {
 	try {
 		const jobId = req.params.jobId;
 		const customerId = req.user?.userId;
-		const { contractorId, message } = req.body;
+		const { contractorId } = req.body;
 
 		if (!customerId) {
 			return sendError(res, 401, "Unauthorized");
@@ -52,26 +52,48 @@ export const sendInvite: RequestHandler = async (req, res) => {
 			return sendError(res, 400, "This contractor account is suspended");
 		}
 
-		// Check if already invited
-		const existingInvite = await db.jobInvite.findOne({
+		// Check if already invited or has existing application
+		const existingApplication = await db.inviteApplication.findOne({
 			job: jobId,
 			contractor: contractorId,
 		});
 
-		if (existingInvite) {
-			return sendError(res, 400, "You have already invited this contractor");
+		if (existingApplication) {
+			// If contractor already requested, update to engaged status
+			if (existingApplication.status === "requested") {
+				existingApplication.status = "engaged";
+				existingApplication.sender = "customer"; // Customer is now engaging
+				await existingApplication.save();
+
+				await existingApplication.populate([
+					{ path: "job", select: "title description budget location category" },
+					{ path: "contractor", select: "full_name email profile_img" },
+				]);
+
+				return sendSuccess(
+					res,
+					200,
+					"Contractor engaged successfully",
+					existingApplication,
+				);
+			}
+
+			// If already invited or engaged, return error
+			if (
+				existingApplication.status === "invited" ||
+				existingApplication.status === "engaged"
+			) {
+				return sendError(res, 400, "You have already invited this contractor");
+			}
 		}
 
-		// Note: We allow inviting contractors even if they've already applied
-		// This gives customers flexibility to reach out to interested contractors
-
-		// Create invite
-		const invite = await db.jobInvite.create({
+		// Create new invite
+		const invite = await db.inviteApplication.create({
 			job: jobId,
 			customer: customerId,
 			contractor: contractorId,
-			message: message || "",
-			status: "pending",
+			status: "invited",
+			sender: "customer",
 		});
 
 		// Populate job and contractor details

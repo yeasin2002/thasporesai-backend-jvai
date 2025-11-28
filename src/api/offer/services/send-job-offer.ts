@@ -56,6 +56,7 @@ export const sendJobOffer: RequestHandler<
 			status: { $in: ["pending", "accepted"] },
 		});
 
+		//Todo: send also name with how am I engaged
 		if (existingOffer) {
 			return sendBadRequest(res, "An offer already exists for this job");
 		}
@@ -72,6 +73,24 @@ export const sendJobOffer: RequestHandler<
 				escrowBalance: 0,
 			});
 		}
+
+		const inviteApplicationId = await db.inviteApplication.findOne({
+			job: req.params.jobId,
+			contractor: req.body.contractorId,
+		});
+		if (!inviteApplicationId) {
+			return sendBadRequest(res, "Invite application not found");
+		}
+
+		// update to pending
+		await db.inviteApplication.updateOne(
+			{
+				_id: inviteApplicationId._id,
+			},
+			{
+				status: "offered",
+			},
+		);
 
 		// 8-10. Execute all database operations atomically with optimistic locking
 		const session = await mongoose.startSession();
@@ -120,6 +139,7 @@ export const sendJobOffer: RequestHandler<
 						description,
 						status: "pending",
 						expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
+						engaged: inviteApplicationId._id,
 					},
 				],
 				{ session },
@@ -146,6 +166,13 @@ export const sendJobOffer: RequestHandler<
 			// Commit transaction
 			await session.commitTransaction();
 
+			// Populate customer and contractor data
+			const populatedOffer: any = await db.offer
+				.findById(offer._id)
+				.populate("customer", "name email phone profile_img role")
+				.populate("contractor", "name email phone profile_img role")
+				.lean();
+
 			// 11. Send notification to contractor (outside transaction)
 			await NotificationService.sendToUser({
 				userId: contractorId,
@@ -161,7 +188,7 @@ export const sendJobOffer: RequestHandler<
 			});
 
 			return sendSuccess(res, 201, "Offer sent successfully", {
-				offer,
+				offer: populatedOffer,
 				walletBalance: updatedWallet.balance,
 				amounts,
 				source: "direct",
@@ -175,6 +202,6 @@ export const sendJobOffer: RequestHandler<
 		}
 	} catch (error) {
 		console.error("Error sending direct job offer:", error);
-		return sendInternalError(res, "Failed to send offer");
+		return sendInternalError(res, "Failed to send offer", error);
 	}
 };

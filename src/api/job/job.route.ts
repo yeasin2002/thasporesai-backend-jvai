@@ -14,6 +14,7 @@ import express, { type Router } from "express";
 import {
 	CancelJobSchema,
 	CreateJobSchema,
+	engagedJobSchema,
 	JobIdSchema,
 	SearchJobSchema,
 	SearchOfferSendJobSchema,
@@ -54,7 +55,7 @@ job.get(
 	"/engaged",
 	requireAuth,
 	requireRole("customer"),
-	validateQuery(SearchJobSchema),
+	validateQuery(engagedJobSchema),
 	getEngagedJobs,
 );
 

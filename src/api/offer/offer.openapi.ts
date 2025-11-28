@@ -6,6 +6,7 @@ import { registry } from "@/lib/openapi";
 import { z } from "zod";
 import {
 	ApplicationIdParamSchema,
+	CancelOfferResponseSchema,
 	CancelOfferSchema,
 	ErrorResponseSchema,
 	InviteIdParamSchema,
@@ -25,6 +26,7 @@ registry.register("JobIdParam", JobIdParamSchema);
 registry.register("OfferIdParam", OfferIdParamSchema);
 registry.register("RejectOffer", RejectOfferSchema);
 registry.register("CancelOffer", CancelOfferSchema);
+registry.register("CancelOfferResponse", CancelOfferResponseSchema);
 registry.register("OfferErrorResponse", ErrorResponseSchema);
 
 // Offer response schemas
@@ -102,33 +104,10 @@ const RejectOfferResponseSchema = z.object({
 	}),
 });
 
-const CancelOfferResponseSchema = z.object({
-	status: z.number(),
-	message: z.string(),
-	data: z.object({
-		offer: z.object({
-			_id: z.string(),
-			status: z.string(),
-			cancelledAt: z.string(),
-			cancellationReason: z.string(),
-		}),
-		refund: z.object({
-			amount: z.number(),
-			description: z.string(),
-		}),
-		wallet: z.object({
-			balance: z.number(),
-			escrowBalance: z.number(),
-		}),
-		message: z.string(),
-	}),
-});
-
 registry.register("Offer", OfferSchema);
 registry.register("SendOfferResponse", SendOfferResponseSchema);
 registry.register("AcceptOfferResponse", AcceptOfferResponseSchema);
 registry.register("RejectOfferResponse", RejectOfferResponseSchema);
-registry.register("CancelOfferResponse", CancelOfferResponseSchema);
 
 // POST /api/offer/application/:applicationId/send - Send offer based on application (Customer only)
 registry.registerPath({
@@ -470,17 +449,16 @@ registry.registerPath({
 	},
 });
 
-// POST /api/offer/:offerId/cancel - Cancel pending offer (Customer only)
+// POST /api/offer/cancel - Cancel pending offer (Customer only)
 registry.registerPath({
 	method: "post",
-	path: `${openAPITags.offer.basepath}/{offerId}/cancel`,
+	path: `${openAPITags.offer.basepath}/cancel`,
 	description:
-		"Customer cancels a pending offer if contractor hasn't responded yet. Full refund (job amount + platform fee) is returned to customer wallet. Application/Invite status is reset to allow sending a new offer. Only pending offers can be cancelled.",
+		"Customer cancels a pending offer if contractor hasn't responded yet. Full refund (job amount + platform fee) is returned to customer wallet. Application/Invite status is reset to allow sending a new offer. Only pending offers can be cancelled. Requires customer ID, contractor ID, and job ID to identify the offer.",
 	summary: "Cancel pending offer",
 	tags: [openAPITags.offer.name],
 	security: [{ bearerAuth: [] }],
 	request: {
-		params: OfferIdParamSchema,
 		body: {
 			content: {
 				[mediaTypeFormat.json]: {

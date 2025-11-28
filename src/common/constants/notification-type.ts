@@ -6,6 +6,7 @@ export type NotificationListsType =
 	| "job_invite" // Customer invites contractor
 	| "job_invite_accept" // Contractor accepts customer's invite
 	| "job_invite_reject" // Contractor reject customer's invite
+	| "job_invite_cancel" // Contractor reject customer's invite
 
 	// offer
 	| "job_request" // Contractor requests job from customer

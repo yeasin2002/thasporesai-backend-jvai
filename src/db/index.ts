@@ -3,8 +3,7 @@ import { Certification } from "./models/certification.model";
 import { Conversation } from "./models/conversation.model";
 import { Experience } from "./models/experience.model";
 import { FcmToken } from "./models/fcm-token.model";
-import { JobInvite } from "./models/job-invite.model";
-import { JobApplicationRequest } from "./models/job-request.model";
+import { JobInviteApplication } from "./models/invite-application-job.model";
 import { Job } from "./models/job.model";
 import { Location } from "./models/location.model";
 import { Message } from "./models/message.model";
@@ -26,8 +25,6 @@ export const db = {
 	job: Job,
 	review: Review,
 	location: Location,
-	jobApplicationRequest: JobApplicationRequest,
-	jobInvite: JobInvite,
 	notification: Notification,
 	fcmToken: FcmToken,
 	conversation: Conversation,
@@ -35,4 +32,5 @@ export const db = {
 	experience: Experience,
 	workSample: WorkSample,
 	certification: Certification,
+	inviteApplication: JobInviteApplication,
 };

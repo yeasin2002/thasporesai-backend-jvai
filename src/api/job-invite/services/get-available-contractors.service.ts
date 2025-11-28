@@ -60,23 +60,19 @@ export const getAvailableContractors: RequestHandler = async (req, res) => {
 			);
 		}
 
-		// Step 1: Get contractors who have already applied
-		const appliedContractors = await db.jobApplicationRequest
-			.find({ job: jobId })
+		// Get contractors who have already applied or been invited
+		// Using the unified model, we check for any existing application/invite
+		const existingApplications = await db.inviteApplication
+			.find({
+				job: jobId,
+				status: { $in: ["invited", "requested", "engaged", "offered"] },
+			})
 			.distinct("contractor");
 
-		// Step 2: Get contractors who have already been invited
-		const invitedContractors = await db.jobInvite
-			.find({ job: jobId })
-			.distinct("contractor");
-
-		// Step 3: Combine excluded contractor IDs
-		const excludedContractorIds = [
-			...new Set([
-				...appliedContractors.map((id) => id.toString()),
-				...invitedContractors.map((id) => id.toString()),
-			]),
-		];
+		// Combine excluded contractor IDs
+		const excludedContractorIds = existingApplications.map((id) =>
+			id.toString(),
+		);
 
 		// Step 4: Build query for available contractors
 		const query: any = {

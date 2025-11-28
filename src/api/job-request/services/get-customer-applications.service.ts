@@ -49,21 +49,28 @@ export const getCustomerApplications: RequestHandler<
 			});
 		}
 
-		// Build application filter
+		// Build application filter - only contractor requests
 		const applicationFilter: any = {
 			job: { $in: jobIds },
+			sender: "contractor", // Only show contractor-initiated applications
 		};
 
 		if (status) {
-			applicationFilter.status = status;
+			// Map old status to new
+			const statusMap: Record<string, string> = {
+				pending: "requested",
+				accepted: "engaged",
+				rejected: "cancelled",
+				offer_sent: "offered",
+			};
+			applicationFilter.status = statusMap[status] || status;
 		}
 
 		// Get total count
-		const total =
-			await db.jobApplicationRequest.countDocuments(applicationFilter);
+		const total = await db.inviteApplication.countDocuments(applicationFilter);
 
 		// Fetch applications with populated fields
-		const applications = await db.jobApplicationRequest
+		const applications = await db.inviteApplication
 			.find(applicationFilter)
 			.populate({
 				path: "job",
