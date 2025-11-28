@@ -2,6 +2,7 @@ import { openAPITags } from "@/common/constants/api-route-tags";
 import { registry } from "@/lib/openapi";
 import { z } from "zod";
 import {
+  CancelJobSchema,
   CreateJobSchema,
   engagedJobSchema,
   ErrorResponseSchema,
@@ -9,10 +10,12 @@ import {
   JobResponseSchema,
   JobSchema,
   JobsResponseSchema,
+  myCurrentJobListSchema,
   SearchJobSchema,
   SearchOfferSendJobSchema,
   SuccessResponseSchema,
   UpdateJobSchema,
+  UpdateJobStatusSchema,
 } from "./job.validation";
 
 // Register schemas
@@ -21,6 +24,7 @@ registry.register("UpdateJob", UpdateJobSchema);
 registry.register("JobIdParam", JobIdSchema);
 registry.register("SearchJob", SearchJobSchema);
 registry.register("SearchOfferSendJob", SearchOfferSendJobSchema);
+registry.register("MyCurrentJobList", myCurrentJobListSchema);
 
 registry.register("JobResponse", JobResponseSchema);
 registry.register("JobsResponse", JobsResponseSchema);
@@ -316,6 +320,117 @@ registry.registerPath({
   },
 });
 
+// GET /api/job/my/jobs-status - Get contractor's current jobs (offered or assigned)
+registry.registerPath({
+  method: "get",
+  path: `${openAPITags.job.basepath}/my/jobs-status`,
+  description:
+    "Get contractor's current work pipeline showing jobs where they have received offers or are currently assigned. Returns jobs based on invite-application status: 'offered' (waiting for contractor to accept/reject) or 'assigned' (contractor is working on the job). Each result includes the invite-application details, full job information with populated categories/locations/customer, and customer contact details. Supports optional status filtering and pagination. Default shows both 'offered' and 'assigned' jobs sorted by creation date (newest first).",
+  summary: "Get contractor's current jobs (offered/assigned)",
+  tags: [openAPITags.job.name],
+  security: [{ bearerAuth: [] }],
+  request: {
+    query: myCurrentJobListSchema,
+  },
+  responses: {
+    200: {
+      description:
+        "Current jobs retrieved successfully with invite-application, job, and customer details",
+      content: {
+        "application/json": {
+          schema: z.object({
+            status: z.number(),
+            message: z.string(),
+            data: z.object({
+              jobs: z.array(
+                z.object({
+                  inviteApplication: z.object({
+                    _id: z.string().describe("Invite-application ID"),
+                    status: z
+                      .enum(["offered", "assigned"])
+                      .describe(
+                        "offered: waiting for contractor response | assigned: contractor is working"
+                      ),
+                    sender: z
+                      .string()
+                      .describe("Who initiated (customer or contractor)"),
+                    offerId: z
+                      .string()
+                      .optional()
+                      .describe("Associated offer ID if exists"),
+                    createdAt: z.string().describe("When created"),
+                    updatedAt: z.string().describe("Last updated"),
+                  }),
+                  job: z
+                    .object({
+                      _id: z.string(),
+                      title: z.string(),
+                      description: z.string(),
+                      budget: z.number(),
+                      status: z.string(),
+                      category: z.any().describe("Populated category details"),
+                      location: z.any().describe("Populated location details"),
+                      customerId: z
+                        .any()
+                        .describe("Populated customer details"),
+                      coverImg: z.string(),
+                      address: z.string(),
+                      date: z.string(),
+                      createdAt: z.string(),
+                      updatedAt: z.string(),
+                    })
+                    .describe("Full job details with populated fields"),
+                  customer: z
+                    .object({
+                      _id: z.string(),
+                      full_name: z.string(),
+                      email: z.string(),
+                      phone: z.string().optional(),
+                      profile_img: z.string().optional(),
+                    })
+                    .describe("Customer contact information"),
+                })
+              ),
+              pagination: z.object({
+                currentPage: z.number(),
+                totalPages: z.number(),
+                totalCount: z.number(),
+                limit: z.number(),
+                hasNextPage: z.boolean(),
+                hasPrevPage: z.boolean(),
+              }),
+            }),
+          }),
+        },
+      },
+    },
+    401: {
+      description: "Unauthorized",
+      content: {
+        "application/json": {
+          schema: ErrorResponseSchema,
+        },
+      },
+    },
+    403: {
+      description: "Forbidden - Contractor only",
+      content: {
+        "application/json": {
+          schema: ErrorResponseSchema,
+        },
+      },
+    },
+    500: {
+      description: "Internal server error",
+      content: {
+        "application/json": {
+          schema: ErrorResponseSchema,
+        },
+      },
+    },
+  },
+});
+
 // POST /api/job - Create job (Customer only)
 registry.registerPath({
   method: "post",
@@ -505,8 +620,6 @@ registry.registerPath({
 // ============================================
 // PAYMENT SYSTEM ENDPOINTS (Phase 5)
 // ============================================
-
-import { CancelJobSchema, UpdateJobStatusSchema } from "./job.validation";
 
 // Register payment schemas
 registry.register("UpdateJobStatus", UpdateJobStatusSchema);
