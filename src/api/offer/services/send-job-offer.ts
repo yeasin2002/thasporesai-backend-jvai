@@ -82,16 +82,6 @@ export const sendJobOffer: RequestHandler<
       return sendBadRequest(res, "Invite application not found");
     }
 
-    // update to pending
-    await db.inviteApplication.updateOne(
-      {
-        _id: inviteApplicationId._id,
-      },
-      {
-        status: "offered",
-      }
-    );
-
     // 8-10. Execute all database operations atomically with optimistic locking
     const session = await mongoose.startSession();
     session.startTransaction();
@@ -160,6 +150,13 @@ export const sendJobOffer: RequestHandler<
             completedAt: new Date(),
           },
         ],
+        { session }
+      );
+
+      // update to pending
+      await db.inviteApplication.updateOne(
+        { _id: inviteApplicationId._id },
+        { status: "offered" },
         { session }
       );
 
