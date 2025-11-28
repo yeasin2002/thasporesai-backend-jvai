@@ -1,12 +1,7 @@
 import { calculatePaymentAmounts } from "@/common/payment-config";
 import { NotificationService } from "@/common/service/notification.service";
 import { db } from "@/db";
-import {
-	sendBadRequest,
-	sendError,
-	sendInternalError,
-	sendSuccess,
-} from "@/helpers";
+import { sendBadRequest, sendInternalError, sendSuccess } from "@/helpers";
 import type { RequestHandler } from "express";
 import mongoose from "mongoose";
 import type { SendOffer } from "../offer.validation";
@@ -144,6 +139,7 @@ export const sendJobOffer: RequestHandler<
 						description,
 						status: "pending",
 						expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
+						engaged: inviteApplicationId._id,
 					},
 				],
 				{ session },

@@ -7,6 +7,7 @@ import {
 	sendNotFound,
 	sendSuccess,
 } from "@/helpers";
+import { logger } from "@/lib";
 import type { RequestHandler } from "express";
 import mongoose from "mongoose";
 import type { CancelOffer } from "../offer.validation";
@@ -107,25 +108,6 @@ export const cancelOffer: RequestHandler<any, any, CancelOffer> = async (
 			reason || "Cancelled by customer before contractor response";
 		await offer.save({ session });
 
-		// 9. Reset engaged application/invite status to allow new offers
-		if (offer.engaged) {
-			// Get the engaged application to check its sender
-			const engagement = await db.inviteApplication
-				.findById(offer.engaged)
-				.session(session);
-			if (engagement) {
-				// Reset based on who initiated
-				if (engagement.sender === "contractor") {
-					// Contractor requested - reset to requested
-					engagement.status = "requested";
-				} else {
-					// Customer invited - reset to engaged
-					engagement.status = "engaged";
-				}
-				await engagement.save({ session });
-			}
-		}
-
 		// 10. Create refund transaction record
 		await db.transaction.create(
 			[
@@ -160,6 +142,17 @@ export const cancelOffer: RequestHandler<any, any, CancelOffer> = async (
 				reason: offer.cancellationReason || "",
 			},
 		});
+
+		// 9. Update engaged application/invite status to cancelled
+		const engagement = await db.inviteApplication.findById(offer.engaged);
+		if (engagement) {
+			engagement.status = "engaged";
+			await engagement.save({ session });
+		}
+
+		// Todo:  note: nothing is getting here:
+		console.log("🚀 ~ cancelOffer ~ engagement:", engagement);
+		logger.info("🚀 ~ cancelOffer ~ engagement:", engagement);
 
 		// 13. Return success response
 		return sendSuccess(res, 200, "Offer cancelled successfully", {
