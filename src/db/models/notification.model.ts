@@ -2,8 +2,7 @@ import {
   notificationTypeList,
   type NotificationListsType,
 } from "@/common/constants";
-import type { Document, Types } from "mongoose";
-import { Schema, model } from "mongoose";
+import { Schema, model, type Document, type Types } from "mongoose";
 
 export interface Notification {
   userId: Types.ObjectId;
