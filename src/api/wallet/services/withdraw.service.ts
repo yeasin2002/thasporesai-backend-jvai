@@ -5,11 +5,11 @@ import type { Withdraw } from "../wallet.validation";
 
 export const withdraw: RequestHandler<{}, any, Withdraw> = async (req, res) => {
 	try {
-		const userId = req.user!.id;
+		const userId = req?.user?.id;
 		const { amount } = req.body;
 
 		// Only contractors can withdraw
-		if (req.user!.role !== "contractor") {
+		if (req?.user?.role !== "contractor") {
 			return sendBadRequest(res, "Only contractors can withdraw funds");
 		}
 
@@ -82,6 +82,6 @@ export const withdraw: RequestHandler<{}, any, Withdraw> = async (req, res) => {
 		});
 	} catch (error) {
 		console.error("Error processing withdrawal:", error);
-		return sendInternalError(res, "Failed to process withdrawal");
+		return sendInternalError(res, "Failed to process withdrawal", error);
 	}
 };

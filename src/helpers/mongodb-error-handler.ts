@@ -55,7 +55,7 @@ export const exceptionErrorHandler = (
 	}
 
 	// Default internal server error
-	return sendInternalError(res, defaultMessage);
+	return sendInternalError(res, defaultMessage, error);
 };
 
 /**

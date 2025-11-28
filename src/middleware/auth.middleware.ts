@@ -47,7 +47,7 @@ export const requireAuth = (
 		}
 	} catch (error) {
 		console.error("Auth middleware error:", error);
-		return sendInternalError(res, "Internal Server Error");
+		return sendInternalError(res, "Internal Server Error", error);
 	}
 };
 
@@ -77,7 +77,7 @@ export const requireRole = (role: "customer" | "contractor" | "admin") => {
 			next();
 		} catch (error) {
 			console.error("Role middleware error:", error);
-			return sendInternalError(res, "Internal Server Error");
+			return sendInternalError(res, "Internal Server Error", error);
 		}
 	};
 };
@@ -105,7 +105,7 @@ export const requireAnyRole = (
 			next();
 		} catch (error) {
 			console.error("Role middleware error:", error);
-			return sendInternalError(res, "Internal Server Error");
+			return sendInternalError(res, "Internal Server Error", error);
 		}
 	};
 };
@@ -137,7 +137,7 @@ export const requireOwnership = (userIdParam: string = "id") => {
 			next();
 		} catch (error) {
 			console.error("Ownership middleware error:", error);
-			return sendInternalError(res, "Internal Server Error");
+			return sendInternalError(res, "Internal Server Error", error);
 		}
 	};
 };

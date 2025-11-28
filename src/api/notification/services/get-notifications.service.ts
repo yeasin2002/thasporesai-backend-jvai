@@ -1,5 +1,5 @@
 import { db } from "@/db";
-import { sendInternalError, sendSuccess } from "@/helpers";
+import { sendInternalError, sendSuccess, sendUnauthorized } from "@/helpers";
 import type { RequestHandler } from "express";
 
 /**
@@ -11,7 +11,7 @@ export const getNotifications: RequestHandler = async (req, res) => {
 		const userId = req.user?.userId;
 
 		if (!userId) {
-			return sendInternalError(res, "User not authenticated");
+			return sendUnauthorized(res, "User not authenticated");
 		}
 
 		// Get notifications for user, sorted by newest first
@@ -80,6 +80,6 @@ export const getNotifications: RequestHandler = async (req, res) => {
 		);
 	} catch (error) {
 		console.error("Error fetching notifications:", error);
-		return sendInternalError(res, "Failed to fetch notifications");
+		return sendInternalError(res, "Failed to fetch notifications", error);
 	}
 };

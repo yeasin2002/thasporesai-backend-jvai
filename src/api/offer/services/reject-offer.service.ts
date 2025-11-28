@@ -95,6 +95,6 @@ export const rejectOffer: RequestHandler<
 		});
 	} catch (error) {
 		console.error("Error rejecting offer:", error);
-		return sendInternalError(res, "Failed to reject offer");
+		return sendInternalError(res, "Failed to reject offer", error);
 	}
 };

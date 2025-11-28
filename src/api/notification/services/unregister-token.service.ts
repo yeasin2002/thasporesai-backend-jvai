@@ -1,5 +1,5 @@
 import { db } from "@/db";
-import { sendInternalError, sendSuccess } from "@/helpers";
+import { sendInternalError, sendSuccess, sendUnauthorized } from "@/helpers";
 import type { RequestHandler } from "express";
 
 /**
@@ -12,7 +12,7 @@ export const unregisterToken: RequestHandler = async (req, res) => {
 		const userId = req.user?.userId;
 
 		if (!userId) {
-			return sendInternalError(res, "User not authenticated");
+			return sendUnauthorized(res, "User not authenticated");
 		}
 
 		// Find and deactivate token
@@ -36,6 +36,6 @@ export const unregisterToken: RequestHandler = async (req, res) => {
 		return sendSuccess(res, 200, "FCM token unregistered successfully", null);
 	} catch (error) {
 		console.error("Error unregistering FCM token:", error);
-		return sendInternalError(res, "Failed to unregister FCM token");
+		return sendInternalError(res, "Failed to unregister FCM token", error);
 	}
 };

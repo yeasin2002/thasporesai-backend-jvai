@@ -153,6 +153,6 @@ export const completeJob: RequestHandler = async (req, res) => {
 		}
 	} catch (error) {
 		console.error("Error completing job:", error);
-		return sendInternalError(res, "Failed to complete job");
+		return sendInternalError(res, "Failed to complete job", error);
 	}
 };

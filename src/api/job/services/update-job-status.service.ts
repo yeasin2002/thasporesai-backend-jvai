@@ -7,8 +7,8 @@ export const updateJobStatus: RequestHandler = async (req, res) => {
 	try {
 		const { id: jobId } = req.params;
 		const { status } = req.body;
-		const userId = req.user!.id;
-		const userRole = req.user!.role;
+		const userId = req?.user?.id;
+		const userRole = req?.user?.role;
 
 		// 1. Validate job
 		const job = await db.job.findById(jobId);
@@ -66,6 +66,6 @@ export const updateJobStatus: RequestHandler = async (req, res) => {
 		return sendSuccess(res, 200, "Job status updated", job);
 	} catch (error) {
 		console.error("Error updating job status:", error);
-		return sendInternalError(res, "Failed to update job status");
+		return sendInternalError(res, "Failed to update job status", error);
 	}
 };

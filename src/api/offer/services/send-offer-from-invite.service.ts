@@ -185,6 +185,6 @@ export const sendOfferFromInvite: RequestHandler<
 		}
 	} catch (error) {
 		console.error("Error sending offer from invite:", error);
-		return sendInternalError(res, "Failed to send offer");
+		return sendInternalError(res, "Failed to send offer", error);
 	}
 };

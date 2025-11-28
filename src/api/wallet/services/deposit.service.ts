@@ -5,8 +5,8 @@ import type { Deposit } from "../wallet.validation";
 
 export const deposit: RequestHandler<{}, any, Deposit> = async (req, res) => {
 	try {
-		const userId = req.user!.id;
-		const { amount, paymentMethodId } = req.body;
+		const userId = req?.user?.id;
+		const { amount } = req.body;
 
 		// Validate amount
 		if (amount < 10) {
@@ -47,6 +47,6 @@ export const deposit: RequestHandler<{}, any, Deposit> = async (req, res) => {
 		});
 	} catch (error) {
 		console.error("Error depositing:", error);
-		return sendInternalError(res, "Failed to deposit");
+		return sendInternalError(res, "Failed to deposit", error);
 	}
 };

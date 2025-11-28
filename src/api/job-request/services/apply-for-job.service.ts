@@ -11,7 +11,7 @@ export const applyForJob: RequestHandler = async (req, res) => {
 	try {
 		const jobId = req.params.jobId;
 		const contractorId = req.user?.userId;
-		const { message } = req.body;
+		// const { message } = req.body;
 
 		if (!contractorId) {
 			return sendError(res, 401, "Unauthorized");
@@ -37,6 +37,12 @@ export const applyForJob: RequestHandler = async (req, res) => {
 			return sendError(res, 400, "You cannot apply to your own job");
 		}
 
+		// Get contractor details for notification (needed early for engagement case)
+		const contractor = await db.user.findById(contractorId);
+		if (!contractor) {
+			return sendError(res, 404, "Contractor not found");
+		}
+
 		// Check if already applied or invited
 		const existingApplication = await db.inviteApplication.findOne({
 			job: jobId,
@@ -58,6 +64,20 @@ export const applyForJob: RequestHandler = async (req, res) => {
 					"full_name email profile_img",
 				);
 
+				// Send notification to customer about engagement
+				await NotificationService.sendToUser({
+					userId: job.customerId.toString(),
+					title: "Contractor Accepted Invitation",
+					body: `${contractor.full_name} has accepted your invitation for "${job.title}"`,
+					type: "job_application",
+					data: {
+						jobId: jobId,
+						applicationId: String(existingApplication._id),
+						contractorId: contractorId,
+						contractorName: contractor.full_name,
+					},
+				});
+
 				return sendSuccess(
 					res,
 					200,
@@ -66,23 +86,49 @@ export const applyForJob: RequestHandler = async (req, res) => {
 				);
 			}
 
-			// If already requested or engaged, return error
+			// If already requested, engaged, offered, or assigned, return error
 			if (
 				existingApplication.status === "requested" ||
-				existingApplication.status === "engaged"
+				existingApplication.status === "engaged" ||
+				existingApplication.status === "offered" ||
+				existingApplication.status === "assigned"
 			) {
 				return sendError(res, 400, "You have already applied to this job");
 			}
-		}
 
-		// Get contractor details for notification
-		const contractor = await db.user.findById(contractorId);
-		if (!contractor) {
-			return sendError(res, 404, "Contractor not found");
-		}
+			// If cancelled, allow reapplication by updating status
+			if (existingApplication.status === "cancelled") {
+				existingApplication.status = "requested";
+				existingApplication.sender = "contractor";
+				await existingApplication.save();
 
-		// Get customer details
-		const customer = await db.user.findById(job.customerId);
+				await existingApplication.populate(
+					"contractor",
+					"full_name email profile_img",
+				);
+
+				// Send notification to customer
+				await NotificationService.sendToUser({
+					userId: job.customerId.toString(),
+					title: "New Job Application",
+					body: `${contractor.full_name} has applied to your job "${job.title}"`,
+					type: "job_application",
+					data: {
+						jobId: jobId,
+						applicationId: String(existingApplication._id),
+						contractorId: contractorId,
+						contractorName: contractor.full_name,
+					},
+				});
+
+				return sendSuccess(
+					res,
+					200,
+					"Application resubmitted successfully",
+					existingApplication,
+				);
+			}
+		}
 
 		// Create application
 		const application = await db.inviteApplication.create({

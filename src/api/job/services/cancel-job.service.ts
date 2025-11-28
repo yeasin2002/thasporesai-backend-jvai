@@ -94,6 +94,6 @@ export const cancelJob: RequestHandler = async (req, res) => {
 		});
 	} catch (error) {
 		console.error("Error cancelling job:", error);
-		return sendInternalError(res, "Failed to cancel job");
+		return sendInternalError(res, "Failed to cancel job", error);
 	}
 };

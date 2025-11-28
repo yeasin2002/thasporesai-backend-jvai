@@ -16,7 +16,7 @@ export const registerToken: RequestHandler<{}, any, RegisterFcmToken> = async (
 		const userId = req.user?.userId;
 
 		if (!userId) {
-			return sendInternalError(res, "User not authenticated");
+			return sendInternalError(res, "User not authenticated", { userId });
 		}
 
 		// Check if token already exists for this device
@@ -57,6 +57,6 @@ export const registerToken: RequestHandler<{}, any, RegisterFcmToken> = async (
 		});
 	} catch (error) {
 		console.error("Error registering FCM token:", error);
-		return sendInternalError(res, "Failed to register FCM token");
+		return sendInternalError(res, "Failed to register FCM token", error);
 	}
 };

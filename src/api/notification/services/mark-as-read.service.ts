@@ -15,7 +15,7 @@ export const markAsRead: RequestHandler<{}, any, MarkAsRead> = async (
 		const userId = req.user?.userId;
 
 		if (!userId) {
-			return sendInternalError(res, "User not authenticated");
+			return sendInternalError(res, "User not authenticated", { userId });
 		}
 
 		// Update notifications to mark as read
@@ -38,6 +38,10 @@ export const markAsRead: RequestHandler<{}, any, MarkAsRead> = async (
 		);
 	} catch (error) {
 		console.error("Error marking notifications as read:", error);
-		return sendInternalError(res, "Failed to mark notifications as read");
+		return sendInternalError(
+			res,
+			"Failed to mark notifications as read",
+			error,
+		);
 	}
 };

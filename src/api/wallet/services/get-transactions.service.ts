@@ -4,7 +4,7 @@ import type { RequestHandler } from "express";
 
 export const getTransactions: RequestHandler = async (req, res) => {
 	try {
-		const userId = req.user!.id;
+		const userId = req?.user?.id;
 		const { type, page = "1", limit = "10" } = req.query;
 
 		const pageNum = parseInt(page as string);
@@ -42,6 +42,6 @@ export const getTransactions: RequestHandler = async (req, res) => {
 		});
 	} catch (error) {
 		console.error("Error getting transactions:", error);
-		return sendInternalError(res, "Failed to get transactions");
+		return sendInternalError(res, "Failed to get transactions", error);
 	}
 };

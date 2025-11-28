@@ -1,4 +1,5 @@
 import { db } from "@/db";
+import type { UserDocument } from "@/db/models/user.model";
 import { sendError, sendSuccess } from "@/helpers/response-handler";
 import { hashPassword } from "@/lib/jwt";
 import type { RequestHandler } from "express";
@@ -49,7 +50,7 @@ export const seedUsers: RequestHandler = async (_req, res) => {
 		);
 
 		// Insert all users
-		const users = await db.user.insertMany(usersToInsert);
+		const users = (await db.user.insertMany(usersToInsert)) as UserDocument[];
 
 		// Remove passwords from response
 		const sanitizedUsers = users.map((user) => {

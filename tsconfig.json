@@ -15,5 +15,8 @@
     "composite": true,
     "jsx": "react-jsx"
   },
+  // any can be use in this codebase
+  "noImplicitAny": false,
+
   "include": ["globals.d.ts", "src"]
 }

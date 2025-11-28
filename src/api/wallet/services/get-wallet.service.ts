@@ -4,7 +4,7 @@ import type { RequestHandler } from "express";
 
 export const getWallet: RequestHandler = async (req, res) => {
 	try {
-		const userId = req.user!.id;
+		const userId = req?.user?.id;
 
 		// Get or create wallet
 		let wallet = await db.wallet.findOne({ user: userId });
@@ -21,6 +21,6 @@ export const getWallet: RequestHandler = async (req, res) => {
 		return sendSuccess(res, 200, "Wallet retrieved successfully", wallet);
 	} catch (error) {
 		console.error("Error getting wallet:", error);
-		return sendInternalError(res, "Failed to get wallet");
+		return sendInternalError(res, "Failed to get wallet", error);
 	}
 };

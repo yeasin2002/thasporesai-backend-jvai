@@ -38,6 +38,6 @@ export const sendTestNotification: RequestHandler<
 		return sendError(res, 400, result.message);
 	} catch (error) {
 		console.log(error);
-		return sendInternalError(res, "Failed to send test notification");
+		return sendInternalError(res, "Failed to send test notification", error);
 	}
 };

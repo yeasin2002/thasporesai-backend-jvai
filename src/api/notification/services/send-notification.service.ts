@@ -31,6 +31,6 @@ export const sendNotification: RequestHandler<
 		return sendSuccess(res, 200, result.message, null);
 	} catch (error) {
 		console.error("Error sending notification:", error);
-		return sendInternalError(res, "Failed to send notification");
+		return sendInternalError(res, "Failed to send notification", error);
 	}
 };
