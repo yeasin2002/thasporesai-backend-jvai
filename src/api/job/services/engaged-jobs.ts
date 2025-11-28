@@ -1,8 +1,8 @@
 import { db } from "@/db";
 import {
-	exceptionErrorHandler,
-	sendSuccess,
-	validatePagination,
+  exceptionErrorHandler,
+  sendSuccess,
+  validatePagination,
 } from "@/helpers";
 import type { RequestHandler } from "express";
 
@@ -28,71 +28,71 @@ import type { RequestHandler } from "express";
  * @access Private (Customer only)
  */
 export const getEngagedJobs: RequestHandler = async (req, res) => {
-	try {
-		const customerId = req.user?.userId;
+  try {
+    const customerId = req.user?.userId;
 
-		if (!customerId) {
-			return exceptionErrorHandler(
-				new Error("Unauthorized"),
-				res,
-				"Unauthorized access",
-			);
-		}
+    if (!customerId) {
+      return exceptionErrorHandler(
+        new Error("Unauthorized"),
+        res,
+        "Unauthorized access"
+      );
+    }
 
-		const { status, contractorId, page, limit } = req.query as {
-			status?: string;
-			contractorId?: string;
-			page?: string;
-			limit?: string;
-		};
+    const { status, contractorId, page, limit } = req.query as {
+      status?: string;
+      contractorId?: string;
+      page?: string;
+      limit?: string;
+    };
 
-		// Validate and sanitize pagination
-		const {
-			page: pageNum,
-			limit: limitNum,
-			skip,
-		} = validatePagination(page, limit);
+    // Validate and sanitize pagination
+    const {
+      page: pageNum,
+      limit: limitNum,
+      skip,
+    } = validatePagination(page, limit);
 
-		// Build query
-		const query: any = {
-			customer: customerId,
-		};
+    // Build query
+    const query: any = {
+      customer: customerId,
+    };
 
-		if (contractorId) {
-			query.contractor = contractorId;
-		}
+    if (contractorId) {
+      query.contractor = contractorId;
+    }
 
-		if (status) {
-			query.status = status;
-		}
+    if (status) {
+      query.status = status;
+    }
 
-		// Execute query with pagination
-		const [engagedJobs, total] = await Promise.all([
-			db.inviteApplication
-				.find(query)
-				.populate("job")
-				.populate(
-					"contractor",
-					"_id name full_name profile_img cover_img email phone address",
-				)
-				.populate("offerId")
-				.sort({ createdAt: -1 })
-				.skip(skip)
-				.limit(limitNum)
-				.lean(),
-			db.inviteApplication.countDocuments(query),
-		]);
+    // Execute query with pagination
+    const [engagedJobs, total] = await Promise.all([
+      db.inviteApplication
+        .find(query)
+        .populate("job")
+        .populate(
+          "contractor",
+          "_id name full_name profile_img cover_img email phone address"
+        )
+        .populate("offerId")
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limitNum)
+        .lean(),
+      db.inviteApplication.countDocuments(query),
+    ]);
 
-		const totalPages = Math.ceil(total / limitNum);
+    const totalPages = Math.ceil(total / limitNum);
 
-		return sendSuccess(res, 200, "Engaged jobs retrieved successfully", {
-			jobs: engagedJobs,
-			total,
-			page: pageNum,
-			limit: limitNum,
-			totalPages,
-		});
-	} catch (error) {
-		return exceptionErrorHandler(error, res, "Failed to retrieve engaged jobs");
-	}
+    return sendSuccess(res, 200, "Engaged jobs retrieved successfully", {
+      jobs: engagedJobs,
+      total,
+      page: pageNum,
+      limit: limitNum,
+      totalPages,
+    });
+  } catch (error) {
+    return exceptionErrorHandler(error, res, "Failed to retrieve engaged jobs");
+  }
 };

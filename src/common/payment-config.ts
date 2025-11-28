@@ -1,23 +1,23 @@
 export const PAYMENT_CONFIG = {
-	// Commission rates (percentage)
-	PLATFORM_FEE_PERCENT: 5, // Charged to buyer
-	SERVICE_FEE_PERCENT: 20, // Deducted from seller
+  // Commission rates (percentage)
+  PLATFORM_FEE_PERCENT: 5, // Charged to buyer
+  SERVICE_FEE_PERCENT: 20, // Deducted from seller
 
-	// Calculated rates
-	BUYER_TOTAL_PERCENT: 105, // Buyer pays 105%
-	CONTRACTOR_PAYOUT_PERCENT: 80, // Contractor gets 80%
-	ADMIN_TOTAL_PERCENT: 25, // Admin gets 25% total
+  // Calculated rates
+  BUYER_TOTAL_PERCENT: 105, // Buyer pays 105%
+  CONTRACTOR_PAYOUT_PERCENT: 80, // Contractor gets 80%
+  ADMIN_TOTAL_PERCENT: 25, // Admin gets 25% total
 
-	// Currency
-	CURRENCY: "USD",
+  // Currency
+  CURRENCY: "USD",
 
-	// Limits
-	MIN_JOB_BUDGET: 10, // Minimum $10
-	MAX_JOB_BUDGET: 10000, // Maximum $10,000
-	MIN_WALLET_BALANCE: 0,
+  // Limits
+  MIN_JOB_BUDGET: 10, // Minimum $10
+  MAX_JOB_BUDGET: 10000, // Maximum $10,000
+  MIN_WALLET_BALANCE: 0,
 
-	// Offer expiration
-	OFFER_EXPIRY_DAYS: 7, // Offers expire after 7 days
+  // Offer expiration
+  OFFER_EXPIRY_DAYS: 7, // Offers expire after 7 days
 };
 
 /**
@@ -39,18 +39,18 @@ export const PAYMENT_CONFIG = {
  * // }
  */
 export const calculatePaymentAmounts = (jobBudget: number) => {
-	const platformFee = jobBudget * (PAYMENT_CONFIG.PLATFORM_FEE_PERCENT / 100);
-	const serviceFee = jobBudget * (PAYMENT_CONFIG.SERVICE_FEE_PERCENT / 100);
-	const contractorPayout = jobBudget - serviceFee;
-	const totalCharge = jobBudget + platformFee;
-	const adminTotal = platformFee + serviceFee;
+  const platformFee = jobBudget * (PAYMENT_CONFIG.PLATFORM_FEE_PERCENT / 100);
+  const serviceFee = jobBudget * (PAYMENT_CONFIG.SERVICE_FEE_PERCENT / 100);
+  const contractorPayout = jobBudget - serviceFee;
+  const totalCharge = jobBudget + platformFee;
+  const adminTotal = platformFee + serviceFee;
 
-	return {
-		jobBudget,
-		platformFee,
-		serviceFee,
-		contractorPayout,
-		totalCharge,
-		adminTotal,
-	};
+  return {
+    jobBudget,
+    platformFee,
+    serviceFee,
+    contractorPayout,
+    totalCharge,
+    adminTotal,
+  };
 };

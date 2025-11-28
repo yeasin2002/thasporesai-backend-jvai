@@ -8,9 +8,9 @@ import { getSingleWorkSample } from "./services/get-single-work-sample.service";
 import { getWorkSamples } from "./services/get-work-samples.service";
 import { updateWorkSample } from "./services/update-work-sample.service";
 import {
-	CreateWorkSampleSchema,
-	UpdateWorkSampleSchema,
-	WorkSampleIdSchema,
+  CreateWorkSampleSchema,
+  UpdateWorkSampleSchema,
+  WorkSampleIdSchema,
 } from "./work_samples.validation";
 
 export const workSamples: Router = express.Router();
@@ -23,9 +23,9 @@ workSamples.get("/", getWorkSamples);
 
 // Get single work sample
 workSamples.get(
-	"/:id",
-	validateParams(WorkSampleIdSchema),
-	getSingleWorkSample,
+  "/:id",
+  validateParams(WorkSampleIdSchema),
+  getSingleWorkSample
 );
 
 // Create new work sample
@@ -33,15 +33,15 @@ workSamples.post("/", validateBody(CreateWorkSampleSchema), createWorkSample);
 
 // Update work sample
 workSamples.put(
-	"/:id",
-	validateParams(WorkSampleIdSchema),
-	validateBody(UpdateWorkSampleSchema),
-	updateWorkSample,
+  "/:id",
+  validateParams(WorkSampleIdSchema),
+  validateBody(UpdateWorkSampleSchema),
+  updateWorkSample
 );
 
 // Delete work sample
 workSamples.delete(
-	"/:id",
-	validateParams(WorkSampleIdSchema),
-	deleteWorkSample,
+  "/:id",
+  validateParams(WorkSampleIdSchema),
+  deleteWorkSample
 );

@@ -2,25 +2,25 @@ import "./review.openapi";
 
 import { requireAuth } from "@/middleware/auth.middleware";
 import {
-	validateBody,
-	validateParams,
-	validateQuery,
+  validateBody,
+  validateParams,
+  validateQuery,
 } from "@/middleware/validation.middleware";
 import express, { type Router } from "express";
 import {
-	ContractorIdSchema,
-	CreateReviewSchema,
-	ReviewIdSchema,
-	SearchReviewSchema,
-	UpdateReviewSchema,
+  ContractorIdSchema,
+  CreateReviewSchema,
+  ReviewIdSchema,
+  SearchReviewSchema,
+  UpdateReviewSchema,
 } from "./review.validation";
 import {
-	createReview,
-	deleteReview,
-	getAllReviews,
-	getContractorReviews,
-	getMyReviews,
-	updateReview,
+  createReview,
+  deleteReview,
+  getAllReviews,
+  getContractorReviews,
+  getMyReviews,
+  updateReview,
 } from "./services";
 
 export const review: Router = express.Router();
@@ -31,10 +31,10 @@ review.get("/", validateQuery(SearchReviewSchema), getAllReviews);
 
 // GET /api/review/contractor/:contractorId - Get reviews for a specific contractor
 review.get(
-	"/contractor/:contractorId",
-	validateParams(ContractorIdSchema),
-	validateQuery(SearchReviewSchema),
-	getContractorReviews,
+  "/contractor/:contractorId",
+  validateParams(ContractorIdSchema),
+  validateQuery(SearchReviewSchema),
+  getContractorReviews
 );
 
 // Protected routes (require authentication)
@@ -46,17 +46,17 @@ review.post("/", requireAuth, validateBody(CreateReviewSchema), createReview);
 
 // PUT /api/review/:id - Update a review
 review.put(
-	"/:id",
-	requireAuth,
-	validateParams(ReviewIdSchema),
-	validateBody(UpdateReviewSchema),
-	updateReview,
+  "/:id",
+  requireAuth,
+  validateParams(ReviewIdSchema),
+  validateBody(UpdateReviewSchema),
+  updateReview
 );
 
 // DELETE /api/review/:id - Delete a review
 review.delete(
-	"/:id",
-	requireAuth,
-	validateParams(ReviewIdSchema),
-	deleteReview,
+  "/:id",
+  requireAuth,
+  validateParams(ReviewIdSchema),
+  deleteReview
 );

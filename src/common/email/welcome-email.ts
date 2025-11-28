@@ -7,14 +7,14 @@ import { nodemailerTransporter } from "@/lib/nodemailer";
  * @param name - User's name
  */
 export async function sendWelcomeEmail(
-	email: string,
-	name: string,
+  email: string,
+  name: string
 ): Promise<void> {
-	const mailOptions = {
-		from: `"JobSphere" <${SMTP_USER}>`,
-		to: email,
-		subject: "Welcome to JobSphere!",
-		html: `
+  const mailOptions = {
+    from: `"JobSphere" <${SMTP_USER}>`,
+    to: email,
+    subject: "Welcome to JobSphere!",
+    html: `
       <!DOCTYPE html>
       <html>
         <head>
@@ -60,7 +60,7 @@ export async function sendWelcomeEmail(
         </body>
       </html>
     `,
-		text: `
+    text: `
 Welcome to JobSphere!
 
 Hi ${name}!
@@ -73,7 +73,7 @@ If you have any questions, feel free to reach out to our support team.
 
 © ${new Date().getFullYear()} JobSphere. All rights reserved.
     `,
-	};
+  };
 
-	await nodemailerTransporter.sendMail(mailOptions);
+  await nodemailerTransporter.sendMail(mailOptions);
 }

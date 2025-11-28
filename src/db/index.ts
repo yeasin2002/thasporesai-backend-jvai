@@ -16,21 +16,21 @@ import { Wallet } from "./models/wallet.model";
 import { WorkSample } from "./models/work-samples.model";
 
 export const db = {
-	// Payment system models
-	offer: Offer,
-	wallet: Wallet,
-	transaction: Transaction,
-	user: User,
-	category: Category,
-	job: Job,
-	review: Review,
-	location: Location,
-	notification: Notification,
-	fcmToken: FcmToken,
-	conversation: Conversation,
-	message: Message,
-	experience: Experience,
-	workSample: WorkSample,
-	certification: Certification,
-	inviteApplication: JobInviteApplication,
+  // Payment system models
+  offer: Offer,
+  wallet: Wallet,
+  transaction: Transaction,
+  user: User,
+  category: Category,
+  job: Job,
+  review: Review,
+  location: Location,
+  notification: Notification,
+  fcmToken: FcmToken,
+  conversation: Conversation,
+  message: Message,
+  experience: Experience,
+  workSample: WorkSample,
+  certification: Certification,
+  inviteApplication: JobInviteApplication,
 };

@@ -7,65 +7,65 @@ import type { RequestHandler } from "express";
  * PATCH /api/job-request/:applicationId/accept
  */
 export const acceptApplication: RequestHandler = async (req, res) => {
-	try {
-		const applicationId = req.params.applicationId;
-		const userId = req.user?.userId;
+  try {
+    const applicationId = req.params.applicationId;
+    const userId = req.user?.userId;
 
-		if (!userId) {
-			return sendError(res, 401, "Unauthorized");
-		}
+    if (!userId) {
+      return sendError(res, 401, "Unauthorized");
+    }
 
-		// Find the application
-		const application = await db.inviteApplication
-			.findById(applicationId)
-			.populate("job");
+    // Find the application
+    const application = await db.inviteApplication
+      .findById(applicationId)
+      .populate("job");
 
-		if (!application) {
-			return sendError(res, 404, "Application not found");
-		}
+    if (!application) {
+      return sendError(res, 404, "Application not found");
+    }
 
-		// Verify this is a contractor request
-		if (application.sender !== "contractor") {
-			return sendError(
-				res,
-				400,
-				"Invalid application - not a contractor request",
-			);
-		}
+    // Verify this is a contractor request
+    if (application.sender !== "contractor") {
+      return sendError(
+        res,
+        400,
+        "Invalid application - not a contractor request"
+      );
+    }
 
-		// Check if user is the job owner
-		const job = application.job as any;
-		if (job.customerId.toString() !== userId) {
-			return sendError(
-				res,
-				403,
-				"You can only accept applications for your own jobs",
-			);
-		}
+    // Check if user is the job owner
+    const job = application.job as any;
+    if (job.customerId.toString() !== userId) {
+      return sendError(
+        res,
+        403,
+        "You can only accept applications for your own jobs"
+      );
+    }
 
-		// Check if application is still pending (requested status)
-		if (application.status !== "requested") {
-			return sendError(
-				res,
-				400,
-				`Application is already ${application.status}`,
-			);
-		}
+    // Check if application is still pending (requested status)
+    if (application.status !== "requested") {
+      return sendError(
+        res,
+        400,
+        `Application is already ${application.status}`
+      );
+    }
 
-		// Update application status to engaged (accepted)
-		application.status = "engaged";
-		await application.save();
+    // Update application status to engaged (accepted)
+    application.status = "engaged";
+    await application.save();
 
-		await application.populate("contractor", "full_name email profile_img");
+    await application.populate("contractor", "full_name email profile_img");
 
-		return sendSuccess(
-			res,
-			200,
-			"Application accepted successfully",
-			application,
-		);
-	} catch (error) {
-		console.error("Accept application error:", error);
-		return sendError(res, 500, "Failed to accept application");
-	}
+    return sendSuccess(
+      res,
+      200,
+      "Application accepted successfully",
+      application
+    );
+  } catch (error) {
+    console.error("Accept application error:", error);
+    return sendError(res, 500, "Failed to accept application");
+  }
 };

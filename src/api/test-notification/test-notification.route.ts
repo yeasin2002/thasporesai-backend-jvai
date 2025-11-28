@@ -9,8 +9,8 @@ export const testNotification: Router = express.Router();
 
 // POST /api/test-notification - Send test notification
 testNotification.post(
-	"/",
-	requireAuth,
-	validateBody(TestNotificationSchema),
-	sendTestNotification,
+  "/",
+  requireAuth,
+  validateBody(TestNotificationSchema),
+  sendTestNotification
 );

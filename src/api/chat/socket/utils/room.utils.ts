@@ -16,8 +16,8 @@
  * createRoomId("user456", "user123") // Returns: "user123_user456" (same)
  */
 export const createRoomId = (userId1: string, userId2: string): string => {
-	// Sort user IDs alphabetically to ensure consistency
-	return [userId1, userId2].sort().join("_");
+  // Sort user IDs alphabetically to ensure consistency
+  return [userId1, userId2].sort().join("_");
 };
 
 /**
@@ -30,5 +30,5 @@ export const createRoomId = (userId1: string, userId2: string): string => {
  * getRoomParticipants("user123_user456") // Returns: ["user123", "user456"]
  */
 export const getRoomParticipants = (roomId: string): string[] => {
-	return roomId.split("_");
+  return roomId.split("_");
 };

@@ -12,193 +12,193 @@ import type { SendOffer } from "../offer.validation";
  * POST /api/offer/application/:applicationId/send
  */
 export const sendOffer: RequestHandler<
-	{ applicationId: string },
-	any,
-	SendOffer
+  { applicationId: string },
+  any,
+  SendOffer
 > = async (req, res) => {
-	try {
-		const { applicationId } = req.params;
-		const customerId = req?.user?.id;
-		const { amount, timeline, description } = req.body;
+  try {
+    const { applicationId } = req.params;
+    const customerId = req?.user?.id;
+    const { amount, timeline, description } = req.body;
 
-		// 1. Validate application
-		const application = await db.inviteApplication
-			.findById(applicationId)
-			.populate("job")
-			.populate("contractor", "full_name email");
+    // 1. Validate application
+    const application = await db.inviteApplication
+      .findById(applicationId)
+      .populate("job")
+      .populate("contractor", "full_name email");
 
-		if (!application) {
-			return sendBadRequest(res, "Application not found");
-		}
+    if (!application) {
+      return sendBadRequest(res, "Application not found");
+    }
 
-		// Verify this is a contractor request (not a customer invite)
-		if (application.sender !== "contractor") {
-			return sendBadRequest(
-				res,
-				"Invalid application - not a contractor request",
-			);
-		}
+    // Verify this is a contractor request (not a customer invite)
+    if (application.sender !== "contractor") {
+      return sendBadRequest(
+        res,
+        "Invalid application - not a contractor request"
+      );
+    }
 
-		const job = application.job as any;
+    const job = application.job as any;
 
-		// 2. Verify customer owns the job
-		if (job.customerId.toString() !== customerId) {
-			return sendBadRequest(res, "Not authorized");
-		}
+    // 2. Verify customer owns the job
+    if (job.customerId.toString() !== customerId) {
+      return sendBadRequest(res, "Not authorized");
+    }
 
-		// 3. Check job is still open
-		if (job.status !== "open") {
-			return sendBadRequest(res, "Job is not open for offers");
-		}
+    // 3. Check job is still open
+    if (job.status !== "open") {
+      return sendBadRequest(res, "Job is not open for offers");
+    }
 
-		// 4. Check for existing offer
-		const existingOffer = await db.offer.findOne({
-			job: job._id,
-			status: { $in: ["pending", "accepted"] },
-		});
+    // 4. Check for existing offer
+    const existingOffer = await db.offer.findOne({
+      job: job._id,
+      status: { $in: ["pending", "accepted"] },
+    });
 
-		if (existingOffer) {
-			return sendBadRequest(res, "An offer already exists for this job");
-		}
+    if (existingOffer) {
+      return sendBadRequest(res, "An offer already exists for this job");
+    }
 
-		// 5. Calculate payment amounts
-		const amounts = calculatePaymentAmounts(amount);
+    // 5. Calculate payment amounts
+    const amounts = calculatePaymentAmounts(amount);
 
-		// 6. Get or create wallet (without balance check yet)
-		let wallet = await db.wallet.findOne({ user: customerId });
-		if (!wallet) {
-			wallet = await db.wallet.create({
-				user: customerId,
-				balance: 0,
-				escrowBalance: 0,
-			});
-		}
+    // 6. Get or create wallet (without balance check yet)
+    let wallet = await db.wallet.findOne({ user: customerId });
+    if (!wallet) {
+      wallet = await db.wallet.create({
+        user: customerId,
+        balance: 0,
+        escrowBalance: 0,
+      });
+    }
 
-		// 7-10. Execute all database operations atomically with optimistic locking
-		const session = await mongoose.startSession();
-		session.startTransaction();
+    // 7-10. Execute all database operations atomically with optimistic locking
+    const session = await mongoose.startSession();
+    session.startTransaction();
 
-		try {
-			// Atomically deduct from wallet with balance check (prevents race conditions)
-			const updatedWallet = await db.wallet.findOneAndUpdate(
-				{
-					user: customerId,
-					balance: { $gte: amounts.totalCharge }, // Atomic check - ensures sufficient balance
-				},
-				{
-					$inc: {
-						balance: -amounts.totalCharge,
-						escrowBalance: amounts.totalCharge,
-						totalSpent: amounts.totalCharge,
-					},
-				},
-				{ new: true, session },
-			);
+    try {
+      // Atomically deduct from wallet with balance check (prevents race conditions)
+      const updatedWallet = await db.wallet.findOneAndUpdate(
+        {
+          user: customerId,
+          balance: { $gte: amounts.totalCharge }, // Atomic check - ensures sufficient balance
+        },
+        {
+          $inc: {
+            balance: -amounts.totalCharge,
+            escrowBalance: amounts.totalCharge,
+            totalSpent: amounts.totalCharge,
+          },
+        },
+        { new: true, session }
+      );
 
-			// If wallet update failed, balance was insufficient
-			if (!updatedWallet) {
-				await session.abortTransaction();
-				return sendBadRequest(
-					res,
-					`Insufficient balance. Required: ${amounts.totalCharge}, Available: ${wallet.balance}`,
-				);
-			}
+      // If wallet update failed, balance was insufficient
+      if (!updatedWallet) {
+        await session.abortTransaction();
+        return sendBadRequest(
+          res,
+          `Insufficient balance. Required: ${amounts.totalCharge}, Available: ${wallet.balance}`
+        );
+      }
 
-			// Create offer
-			const [offer] = await db.offer.create(
-				[
-					{
-						job: job._id,
-						customer: customerId,
-						contractor: application.contractor._id,
-						engaged: applicationId, // Link to unified application model
-						amount: amounts.jobBudget,
-						platformFee: amounts.platformFee,
-						serviceFee: amounts.serviceFee,
-						contractorPayout: amounts.contractorPayout,
-						totalCharge: amounts.totalCharge,
-						timeline,
-						description,
-						status: "pending",
-						expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
-					},
-				],
-				{ session },
-			);
+      // Create offer
+      const [offer] = await db.offer.create(
+        [
+          {
+            job: job._id,
+            customer: customerId,
+            contractor: application.contractor._id,
+            engaged: applicationId, // Link to unified application model
+            amount: amounts.jobBudget,
+            platformFee: amounts.platformFee,
+            serviceFee: amounts.serviceFee,
+            contractorPayout: amounts.contractorPayout,
+            totalCharge: amounts.totalCharge,
+            timeline,
+            description,
+            status: "pending",
+            expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
+          },
+        ],
+        { session }
+      );
 
-			await db.inviteApplication.findOneAndUpdate(
-				{
-					_id: applicationId,
-				},
-				{
-					status: "offered",
-					offerId: offer._id,
-				},
-				{ session },
-			);
+      await db.inviteApplication.findOneAndUpdate(
+        {
+          _id: applicationId,
+        },
+        {
+          status: "offered",
+          offerId: offer._id,
+        },
+        { session }
+      );
 
-			// Create transaction record
-			await db.transaction.create(
-				[
-					{
-						type: "escrow_hold",
-						amount: amounts.totalCharge,
-						from: customerId,
-						to: customerId, // Escrow is still customer's money
-						offer: offer._id,
-						job: job._id,
-						status: "completed",
-						description: `Escrow hold for job offer: ${amounts.totalCharge}`,
-						completedAt: new Date(),
-					},
-				],
-				{ session },
-			);
+      // Create transaction record
+      await db.transaction.create(
+        [
+          {
+            type: "escrow_hold",
+            amount: amounts.totalCharge,
+            from: customerId,
+            to: customerId, // Escrow is still customer's money
+            offer: offer._id,
+            job: job._id,
+            status: "completed",
+            description: `Escrow hold for job offer: ${amounts.totalCharge}`,
+            completedAt: new Date(),
+          },
+        ],
+        { session }
+      );
 
-			// Update application status to offered
-			application.status = "offered";
-			application.offerId = offer._id as any;
-			await application.save({ session });
+      // Update application status to offered
+      application.status = "offered";
+      application.offerId = offer._id as any;
+      await application.save({ session });
 
-			// Commit transaction
-			await session.commitTransaction();
+      // Commit transaction
+      await session.commitTransaction();
 
-			// Populate offer with customer and contractor details
-			await offer.populate([
-				{ path: "customer", select: "full_name email profile_img role" },
-				{ path: "contractor", select: "full_name email profile_img role" },
-				{ path: "job", select: "title description budget location category" },
-			]);
+      // Populate offer with customer and contractor details
+      await offer.populate([
+        { path: "customer", select: "full_name email profile_img role" },
+        { path: "contractor", select: "full_name email profile_img role" },
+        { path: "job", select: "title description budget location category" },
+      ]);
 
-			// 11. Send notification to contractor (outside transaction)
-			await NotificationService.sendToUser({
-				userId: (application.contractor as any)._id.toString(),
-				title: "New Offer Received",
-				body: `You received an offer of ${amount} for "${job.title}"`,
-				type: "sent_offer",
-				data: {
-					offerId: (offer._id as any).toString(),
-					jobId: job._id.toString(),
-					amount: amount.toString(),
-					source: "application",
-				},
-			});
+      // 11. Send notification to contractor (outside transaction)
+      await NotificationService.sendToUser({
+        userId: (application.contractor as any)._id.toString(),
+        title: "New Offer Received",
+        body: `You received an offer of ${amount} for "${job.title}"`,
+        type: "sent_offer",
+        data: {
+          offerId: (offer._id as any).toString(),
+          jobId: job._id.toString(),
+          amount: amount.toString(),
+          source: "application",
+        },
+      });
 
-			return sendSuccess(res, 201, "Offer sent successfully", {
-				offer,
-				walletBalance: updatedWallet.balance,
-				amounts,
-				source: "application",
-			});
-		} catch (error) {
-			// Rollback transaction on error
-			await session.abortTransaction();
-			throw error;
-		} finally {
-			session.endSession();
-		}
-	} catch (error) {
-		logger.error("Error sending offer", error);
-		return sendInternalError(res, "Failed to send offer", error as Error);
-	}
+      return sendSuccess(res, 201, "Offer sent successfully", {
+        offer,
+        walletBalance: updatedWallet.balance,
+        amounts,
+        source: "application",
+      });
+    } catch (error) {
+      // Rollback transaction on error
+      await session.abortTransaction();
+      throw error;
+    } finally {
+      session.endSession();
+    }
+  } catch (error) {
+    logger.error("Error sending offer", error);
+    return sendInternalError(res, "Failed to send offer", error as Error);
+  }
 };

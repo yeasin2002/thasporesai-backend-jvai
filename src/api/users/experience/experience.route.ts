@@ -3,16 +3,16 @@ import "./experience.openapi";
 import { requireAuth, validateBody, validateParams } from "@/middleware";
 import express, { type Router } from "express";
 import {
-	CreateExperienceSchema,
-	ExperienceIdSchema,
-	UpdateExperienceSchema,
+  CreateExperienceSchema,
+  ExperienceIdSchema,
+  UpdateExperienceSchema,
 } from "./experience.validation";
 import {
-	createExperience,
-	deleteExperience,
-	getExperiences,
-	getSingleExperience,
-	updateExperience,
+  createExperience,
+  deleteExperience,
+  getExperiences,
+  getSingleExperience,
+  updateExperience,
 } from "./services";
 
 export const experience: Router = express.Router();
@@ -31,10 +31,10 @@ experience.post("/", validateBody(CreateExperienceSchema), createExperience);
 
 // Update experience
 experience.put(
-	"/:id",
-	validateParams(ExperienceIdSchema),
-	validateBody(UpdateExperienceSchema),
-	updateExperience,
+  "/:id",
+  validateParams(ExperienceIdSchema),
+  validateBody(UpdateExperienceSchema),
+  updateExperience
 );
 
 // Delete experience

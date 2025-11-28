@@ -8,5 +8,5 @@ import { isValidObjectId } from "mongoose";
 
 // Zod schema for MongoDB ObjectId
 export const objectIdSchema = z.string().refine((val) => isValidObjectId(val), {
-	message: "Invalid ObjectId format. Must be a 24 character hex string",
+  message: "Invalid ObjectId format. Must be a 24 character hex string",
 });

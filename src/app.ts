@@ -25,16 +25,16 @@ import { adminUser } from "@/api/admin/admin-user/admin-user.route";
 
 // common routes
 import {
-	connectDB,
-	generateOpenAPIDocument,
-	initializeFirebase,
-	PORT,
+  connectDB,
+  generateOpenAPIDocument,
+  initializeFirebase,
+  PORT,
 } from "@/lib";
 import {
-	errorHandler,
-	notFoundHandler,
-	requireAuth,
-	requireRole,
+  errorHandler,
+  notFoundHandler,
+  requireAuth,
+  requireRole,
 } from "@/middleware";
 import { authAdmin } from "./api/admin/auth-admin/auth-admin.route";
 import { initializeSocketIO } from "./api/chat/socket";
@@ -53,31 +53,31 @@ app.use("/uploads", express.static("uploads"));
 app.use(morgan(morganDevFormat));
 
 app.use(
-	cors({
-		origin: ["http://localhost:5173", "http://localhost:5173", "*"],
-		methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-		credentials: true,
-	}),
+  cors({
+    origin: ["http://localhost:5173", "http://localhost:5173", "*"],
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    credentials: true,
+  })
 );
 
 app.get("/", (_req, res) => {
-	res.status(200).send("Not OK");
+  res.status(200).send("Not OK");
 });
 
 // OpenAPI documentation
 const openApiDocument = generateOpenAPIDocument();
 app.use("/swagger", swaggerUi.serve, swaggerUi.setup(openApiDocument));
 app.use(
-	"/scaler",
-	apiReference({
-		theme: "deepSpace",
-		content: openApiDocument,
-		favicon: "/uploads/logo.png",
-	}),
+  "/scaler",
+  apiReference({
+    theme: "deepSpace",
+    content: openApiDocument,
+    favicon: "/uploads/logo.png",
+  })
 );
 app.get("/api-docs.json", (_req, res) => {
-	res.setHeader("Content-Type", "application/json");
-	res.send(openApiDocument);
+  res.setHeader("Content-Type", "application/json");
+  res.send(openApiDocument);
 });
 
 // API Routes
@@ -124,25 +124,25 @@ app.use(errorHandler);
 initializeSocketIO(httpServer);
 
 httpServer.listen(PORT, async () => {
-	await connectDB();
+  await connectDB();
 
-	// Initialize Firebase Admin SDK for push notifications
-	try {
-		initializeFirebase();
-	} catch (_error) {
-		consola.warn(
-			"⚠️ Firebase initialization failed. Push notifications will not work.",
-		);
-	}
-	consola.warn(` 💬 Socket.IO chat enabled \n`);
+  // Initialize Firebase Admin SDK for push notifications
+  try {
+    initializeFirebase();
+  } catch (_error) {
+    consola.warn(
+      "⚠️ Firebase initialization failed. Push notifications will not work."
+    );
+  }
+  consola.warn(` 💬 Socket.IO chat enabled \n`);
 
-	// Start offer expiration job
-	startOfferExpirationJob();
+  // Start offer expiration job
+  startOfferExpirationJob();
 
-	consola.log(`🚀 Server is running on port http://localhost:${PORT}`);
-	consola.log(`✨ Server is running on port http://${getLocalIP()}:${PORT} \n`);
+  consola.log(`🚀 Server is running on port http://localhost:${PORT}`);
+  consola.log(`✨ Server is running on port http://${getLocalIP()}:${PORT} \n`);
 
-	consola.info("Doc: ");
-	consola.log(`✍️  Swagger doc: http://localhost:${PORT}/swagger`);
-	consola.log(`📋 Scaler doc: http://localhost:${PORT}/scaler \n`);
+  consola.info("Doc: ");
+  consola.log(`✍️  Swagger doc: http://localhost:${PORT}/swagger`);
+  consola.log(`📋 Scaler doc: http://localhost:${PORT}/scaler \n`);
 });

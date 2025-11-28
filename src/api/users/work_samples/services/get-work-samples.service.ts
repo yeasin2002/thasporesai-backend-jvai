@@ -3,25 +3,25 @@ import { sendError, sendSuccess } from "@/helpers";
 import type { RequestHandler } from "express";
 
 export const getWorkSamples: RequestHandler = async (req, res) => {
-	try {
-		const userId = req.user?.userId;
+  try {
+    const userId = req.user?.userId;
 
-		if (!userId) {
-			return sendError(res, 401, "Unauthorized");
-		}
+    if (!userId) {
+      return sendError(res, 401, "Unauthorized");
+    }
 
-		const workSamples = await db.workSample
-			.find({ user: userId })
-			.sort({ createdAt: -1 });
+    const workSamples = await db.workSample
+      .find({ user: userId })
+      .sort({ createdAt: -1 });
 
-		return sendSuccess(
-			res,
-			200,
-			"Work samples retrieved successfully",
-			workSamples,
-		);
-	} catch (error) {
-		console.error("Get work samples error:", error);
-		return sendError(res, 500, "Internal Server Error");
-	}
+    return sendSuccess(
+      res,
+      200,
+      "Work samples retrieved successfully",
+      workSamples
+    );
+  } catch (error) {
+    console.error("Get work samples error:", error);
+    return sendError(res, 500, "Internal Server Error");
+  }
 };

@@ -1,33 +1,33 @@
 import "./location.openapi";
 
 import {
-	validateBody,
-	validateParams,
+  validateBody,
+  validateParams,
 } from "@/middleware/validation.middleware";
 import express, { type Router } from "express";
 import {
-	CreateLocationSchema,
-	LocationIdSchema,
-	UpdateLocationSchema,
+  CreateLocationSchema,
+  LocationIdSchema,
+  UpdateLocationSchema,
 } from "./location.validation";
 import {
-	createLocation,
-	deleteLocation,
-	getAllLocations,
-	getLocationById,
-	updateLocation,
+  createLocation,
+  deleteLocation,
+  getAllLocations,
+  getLocationById,
+  updateLocation,
 } from "./services";
 
 export const location: Router = express.Router();
 
 location
-	.get("/", getAllLocations)
-	.get("/:id", validateParams(LocationIdSchema), getLocationById)
-	.post("/", validateBody(CreateLocationSchema), createLocation)
-	.put(
-		"/:id",
-		validateParams(LocationIdSchema),
-		validateBody(UpdateLocationSchema),
-		updateLocation,
-	)
-	.delete("/:id", validateParams(LocationIdSchema), deleteLocation);
+  .get("/", getAllLocations)
+  .get("/:id", validateParams(LocationIdSchema), getLocationById)
+  .post("/", validateBody(CreateLocationSchema), createLocation)
+  .put(
+    "/:id",
+    validateParams(LocationIdSchema),
+    validateBody(UpdateLocationSchema),
+    updateLocation
+  )
+  .delete("/:id", validateParams(LocationIdSchema), deleteLocation);
