@@ -52,7 +52,7 @@ export const acceptOffer: RequestHandler = async (req, res) => {
 				// Mark the engaged application as accepted
 				await db.inviteApplication.findByIdAndUpdate(
 					offer.engaged,
-					{ status: "engaged" }, // Mark as engaged (accepted)
+					{ status: "assigned" }, // Mark as engaged (accepted)
 					{ session },
 				);
 
