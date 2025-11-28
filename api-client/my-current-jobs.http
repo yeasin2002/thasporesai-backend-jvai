@@ -1,0 +1,129 @@
+### My Current Jobs - Contractor's Work List
+
+### Variables
+@baseUrl = http://127.0.0.1:4000
+@contractorToken = YOUR_CONTRACTOR_TOKEN_HERE
+
+### 1. Get all current jobs (offered + assigned)
+GET {{baseUrl}}/api/job/my/jobs-status
+Authorization: Bearer {{contractorToken}}
+
+### Expected Response (200 OK):
+# {
+#   "status": 200,
+#   "message": "Current jobs retrieved successfully",
+#   "data": {
+#     "jobs": [
+#       {
+#         "inviteApplication": {
+#           "_id": "app_id",
+#           "status": "offered",
+#           "sender": "customer",
+#           "offerId": "offer_id",
+#           "createdAt": "2025-11-28T...",
+#           "updatedAt": "2025-11-28T..."
+#         },
+#         "job": {
+#           "_id": "job_id",
+#           "title": "Fix Plumbing",
+#           "description": "...",
+#           "budget": 100,
+#           "status": "open",
+#           "category": [...],
+#           "location": {...},
+#           "customerId": {...}
+#         },
+#         "customer": {
+#           "_id": "customer_id",
+#           "full_name": "John Doe",
+#           "email": "john@example.com",
+#           "profile_img": "..."
+#         }
+#       }
+#     ],
+#     "pagination": {
+#       "currentPage": 1,
+#       "totalPages": 1,
+#       "totalCount": 5,
+#       "limit": 10,
+#       "hasNextPage": false,
+#       "hasPrevPage": false
+#     }
+#   }
+# }
+
+###
+
+### 2. Filter by "offered" status only
+GET {{baseUrl}}/api/job/my/jobs-status?status=offered
+Authorization: Bearer {{contractorToken}}
+
+### Shows only jobs where contractor has received an offer but hasn't started work yet
+
+###
+
+### 3. Filter by "assigned" status only
+GET {{baseUrl}}/api/job/my/jobs-status?status=assigned
+Authorization: Bearer {{contractorToken}}
+
+### Shows only jobs where contractor is currently working
+
+###
+
+### 4. With pagination - Page 1
+GET {{baseUrl}}/api/job/my/jobs-status?page=1&limit=5
+Authorization: Bearer {{contractorToken}}
+
+###
+
+### 5. With pagination - Page 2
+GET {{baseUrl}}/api/job/my/jobs-status?page=2&limit=5
+Authorization: Bearer {{contractorToken}}
+
+###
+
+### 6. Filter offered jobs with pagination
+GET {{baseUrl}}/api/job/my/jobs-status?status=offered&page=1&limit=10
+Authorization: Bearer {{contractorToken}}
+
+###
+
+### 7. Filter assigned jobs with pagination
+GET {{baseUrl}}/api/job/my/jobs-status?status=assigned&page=1&limit=10
+Authorization: Bearer {{contractorToken}}
+
+###
+
+### Error Cases:
+
+### 8. Try as customer (should fail - contractor only) (403)
+GET {{baseUrl}}/api/job/my/jobs-status
+Authorization: Bearer YOUR_CUSTOMER_TOKEN
+
+###
+
+### 9. Without authentication (401)
+GET {{baseUrl}}/api/job/my/jobs-status
+
+###
+
+### 10. Invalid status value (400)
+GET {{baseUrl}}/api/job/my/jobs-status?status=invalid
+Authorization: Bearer {{contractorToken}}
+
+###
+
+### Status Flow Explanation:
+# 
+# "offered" - Customer has sent an offer, contractor hasn't accepted yet
+#   - Contractor can view offer details
+#   - Contractor can accept or reject
+#   - Job is waiting for contractor response
+#
+# "assigned" - Contractor has accepted offer and is working on the job
+#   - Job is in progress
+#   - Contractor is actively working
+#   - Customer can mark as complete when done
+#
+# This endpoint shows BOTH statuses by default, giving contractor
+# a complete view of their current work pipeline.

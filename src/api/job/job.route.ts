@@ -14,12 +14,13 @@ import express, { type Router } from "express";
 import {
   CancelJobSchema,
   CreateJobSchema,
-  engagedJobSchema,
   JobIdSchema,
   SearchJobSchema,
   SearchOfferSendJobSchema,
   UpdateJobSchema,
   UpdateJobStatusSchema,
+  engagedJobSchema,
+  myCurrentJobListSchema,
 } from "./job.validation";
 import {
   cancelJob,
@@ -31,6 +32,7 @@ import {
   getJobById,
   getMyJobs,
   getOfferSendJobsList,
+  myCurrentJobList,
   updateJob,
   updateJobStatus,
 } from "./services";
@@ -48,6 +50,14 @@ job.get(
   requireRole("customer"),
   validateQuery(SearchJobSchema),
   getMyJobs
+);
+
+job.get(
+  "/my/jobs-status",
+  requireAuth,
+  requireRole("contractor"),
+  validateQuery(myCurrentJobListSchema),
+  myCurrentJobList
 );
 
 // Get engaged jobs (jobs with applications or offers)

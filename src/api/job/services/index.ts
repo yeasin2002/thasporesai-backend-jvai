@@ -4,6 +4,7 @@ export * from "./engaged-jobs";
 export * from "./get-all-jobs";
 export * from "./get-job-by-id";
 export * from "./get-own-jobs";
+export * from "./my-current-jobs-list";
 export * from "./update-Job-owner";
 
 // Payment system services (Phase 5)

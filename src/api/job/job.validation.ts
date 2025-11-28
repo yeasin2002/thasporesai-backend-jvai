@@ -213,6 +213,26 @@ export const engagedJobSchema = z
   })
   .openapi("SearchJob");
 
+export const myCurrentJobListSchema = z
+  .object({
+    status: z
+      .enum(["offered", "assigned"])
+      .optional()
+      .openapi({ description: "Filter by status" }),
+
+    page: z
+      .string()
+      .regex(/^\d+$/, "Page must be a number")
+      .optional()
+      .openapi({ description: "Page number" }),
+    limit: z
+      .string()
+      .regex(/^\d+$/, "Limit must be a number")
+      .optional()
+      .openapi({ description: "Items per page" }),
+  })
+  .openapi("MyCurrentJobList");
+
 export const SearchOfferSendJobSchema = z
   .object({
     contractorId: z
