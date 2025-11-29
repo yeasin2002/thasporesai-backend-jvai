@@ -1,25 +1,36 @@
 import { NotificationService } from "@/common/service/notification.service";
 import { sendError, sendInternalError, sendSuccess } from "@/helpers";
 import type { RequestHandler } from "express";
-import type { SendNotification } from "../notification.validation";
+import type {
+  SendNotificationBody,
+  SendNotificationQuery,
+} from "../notification.validation";
 
 /**
  * Send push notification to a user (Admin only)
  * This endpoint is protected by requireRole("admin") middleware
+ *
+ * Query params: userId, title, body, type
+ * Body: data (optional)
  */
 export const sendNotification: RequestHandler<
   {},
   any,
-  SendNotification
+  SendNotificationBody,
+  SendNotificationQuery
 > = async (req, res) => {
   try {
-    const { userId, title, body, type, data } = req.body;
+    // Get parameters from query
+    const { userId, title, body, type } = req.query;
+
+    // Get data from body
+    const { data } = req.body;
 
     // Send notification using NotificationService
     const result = await NotificationService.sendToUser({
-      userId,
-      title,
-      body,
+      userId: userId as string,
+      title: title as string,
+      body: body as string,
       type,
       data,
     });

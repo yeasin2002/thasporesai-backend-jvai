@@ -1,0 +1,124 @@
+### Test Send Notification API (Admin Only)
+### Base URL
+@baseUrl = http://localhost:4000
+@adminToken = YOUR_ADMIN_ACCESS_TOKEN_HERE
+
+### 1. Test job_posted notification
+POST {{baseUrl}}/api/notification/send?userId=USER_ID_HERE&title=New Job Available&body=A new web development job has been posted&type=job_posted
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "data": {
+    "jobId": "123456789",
+    "jobTitle": "Web Development Project"
+  }
+}
+
+### 2. Test job_invite notification
+POST {{baseUrl}}/api/notification/send?userId=CONTRACTOR_ID&title=Job Invitation&body=John Doe invited you to apply for 'Mobile App Development'&type=job_invite
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "data": {
+    "jobId": "987654321",
+    "customerId": "111222333",
+    "customerName": "John Doe"
+  }
+}
+
+### 3. Test sent_offer notification
+POST {{baseUrl}}/api/notification/send?userId=CONTRACTOR_ID&title=New Offer Received&body=You received an offer for $500&type=sent_offer
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "data": {
+    "offerId": "offer123",
+    "amount": 500,
+    "jobId": "job456"
+  }
+}
+
+### 4. Test accept_offer notification
+POST {{baseUrl}}/api/notification/send?userId=CUSTOMER_ID&title=Offer Accepted&body=Jane Smith accepted your offer&type=accept_offer
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "data": {
+    "offerId": "offer123",
+    "contractorId": "contractor789",
+    "contractorName": "Jane Smith"
+  }
+}
+
+### 5. Test job_completed notification
+POST {{baseUrl}}/api/notification/send?userId=USER_ID&title=Job Completed&body=The job 'Website Redesign' has been completed&type=job_completed
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "data": {
+    "jobId": "job999",
+    "jobTitle": "Website Redesign"
+  }
+}
+
+### 6. Test review_submitted notification
+POST {{baseUrl}}/api/notification/send?userId=CONTRACTOR_ID&title=New Review&body=John Doe left you a 5-star review&type=review_submitted
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "data": {
+    "reviewId": "review123",
+    "rating": 5,
+    "reviewerId": "customer456"
+  }
+}
+
+### 7. Test general notification (no type specified - defaults to general)
+POST {{baseUrl}}/api/notification/send?userId=USER_ID&title=System Update&body=New features are now available!
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "data": {
+    "updateVersion": "2.0.0"
+  }
+}
+
+### 8. Test notification without data
+POST {{baseUrl}}/api/notification/send?userId=USER_ID&title=Simple Test&body=This is a simple test notification&type=general
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{}
+
+### 9. Test job_application notification
+POST {{baseUrl}}/api/notification/send?userId=CUSTOMER_ID&title=New Application&body=Mike Johnson applied to your job&type=job_application
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "data": {
+    "jobId": "job111",
+    "contractorId": "contractor222",
+    "contractorName": "Mike Johnson"
+  }
+}
+
+### 10. Test job_request notification
+POST {{baseUrl}}/api/notification/send?userId=CUSTOMER_ID&title=Job Request&body=Sarah Lee requested to work on your job&type=job_request
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "data": {
+    "jobId": "job333",
+    "contractorId": "contractor444",
+    "contractorName": "Sarah Lee"
+  }
+}

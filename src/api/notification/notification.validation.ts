@@ -39,7 +39,7 @@ export const RegisterFcmTokenSchema =
   FcmTokenSchema.openapi("RegisterFcmToken");
 
 // Send notification schema
-export const SendNotificationSchema = z
+export const SendNotificationQuerySchema = z
   .object({
     userId: z.string().min(1).openapi({ description: "Target user ID" }),
     title: z.string().min(1).openapi({ description: "Notification title" }),
@@ -48,12 +48,15 @@ export const SendNotificationSchema = z
       .enum(notificationTypeList)
       .optional()
       .openapi({ description: "Notification type" }),
-    data: z
-      .record(z.string(), z.any())
-      .optional()
-      .openapi({ description: "Additional data" }),
   })
   .openapi("SendNotification");
+
+export const SendNotificationBodySchema = z.object({
+  data: z
+    .record(z.string(), z.any())
+    .optional()
+    .openapi({ description: "Additional data" }),
+});
 
 // Mark as read schema
 export const MarkAsReadSchema = z
@@ -113,6 +116,7 @@ export const ErrorResponseSchema = z
 // Export types
 export type Notification = z.infer<typeof NotificationSchema>;
 export type RegisterFcmToken = z.infer<typeof RegisterFcmTokenSchema>;
-export type SendNotification = z.infer<typeof SendNotificationSchema>;
+export type SendNotificationQuery = z.infer<typeof SendNotificationQuerySchema>;
+export type SendNotificationBody = z.infer<typeof SendNotificationBodySchema>;
 export type MarkAsRead = z.infer<typeof MarkAsReadSchema>;
 export type NotificationId = z.infer<typeof NotificationIdSchema>;

@@ -9,12 +9,13 @@ import {
   NotificationResponseSchema,
   NotificationsResponseSchema,
   RegisterFcmTokenSchema,
-  SendNotificationSchema,
+  SendNotificationBodySchema,
+  SendNotificationQuerySchema,
 } from "./notification.validation";
 
 // Register schemas
 registry.register("RegisterFcmToken", RegisterFcmTokenSchema);
-registry.register("SendNotification", SendNotificationSchema);
+registry.register("SendNotification", SendNotificationQuerySchema);
 registry.register("MarkAsRead", MarkAsReadSchema);
 registry.register("NotificationIdParam", NotificationIdSchema);
 registry.register("NotificationResponse", NotificationResponseSchema);
@@ -262,23 +263,15 @@ registry.registerPath({
   tags: [openAPITags.notification.name],
   security: [{ bearerAuth: [] }],
   request: {
-    query: SendNotificationSchema,
-    // body: {
-    //   content: {
-    //     "application/json": {
-    //       schema: SendNotificationSchema,
-    //     },
-    //   },
-    // },
+    query: SendNotificationQuerySchema,
+    body: {
+      content: { "application/json": { schema: SendNotificationBodySchema } },
+    },
   },
   responses: {
     200: {
       description: "Notification sent successfully",
-      content: {
-        "application/json": {
-          schema: ErrorResponseSchema,
-        },
-      },
+      content: { "application/json": { schema: ErrorResponseSchema } },
     },
     400: {
       description: "Validation error",

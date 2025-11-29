@@ -10,7 +10,8 @@ import express, { type Router } from "express";
 import {
   MarkAsReadSchema,
   RegisterFcmTokenSchema,
-  SendNotificationSchema,
+  SendNotificationBodySchema,
+  SendNotificationQuerySchema,
 } from "./notification.validation";
 import {
   deleteNotification,
@@ -58,6 +59,7 @@ notification.post(
   "/send",
   requireAuth,
   requireRole("admin"),
-  validateQuery(SendNotificationSchema),
+  validateQuery(SendNotificationQuerySchema),
+  validateBody(SendNotificationBodySchema),
   sendNotification
 );

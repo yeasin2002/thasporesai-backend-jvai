@@ -124,6 +124,8 @@ export const acceptOffer: RequestHandler = async (req, res) => {
         data: {
           offerId: offerId.toString(),
           jobId: job._id.toString(),
+          contractorId: contractorId?.toString(),
+          customerId: offer.customer._id.toString(),
         },
       });
 
@@ -141,6 +143,11 @@ export const acceptOffer: RequestHandler = async (req, res) => {
           title: "Job Filled",
           body: `The job "${job.title}" has been filled`,
           type: "general",
+          data: {
+            jobId: job._id.toString(),
+            contractorId: contractorId?.toString(),
+            customerId: offer.customer._id.toString(),
+          },
         });
       }
 

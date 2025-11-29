@@ -253,6 +253,8 @@ export const markAsComplete: RequestHandler = async (req, res) => {
         offerId: String(offer._id),
         amount: offer.contractorPayout.toString(),
         serviceFee: offer.serviceFee.toString(),
+        contractorId: String(contractor._id),
+        customerId: String(customer._id),
       },
     });
 
