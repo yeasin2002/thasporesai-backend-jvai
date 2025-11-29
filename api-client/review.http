@@ -1,19 +1,20 @@
 @baseUrl = http://localhost:4000
-@token = YOUR_ACCESS_TOKEN_HERE
-@userId = USER_ID_HERE
-@reviewId = REVIEW_ID_HERE
+@token =eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTJhOTViNTIyNTIyM2Y3NWExYTM3MmQiLCJlbWFpbCI6ImN1c3RvbWVyQGcuY29tIiwicm9sZSI6ImN1c3RvbWVyIiwiaWF0IjoxNzY0NDEyMDgxLCJleHAiOjE3NjU3MDgwODF9.mHzEBa69XZRcl2QHc8h_KXDlEfT6S5ZBRuFtNim-GDQ
+@senderId =692a95b5225223f75a1a372e 
+@receiverId =692a95b5225223f75a1a372d
+@jobId =692ab8c8003cab9fb1bd2f54
 
 ### Get all reviews
 GET {{baseUrl}}/api/review
 
 ### Get all reviews with filters
-GET {{baseUrl}}/api/review?senderId={{userId}}&minRating=4&page=1&limit=10
+GET {{baseUrl}}/api/review?senderId={{senderId}}&minRating=4&page=1&limit=10
 
 ### Get reviews for a specific user
-GET {{baseUrl}}/api/review/user/{{userId}}
+GET {{baseUrl}}/api/review/user/{{senderId}}
 
 ### Get reviews for a specific user with filters
-GET {{baseUrl}}/api/review/user/{{userId}}?minRating=4&maxRating=5&page=1&limit=10
+GET {{baseUrl}}/api/review/user/{{senderId}}?minRating=4&maxRating=5&page=1&limit=10
 
 ### Get my reviews (requires authentication)
 GET {{baseUrl}}/api/review/my
@@ -29,10 +30,10 @@ Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
-  "receiverId": "{{userId}}",
-  "job_id": "JOB_ID_HERE",
+  "receiverId": "{{senderId}}",
+  "job_id": "{{jobId}}",
   "rating": 5,
-  "rating_message": "Excellent work! Very professional and delivered on time."
+  "rating_message": "Excellent work! Very professional and delivered on time. I love his work, best of luck dude. "
 }
 
 ### Create review without job_id
@@ -41,13 +42,13 @@ Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
-  "receiverId": "{{userId}}",
+  "receiverId": "{{senderId}}",
   "rating": 4,
   "rating_message": "Great communication and quality work."
 }
 
 ### Update a review (requires authentication)
-PUT {{baseUrl}}/api/review/{{reviewId}}
+PUT {{baseUrl}}/api/review/{{receiverId}}
 Authorization: Bearer {{token}}
 Content-Type: application/json
 
@@ -57,7 +58,7 @@ Content-Type: application/json
 }
 
 ### Update only rating
-PUT {{baseUrl}}/api/review/{{reviewId}}
+PUT {{baseUrl}}/api/review/{{receiverId}}
 Authorization: Bearer {{token}}
 Content-Type: application/json
 
@@ -66,7 +67,7 @@ Content-Type: application/json
 }
 
 ### Update only message
-PUT {{baseUrl}}/api/review/{{reviewId}}
+PUT {{baseUrl}}/api/review/{{receiverId}}
 Authorization: Bearer {{token}}
 Content-Type: application/json
 
@@ -75,5 +76,5 @@ Content-Type: application/json
 }
 
 ### Delete a review (requires authentication)
-DELETE {{baseUrl}}/api/review/{{reviewId}}
+DELETE {{baseUrl}}/api/review/{{receiverId}}
 Authorization: Bearer {{token}}
