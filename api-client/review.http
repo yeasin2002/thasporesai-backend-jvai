@@ -1,0 +1,79 @@
+@baseUrl = http://localhost:4000
+@token = YOUR_ACCESS_TOKEN_HERE
+@userId = USER_ID_HERE
+@reviewId = REVIEW_ID_HERE
+
+### Get all reviews
+GET {{baseUrl}}/api/review
+
+### Get all reviews with filters
+GET {{baseUrl}}/api/review?senderId={{userId}}&minRating=4&page=1&limit=10
+
+### Get reviews for a specific user
+GET {{baseUrl}}/api/review/user/{{userId}}
+
+### Get reviews for a specific user with filters
+GET {{baseUrl}}/api/review/user/{{userId}}?minRating=4&maxRating=5&page=1&limit=10
+
+### Get my reviews (requires authentication)
+GET {{baseUrl}}/api/review/my
+Authorization: Bearer {{token}}
+
+### Get my reviews with pagination
+GET {{baseUrl}}/api/review/my?page=1&limit=10
+Authorization: Bearer {{token}}
+
+### Create a new review (requires authentication)
+POST {{baseUrl}}/api/review
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "receiverId": "{{userId}}",
+  "job_id": "JOB_ID_HERE",
+  "rating": 5,
+  "rating_message": "Excellent work! Very professional and delivered on time."
+}
+
+### Create review without job_id
+POST {{baseUrl}}/api/review
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "receiverId": "{{userId}}",
+  "rating": 4,
+  "rating_message": "Great communication and quality work."
+}
+
+### Update a review (requires authentication)
+PUT {{baseUrl}}/api/review/{{reviewId}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "rating": 5,
+  "rating_message": "Updated review: Outstanding service and professionalism!"
+}
+
+### Update only rating
+PUT {{baseUrl}}/api/review/{{reviewId}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "rating": 4
+}
+
+### Update only message
+PUT {{baseUrl}}/api/review/{{reviewId}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "rating_message": "Updated message only."
+}
+
+### Delete a review (requires authentication)
+DELETE {{baseUrl}}/api/review/{{reviewId}}
+Authorization: Bearer {{token}}
