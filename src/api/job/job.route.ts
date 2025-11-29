@@ -39,9 +39,6 @@ import {
 
 export const job: Router = express.Router();
 
-// Public routes (with optional auth for personalized results)
-job.get("/", optionalAuth, validateQuery(SearchJobSchema), getAllJobs);
-
 // Customer routes (authenticated)
 // Note: Specific routes must come before parameterized routes
 job.get(
@@ -77,6 +74,9 @@ job.get(
   validateQuery(SearchOfferSendJobSchema),
   getOfferSendJobsList
 );
+
+// Public routes (with optional auth for personalized results)
+job.get("/", optionalAuth, validateQuery(SearchJobSchema), getAllJobs);
 
 job.post(
   "/",

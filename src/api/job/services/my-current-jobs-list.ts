@@ -217,15 +217,15 @@ export const myCurrentJobList: RequestHandler = async (req, res) => {
       .populate({
         path: "job",
         populate: [
-          { path: "category", select: "name" },
+          { path: "category" },
           { path: "location" },
           { path: "customerId", select: "full_name email phone profile_img" },
-          { path: "category" },
+          { path: "offerId" }, // Also populate offer from job
         ],
       })
       .populate("customer", "full_name email phone profile_img")
       .populate("contractor", "full_name email phone profile_img")
-      .populate("offerId")
+      .populate("offerId") // Populate offer from invite-application
       .lean<PopulatedInviteApplication[]>();
 
     // ========================================================================
@@ -237,42 +237,45 @@ export const myCurrentJobList: RequestHandler = async (req, res) => {
      * This structure matches the original implementation for backward compatibility
      */
     const result = inviteApplications.map((app) => {
+      // Get offer from either invite-application's offerId or job's offerId
+      const offer = app.offerId || (app.job as any).offerId;
+
       return {
         // Invite-application core data
         inviteApplication: {
           _id: app._id,
           status: app.status,
           sender: app.sender,
-          offerId: app.offerId?._id,
+          offerId: offer?._id || (app.job as any).offerId,
           createdAt: app.createdAt,
           updatedAt: app.updatedAt,
         },
         job: app.job,
         customer: app.customer,
-        offer: app.offerId
+        offer: offer
           ? {
-              _id: app.offerId._id,
-              job: app.offerId.job,
-              customer: app.offerId.customer,
-              contractor: app.offerId.contractor,
-              engaged: app.offerId.engaged,
-              amount: app.offerId.amount,
-              platformFee: app.offerId.platformFee,
-              serviceFee: app.offerId.serviceFee,
-              contractorPayout: app.offerId.contractorPayout,
-              totalCharge: app.offerId.totalCharge,
-              timeline: app.offerId.timeline,
-              description: app.offerId.description,
-              status: app.offerId.status,
-              acceptedAt: app.offerId.acceptedAt,
-              rejectedAt: app.offerId.rejectedAt,
-              cancelledAt: app.offerId.cancelledAt,
-              completedAt: app.offerId.completedAt,
-              expiresAt: app.offerId.expiresAt,
-              rejectionReason: app.offerId.rejectionReason,
-              cancellationReason: app.offerId.cancellationReason,
-              createdAt: app.offerId.createdAt,
-              updatedAt: app.offerId.updatedAt,
+              _id: offer._id,
+              job: offer.job,
+              customer: offer.customer,
+              contractor: offer.contractor,
+              engaged: offer.engaged,
+              amount: offer.amount,
+              platformFee: offer.platformFee,
+              serviceFee: offer.serviceFee,
+              contractorPayout: offer.contractorPayout,
+              totalCharge: offer.totalCharge,
+              timeline: offer.timeline,
+              description: offer.description,
+              status: offer.status,
+              acceptedAt: offer.acceptedAt,
+              rejectedAt: offer.rejectedAt,
+              cancelledAt: offer.cancelledAt,
+              completedAt: offer.completedAt,
+              expiresAt: offer.expiresAt,
+              rejectionReason: offer.rejectionReason,
+              cancellationReason: offer.cancellationReason,
+              createdAt: offer.createdAt,
+              updatedAt: offer.updatedAt,
             }
           : null,
       };
@@ -303,6 +306,7 @@ export const myCurrentJobList: RequestHandler = async (req, res) => {
     });
   } catch (error) {
     console.error("Error fetching current jobs:", error);
+
     return exceptionErrorHandler(error, res, "Failed to fetch current jobs");
   }
 };

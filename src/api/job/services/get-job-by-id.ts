@@ -14,8 +14,6 @@ export const getJobById: RequestHandler = async (req, res) => {
       .populate("location", "name state coordinates")
       .populate({
         path: "offerId",
-        select:
-          "amount platformFee serviceFee contractorPayout totalCharge timeline description status acceptedAt rejectedAt cancelledAt completedAt expiresAt rejectionReason cancellationReason",
         populate: [
           { path: "customer", select: "full_name email profile_img" },
           { path: "contractor", select: "full_name email profile_img" },
