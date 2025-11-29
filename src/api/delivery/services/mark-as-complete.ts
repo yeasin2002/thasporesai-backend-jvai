@@ -33,6 +33,8 @@ export const markAsComplete: RequestHandler = async (req, res) => {
   try {
     const { jobId } = req.body;
     const customerId = req.user?.id;
+    console.log("🚀 ~ markAsComplete ~ jobId:", jobId);
+    console.log("🚀 ~ markAsComplete ~ customerId:", customerId);
 
     if (!customerId) {
       await session.abortTransaction();
@@ -41,6 +43,7 @@ export const markAsComplete: RequestHandler = async (req, res) => {
 
     // 1. Validate job exists
     const job = await db.job.findById(jobId).session(session);
+    console.log("🚀 ~ markAsComplete ~ job:", job);
 
     if (!job) {
       await session.abortTransaction();
@@ -54,11 +57,11 @@ export const markAsComplete: RequestHandler = async (req, res) => {
     }
 
     // 3. Validate job is in_progress
-    if (job.status !== "in_progress") {
+    if (job.status !== "assigned") {
       await session.abortTransaction();
       return sendBadRequest(
         res,
-        `Cannot complete job with status: ${job.status}. Job must be in_progress.`
+        `Cannot complete job with status: ${job.status}. Job must be assigned.`
       );
     }
 
@@ -69,6 +72,7 @@ export const markAsComplete: RequestHandler = async (req, res) => {
         status: "accepted",
       })
       .session(session);
+    console.log("🚀 ~ markAsComplete ~ offer:", offer);
 
     if (!offer) {
       await session.abortTransaction();
@@ -82,6 +86,7 @@ export const markAsComplete: RequestHandler = async (req, res) => {
     const customerWallet = await db.wallet
       .findOne({ user: customerId })
       .session(session);
+    console.log("🚀 ~ markAsComplete ~ customerWallet:", customerWallet);
 
     if (!customerWallet) {
       await session.abortTransaction();
@@ -101,6 +106,7 @@ export const markAsComplete: RequestHandler = async (req, res) => {
     let contractorWallet = await db.wallet
       .findOne({ user: offer.contractor })
       .session(session);
+    console.log("🚀 ~ markAsComplete ~ contractorWallet:", contractorWallet);
 
     if (!contractorWallet) {
       const newWallets = await db.wallet.create(
@@ -126,6 +132,7 @@ export const markAsComplete: RequestHandler = async (req, res) => {
     let adminWallet = await db.wallet
       .findOne({ user: adminUser._id })
       .session(session);
+    console.log("🚀 ~ markAsComplete ~ adminWallet:", adminWallet);
 
     if (!adminWallet) {
       const newAdminWallets = await db.wallet.create(
@@ -178,13 +185,13 @@ export const markAsComplete: RequestHandler = async (req, res) => {
     offer.completedAt = new Date();
     await offer.save({ session });
 
-    // 13. Update invite/application status if exists
+    // 13. Update invite/application status to completed
     if (offer.engaged) {
       const engagement = await db.inviteApplication
         .findById(offer.engaged)
         .session(session);
       if (engagement) {
-        engagement.status = "assigned";
+        engagement.status = "completed";
         await engagement.save({ session });
       }
     }
@@ -229,7 +236,7 @@ export const markAsComplete: RequestHandler = async (req, res) => {
           completedAt: new Date(),
         },
       ],
-      { session }
+      { session, ordered: true }
     );
 
     // 15. Commit transaction

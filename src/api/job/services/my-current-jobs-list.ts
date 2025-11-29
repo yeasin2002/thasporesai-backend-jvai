@@ -211,25 +211,21 @@ export const myCurrentJobList: RequestHandler = async (req, res) => {
      */
     const inviteApplications = await db.inviteApplication
       .find(inviteAppQuery)
-      .sort({ createdAt: -1 }) // Sort by newest first
-      .skip(skip) // Skip documents for pagination
-      .limit(limitNum) // Limit results per page
-      // Populate job with nested populates for category, location, and customer
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limitNum)
       .populate({
         path: "job",
         populate: [
           { path: "category", select: "name" },
-          { path: "location", select: "name" },
+          { path: "location" },
           { path: "customerId", select: "full_name email phone profile_img" },
+          { path: "category" },
         ],
       })
-      // Populate customer details
       .populate("customer", "full_name email phone profile_img")
-      // Populate contractor details
       .populate("contractor", "full_name email phone profile_img")
-      // Populate offer details if exists
       .populate("offerId")
-      // Convert to plain JavaScript objects for better performance
       .lean<PopulatedInviteApplication[]>();
 
     // ========================================================================
@@ -251,11 +247,8 @@ export const myCurrentJobList: RequestHandler = async (req, res) => {
           createdAt: app.createdAt,
           updatedAt: app.updatedAt,
         },
-        // Full job details with all populated fields
         job: app.job,
-        // Customer who created the job
         customer: app.customer,
-        // Offer details (if exists)
         offer: app.offerId
           ? {
               _id: app.offerId._id,
@@ -289,13 +282,8 @@ export const myCurrentJobList: RequestHandler = async (req, res) => {
     // Step 7: Calculate pagination metadata
     // ========================================================================
 
-    // Calculate total number of pages
     const totalPages = Math.ceil(totalCount / limitNum);
-
-    // Check if there are more pages
     const hasNextPage = pageNum < totalPages;
-
-    // Check if there are previous pages
     const hasPrevPage = pageNum > 1;
 
     // ========================================================================
@@ -314,14 +302,7 @@ export const myCurrentJobList: RequestHandler = async (req, res) => {
       },
     });
   } catch (error) {
-    // ========================================================================
-    // Error Handling
-    // ========================================================================
-
-    // Log error for debugging (keep this for troubleshooting)
     console.error("Error fetching current jobs:", error);
-
-    // Return formatted error response to client
     return exceptionErrorHandler(error, res, "Failed to fetch current jobs");
   }
 };

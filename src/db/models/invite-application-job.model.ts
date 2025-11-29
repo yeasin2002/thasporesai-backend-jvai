@@ -1,11 +1,13 @@
 import type { Document, Types } from "mongoose";
 import { Schema, model } from "mongoose";
+
 type Status =
   | "invited"
   | "requested"
   | "engaged"
   | "offered"
   | "assigned"
+  | "completed"
   | "cancelled";
 export const statusListForInviteAndApplication: Status[] = [
   "invited",
@@ -13,6 +15,7 @@ export const statusListForInviteAndApplication: Status[] = [
   "engaged",
   "offered",
   "assigned",
+  "completed",
   "cancelled",
 ];
 
