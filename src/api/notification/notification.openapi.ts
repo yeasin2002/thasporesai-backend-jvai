@@ -262,13 +262,14 @@ registry.registerPath({
   tags: [openAPITags.notification.name],
   security: [{ bearerAuth: [] }],
   request: {
-    body: {
-      content: {
-        "application/json": {
-          schema: SendNotificationSchema,
-        },
-      },
-    },
+    query: SendNotificationSchema,
+    // body: {
+    //   content: {
+    //     "application/json": {
+    //       schema: SendNotificationSchema,
+    //     },
+    //   },
+    // },
   },
   responses: {
     200: {

@@ -1,6 +1,11 @@
 import "./notification.openapi";
 
-import { requireAuth, requireRole, validateBody } from "@/middleware";
+import {
+  requireAuth,
+  requireRole,
+  validateBody,
+  validateQuery,
+} from "@/middleware";
 import express, { type Router } from "express";
 import {
   MarkAsReadSchema,
@@ -53,6 +58,6 @@ notification.post(
   "/send",
   requireAuth,
   requireRole("admin"),
-  validateBody(SendNotificationSchema),
+  validateQuery(SendNotificationSchema),
   sendNotification
 );
