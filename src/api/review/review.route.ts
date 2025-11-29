@@ -8,18 +8,18 @@ import {
 } from "@/middleware/validation.middleware";
 import express, { type Router } from "express";
 import {
-  ContractorIdSchema,
   CreateReviewSchema,
   ReviewIdSchema,
   SearchReviewSchema,
   UpdateReviewSchema,
+  UserIdSchema,
 } from "./review.validation";
 import {
   createReview,
   deleteReview,
   getAllReviews,
-  getContractorReviews,
   getMyReviews,
+  getUserReviews,
   updateReview,
 } from "./services";
 
@@ -29,12 +29,12 @@ export const review: Router = express.Router();
 // GET /api/review - Get all reviews with filters
 review.get("/", validateQuery(SearchReviewSchema), getAllReviews);
 
-// GET /api/review/contractor/:contractorId - Get reviews for a specific contractor
+// GET /api/review/user/:userId - Get reviews for a specific user
 review.get(
-  "/contractor/:contractorId",
-  validateParams(ContractorIdSchema),
+  "/user/:userId",
+  validateParams(UserIdSchema),
   validateQuery(SearchReviewSchema),
-  getContractorReviews
+  getUserReviews
 );
 
 // Protected routes (require authentication)

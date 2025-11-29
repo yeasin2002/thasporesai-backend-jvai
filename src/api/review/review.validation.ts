@@ -9,11 +9,11 @@ extendZodWithOpenApi(z);
 export const ReviewSchema = z
   .object({
     _id: objectIdSchema.openapi({ description: "Review ID" }),
-    contractor_id: objectIdSchema.openapi({
-      description: "Contractor being reviewed",
-    }),
-    user_id: objectIdSchema.openapi({
+    senderId: objectIdSchema.openapi({
       description: "User who wrote the review",
+    }),
+    receiverId: objectIdSchema.openapi({
+      description: "User being reviewed",
     }),
     job_id: objectIdSchema
       .optional()
@@ -41,8 +41,8 @@ export const ReviewSchema = z
 // Create Review Schema
 export const CreateReviewSchema = z
   .object({
-    contractor_id: objectIdSchema.openapi({
-      description: "Contractor being reviewed (MongoDB ID)",
+    receiverId: objectIdSchema.openapi({
+      description: "User being reviewed (MongoDB ID)",
     }),
     job_id: objectIdSchema
       .optional()
@@ -85,22 +85,22 @@ export const ReviewIdSchema = z
   })
   .openapi("ReviewIdParam");
 
-// Contractor ID Param Schema
-export const ContractorIdSchema = z
+// User ID Param Schema
+export const UserIdSchema = z
   .object({
-    contractorId: objectIdSchema.openapi({ description: "Contractor ID" }),
+    userId: objectIdSchema.openapi({ description: "User ID" }),
   })
-  .openapi("ContractorIdParam");
+  .openapi("UserIdParam");
 
 // Search/Filter Query Schema
 export const SearchReviewSchema = z
   .object({
-    contractor_id: objectIdSchema
+    senderId: objectIdSchema
       .optional()
-      .openapi({ description: "Filter by contractor ID" }),
-    user_id: objectIdSchema
+      .openapi({ description: "Filter by sender (reviewer) ID" }),
+    receiverId: objectIdSchema
       .optional()
-      .openapi({ description: "Filter by user ID" }),
+      .openapi({ description: "Filter by receiver (reviewed user) ID" }),
     job_id: objectIdSchema
       .optional()
       .openapi({ description: "Filter by job ID" }),

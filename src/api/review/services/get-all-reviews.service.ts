@@ -18,15 +18,8 @@ export const getAllReviews: RequestHandler<
   SearchReview
 > = async (req, res) => {
   try {
-    const {
-      contractor_id,
-      user_id,
-      job_id,
-      minRating,
-      maxRating,
-      page,
-      limit,
-    } = req.query;
+    const { senderId, receiverId, job_id, minRating, maxRating, page, limit } =
+      req.query;
 
     // Validate and sanitize pagination
     const {
@@ -38,20 +31,9 @@ export const getAllReviews: RequestHandler<
     // Build query
     const query: any = {};
 
-    // Filter by contractor
-    if (contractor_id) {
-      query.contractor_id = contractor_id;
-    }
-
-    // Filter by user
-    if (user_id) {
-      query.user_id = user_id;
-    }
-
-    // Filter by job
-    if (job_id) {
-      query.job_id = job_id;
-    }
+    if (senderId) query.senderId = senderId;
+    if (receiverId) query.receiverId = receiverId;
+    if (job_id) query.job_id = job_id;
 
     // Filter by rating range
     if (minRating || maxRating) {
@@ -64,8 +46,8 @@ export const getAllReviews: RequestHandler<
     const [reviews, total] = await Promise.all([
       db.review
         .find(query)
-        .populate("contractor_id", "full_name profile_img email role")
-        .populate("user_id", "full_name profile_img email")
+        .populate("senderId", "full_name profile_img email role")
+        .populate("receiverId", "full_name profile_img email role")
         .populate("job_id", "title budget status")
         .skip(skip)
         .limit(limitNum)
@@ -75,11 +57,11 @@ export const getAllReviews: RequestHandler<
 
     const totalPages = Math.ceil(total / limitNum);
 
-    // Calculate statistics if filtering by contractor
+    // Calculate statistics if filtering by receiver
     let stats = null;
-    if (contractor_id) {
+    if (receiverId) {
       const { calculateReviewStats } = await import("@/helpers");
-      stats = await calculateReviewStats(contractor_id);
+      stats = await calculateReviewStats(receiverId);
     }
 
     return sendSuccess(res, 200, "Reviews retrieved successfully", {

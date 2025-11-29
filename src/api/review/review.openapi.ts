@@ -4,7 +4,6 @@ import {
 } from "@/common/constants/api-route-tags";
 import { registry } from "@/lib/openapi";
 import {
-  ContractorIdSchema,
   CreateReviewSchema,
   ErrorResponseSchema,
   ReviewIdSchema,
@@ -13,13 +12,14 @@ import {
   SearchReviewSchema,
   SuccessResponseSchema,
   UpdateReviewSchema,
+  UserIdSchema,
 } from "./review.validation";
 
 // Register schemas
 registry.register("CreateReview", CreateReviewSchema);
 registry.register("UpdateReview", UpdateReviewSchema);
 registry.register("ReviewIdParam", ReviewIdSchema);
-registry.register("ContractorIdParam", ContractorIdSchema);
+registry.register("UserIdParam", UserIdSchema);
 registry.register("SearchReview", SearchReviewSchema);
 registry.register("ReviewResponse", ReviewResponseSchema);
 registry.register("ReviewsResponse", ReviewsResponseSchema);
@@ -31,7 +31,7 @@ registry.registerPath({
   method: "get",
   path: openAPITags.review.basepath,
   description:
-    "Get all reviews with optional filters (contractor, user, job, rating range) and pagination",
+    "Get all reviews with optional filters (sender, receiver, job, rating range) and pagination",
   summary: "Get all reviews",
   tags: [openAPITags.review.name],
   request: {
@@ -58,38 +58,29 @@ registry.registerPath({
   },
 });
 
-// GET /api/review/contractor/:contractorId - Get contractor reviews
+// GET /api/review/user/:userId - Get user reviews
 registry.registerPath({
   method: "get",
-  path: `${openAPITags.review.basepath}/contractor/{contractorId}`,
+  path: `${openAPITags.review.basepath}/user/{userId}`,
   description:
-    "Get all reviews for a specific contractor with pagination and average rating calculation",
-  summary: "Get contractor reviews",
+    "Get all reviews for a specific user (as receiver) with pagination and average rating calculation",
+  summary: "Get user reviews",
   tags: [openAPITags.review.name],
   request: {
-    params: ContractorIdSchema,
+    params: UserIdSchema,
     query: SearchReviewSchema,
   },
   responses: {
     200: {
-      description:
-        "Contractor reviews retrieved successfully with average rating",
+      description: "User reviews retrieved successfully with average rating",
       content: {
         [mediaTypeFormat.json]: {
           schema: ReviewsResponseSchema,
         },
       },
     },
-    400: {
-      description: "User is not a contractor",
-      content: {
-        [mediaTypeFormat.json]: {
-          schema: ErrorResponseSchema,
-        },
-      },
-    },
     404: {
-      description: "Contractor not found",
+      description: "User not found",
       content: {
         [mediaTypeFormat.json]: {
           schema: ErrorResponseSchema,
@@ -151,7 +142,7 @@ registry.registerPath({
   method: "post",
   path: openAPITags.review.basepath,
   description:
-    "Create a new review for a contractor. Users cannot review themselves or review the same contractor twice for the same job.",
+    "Create a new review for another user. Users cannot review themselves or review the same user twice for the same job.",
   summary: "Create review",
   tags: [openAPITags.review.name],
   security: [{ bearerAuth: [] }],
@@ -175,7 +166,7 @@ registry.registerPath({
     },
     400: {
       description:
-        "Bad request - Cannot review yourself, already reviewed, or invalid contractor",
+        "Bad request - Cannot review yourself or already reviewed this user for this job",
       content: {
         [mediaTypeFormat.json]: {
           schema: ErrorResponseSchema,
@@ -191,7 +182,7 @@ registry.registerPath({
       },
     },
     404: {
-      description: "Contractor or job not found",
+      description: "User or job not found",
       content: {
         [mediaTypeFormat.json]: {
           schema: ErrorResponseSchema,

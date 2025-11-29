@@ -12,7 +12,7 @@ import type { SearchReview } from "../review.validation";
  * Get all reviews for a specific contractor
  * GET /api/review/contractor/:contractorId
  */
-export const getContractorReviews: RequestHandler<
+export const getUserReviews: RequestHandler<
   { contractorId: string },
   unknown,
   unknown,

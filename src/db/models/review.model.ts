@@ -1,8 +1,8 @@
 import { Schema, model, type Document, type Types } from "mongoose";
 
 export interface Review {
-  contractor_id: Types.ObjectId;
-  user_id: Types.ObjectId;
+  senderId: Types.ObjectId;
+  receiverId: Types.ObjectId;
   job_id?: Types.ObjectId;
   rating: number;
   rating_message: string;
@@ -12,12 +12,12 @@ export interface ReviewDocument extends Review, Document {}
 
 const ReviewSchema = new Schema<ReviewDocument>(
   {
-    contractor_id: {
+    senderId: {
       type: Schema.Types.ObjectId,
       ref: "User",
       required: true,
     },
-    user_id: {
+    receiverId: {
       type: Schema.Types.ObjectId,
       ref: "User",
       required: true,
