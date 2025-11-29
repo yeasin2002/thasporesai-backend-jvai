@@ -1,4 +1,3 @@
-// Export all service handlers
 export * from "./create-review.service";
 export * from "./delete-review.service";
 export * from "./get-all-reviews.service";

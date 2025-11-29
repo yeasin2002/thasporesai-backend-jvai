@@ -12,40 +12,29 @@ export const createReview: RequestHandler<{}, unknown, CreateReview> = async (
   res
 ) => {
   try {
-    const userId = req.user?.userId;
-
-    if (!userId) {
+    const senderId = req.user?.userId;
+    if (!senderId) {
       return sendError(res, 401, "Unauthorized");
     }
 
-    const { contractor_id, job_id, rating, rating_message } = req.body;
-
-    // Check if contractor exists and is actually a contractor
-    const contractor = await db.user.findById(contractor_id);
-    if (!contractor) {
-      return sendError(res, 404, "Contractor not found");
-    }
-
-    if (contractor.role !== "contractor") {
-      return sendError(res, 400, "User is not a contractor");
-    }
+    const { receiverId, job_id, rating, rating_message } = req.body;
 
     // Check if user is trying to review themselves
-    if (contractor_id === userId) {
+    if (receiverId === senderId) {
       return sendError(res, 400, "You cannot review yourself");
     }
 
-    // If job_id is provided, verify it exists
-    if (job_id) {
-      const job = await db.job.findById(job_id);
-      if (!job) {
-        return sendError(res, 404, "Job not found");
-      }
+    // Check if receiver exists
+    const receiver = await db.user.findById(receiverId);
+    if (!receiver) {
+      return sendError(res, 404, "User not found");
+    }
 
-      // Check if user already reviewed this contractor for this job
+    // If job_id provided, check if already reviewed for this job
+    if (job_id) {
       const existingReview = await db.review.findOne({
-        user_id: userId,
-        contractor_id,
+        senderId,
+        receiverId,
         job_id,
       });
 
@@ -53,15 +42,15 @@ export const createReview: RequestHandler<{}, unknown, CreateReview> = async (
         return sendError(
           res,
           400,
-          "You have already reviewed this contractor for this job"
+          "You have already reviewed this user for this job"
         );
       }
     }
 
     // Create review
     const review = await db.review.create({
-      contractor_id,
-      user_id: userId,
+      senderId,
+      receiverId,
       job_id,
       rating,
       rating_message,
@@ -70,8 +59,8 @@ export const createReview: RequestHandler<{}, unknown, CreateReview> = async (
     // Populate the review
     const populatedReview = await db.review
       .findById(review._id)
-      .populate("contractor_id", "full_name profile_img email role")
-      .populate("user_id", "full_name profile_img email")
+      .populate("senderId", "full_name profile_img email role")
+      .populate("receiverId", "full_name profile_img email role")
       .populate("job_id", "title budget status");
 
     return sendSuccess(

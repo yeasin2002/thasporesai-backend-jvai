@@ -12,11 +12,11 @@ export const deleteReview: RequestHandler<{ id: string }> = async (
 ) => {
   try {
     const userId = req.user?.userId;
-    const { id } = req.params;
-
     if (!userId) {
       return sendError(res, 401, "Unauthorized");
     }
+
+    const { id } = req.params;
 
     // Find the review
     const review = await db.review.findById(id);
@@ -24,8 +24,8 @@ export const deleteReview: RequestHandler<{ id: string }> = async (
       return sendError(res, 404, "Review not found");
     }
 
-    // Check if user is the author of the review
-    if (review.user_id.toString() !== userId) {
+    // Check if user is the author
+    if (review.senderId.toString() !== userId) {
       return sendError(res, 403, "You can only delete your own reviews");
     }
 

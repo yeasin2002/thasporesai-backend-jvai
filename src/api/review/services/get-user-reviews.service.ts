@@ -9,30 +9,25 @@ import type { RequestHandler } from "express";
 import type { SearchReview } from "../review.validation";
 
 /**
- * Get all reviews for a specific contractor
- * GET /api/review/contractor/:contractorId
+ * Get all reviews for a specific user
+ * GET /api/review/user/:userId
  */
 export const getUserReviews: RequestHandler<
-  { contractorId: string },
+  { userId: string },
   unknown,
   unknown,
   SearchReview
 > = async (req, res) => {
   try {
-    const { contractorId } = req.params;
+    const { userId } = req.params;
     const { minRating, maxRating, page, limit } = req.query;
 
-    // Check if contractor exists
-    const contractor = await db.user.findById(contractorId);
-    if (!contractor) {
-      return sendError(res, 404, "Contractor not found");
+    // Check if user exists
+    const user = await db.user.findById(userId);
+    if (!user) {
+      return sendError(res, 404, "User not found");
     }
 
-    if (contractor.role !== "contractor") {
-      return sendError(res, 400, "User is not a contractor");
-    }
-
-    // Validate and sanitize pagination
     const {
       page: pageNum,
       limit: limitNum,
@@ -40,7 +35,7 @@ export const getUserReviews: RequestHandler<
     } = validatePagination(page, limit);
 
     // Build query
-    const query: any = { contractor_id: contractorId };
+    const query: any = { receiverId: userId };
 
     // Filter by rating range
     if (minRating || maxRating) {
@@ -53,7 +48,7 @@ export const getUserReviews: RequestHandler<
     const [reviews, total] = await Promise.all([
       db.review
         .find(query)
-        .populate("user_id", "full_name profile_img email")
+        .populate("senderId", "full_name profile_img email role")
         .populate("job_id", "title budget status")
         .skip(skip)
         .limit(limitNum)
@@ -63,11 +58,11 @@ export const getUserReviews: RequestHandler<
 
     // Calculate review statistics
     const { calculateReviewStats } = await import("@/helpers");
-    const stats = await calculateReviewStats(contractorId);
+    const stats = await calculateReviewStats(userId);
 
     const totalPages = Math.ceil(total / limitNum);
 
-    return sendSuccess(res, 200, "Contractor reviews retrieved successfully", {
+    return sendSuccess(res, 200, "User reviews retrieved successfully", {
       reviews,
       total,
       page: pageNum,
@@ -77,10 +72,6 @@ export const getUserReviews: RequestHandler<
       ratingDistribution: stats.ratingDistribution,
     });
   } catch (error) {
-    return exceptionErrorHandler(
-      error,
-      res,
-      "Failed to retrieve contractor reviews"
-    );
+    return exceptionErrorHandler(error, res, "Failed to retrieve user reviews");
   }
 };

@@ -14,11 +14,11 @@ export const updateReview: RequestHandler<
 > = async (req, res) => {
   try {
     const userId = req.user?.userId;
-    const { id } = req.params;
-
     if (!userId) {
       return sendError(res, 401, "Unauthorized");
     }
+
+    const { id } = req.params;
 
     // Find the review
     const review = await db.review.findById(id);
@@ -26,20 +26,16 @@ export const updateReview: RequestHandler<
       return sendError(res, 404, "Review not found");
     }
 
-    // Check if user is the author of the review
-    if (review.user_id.toString() !== userId) {
+    // Check if user is the author
+    if (review.senderId.toString() !== userId) {
       return sendError(res, 403, "You can only update your own reviews");
     }
 
     // Update the review
     const updatedReview = await db.review
-      .findByIdAndUpdate(
-        id,
-        { $set: req.body },
-        { new: true, runValidators: true }
-      )
-      .populate("contractor_id", "full_name profile_img email role")
-      .populate("user_id", "full_name profile_img email")
+      .findByIdAndUpdate(id, { $set: req.body }, { new: true })
+      .populate("senderId", "full_name profile_img email role")
+      .populate("receiverId", "full_name profile_img email role")
       .populate("job_id", "title budget status");
 
     return sendSuccess(res, 200, "Review updated successfully", updatedReview);
