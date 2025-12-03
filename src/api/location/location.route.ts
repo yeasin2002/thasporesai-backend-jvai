@@ -3,11 +3,13 @@ import "./location.openapi";
 import {
   validateBody,
   validateParams,
+  validateQuery,
 } from "@/middleware/validation.middleware";
 import express, { type Router } from "express";
 import {
   CreateLocationSchema,
   LocationIdSchema,
+  LocationQuerySchema,
   UpdateLocationSchema,
 } from "./location.validation";
 import {
@@ -21,7 +23,7 @@ import {
 export const location: Router = express.Router();
 
 location
-  .get("/", getAllLocations)
+  .get("/", validateQuery(LocationQuerySchema), getAllLocations)
   .get("/:id", validateParams(LocationIdSchema), getLocationById)
   .post("/", validateBody(CreateLocationSchema), createLocation)
   .put(

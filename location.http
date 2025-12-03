@@ -1,0 +1,135 @@
+### Location API Tests
+@baseUrl = http://localhost:4000
+
+###############################################
+# Public Routes (No Auth Required)
+###############################################
+
+### 1. Get All Locations (Default Pagination)
+GET {{baseUrl}}/api/location
+
+### 2. Get Locations with Custom Pagination
+GET {{baseUrl}}/api/location?page=1&limit=5
+
+### 3. Search Locations by Name
+GET {{baseUrl}}/api/location?search=New
+
+### 4. Search with Pagination
+GET {{baseUrl}}/api/location?search=Los&page=1&limit=10
+
+### 5. Get Second Page
+GET {{baseUrl}}/api/location?page=2&limit=5
+
+### 6. Get Location by ID
+GET {{baseUrl}}/api/location/507f1f77bcf86cd799439011
+
+###############################################
+# Admin Routes (Auth Required)
+###############################################
+
+### 7. Create Location - New York
+POST {{baseUrl}}/api/location
+Content-Type: application/json
+
+{
+  "name": "New York",
+  "state": "NY",
+  "coordinates": {
+    "lat": 40.7128,
+    "lng": -74.0060
+  }
+}
+
+### 8. Create Location - Los Angeles
+POST {{baseUrl}}/api/location
+Content-Type: application/json
+
+{
+  "name": "Los Angeles",
+  "state": "CA",
+  "coordinates": {
+    "lat": 34.0522,
+    "lng": -118.2437
+  }
+}
+
+### 9. Create Location - Chicago
+POST {{baseUrl}}/api/location
+Content-Type: application/json
+
+{
+  "name": "Chicago",
+  "state": "IL",
+  "coordinates": {
+    "lat": 41.8781,
+    "lng": -87.6298
+  }
+}
+
+### 10. Update Location
+PUT {{baseUrl}}/api/location/507f1f77bcf86cd799439011
+Content-Type: application/json
+
+{
+  "name": "New York City",
+  "state": "NY",
+  "coordinates": {
+    "lat": 40.7128,
+    "lng": -74.0060
+  }
+}
+
+### 11. Delete Location
+DELETE {{baseUrl}}/api/location/507f1f77bcf86cd799439011
+
+###############################################
+# Expected Response Examples
+###############################################
+
+### Response for GET /api/location
+# {
+#   "status": 200,
+#   "message": "Locations fetched successfully",
+#   "success": true,
+#   "data": {
+#     "locations": [
+#       {
+#         "_id": "507f1f77bcf86cd799439011",
+#         "name": "New York",
+#         "state": "NY",
+#         "coordinates": {
+#           "lat": 40.7128,
+#           "lng": -74.0060
+#         }
+#       }
+#     ],
+#     "total": 50,
+#     "page": 1,
+#     "limit": 10,
+#     "totalPages": 5
+#   }
+# }
+
+### Response for Search
+# {
+#   "status": 200,
+#   "message": "Locations fetched successfully",
+#   "success": true,
+#   "data": {
+#     "locations": [
+#       {
+#         "_id": "507f1f77bcf86cd799439011",
+#         "name": "New York",
+#         "state": "NY",
+#         "coordinates": {
+#           "lat": 40.7128,
+#           "lng": -74.0060
+#         }
+#       }
+#     ],
+#     "total": 1,
+#     "page": 1,
+#     "limit": 10,
+#     "totalPages": 1
+#   }
+# }

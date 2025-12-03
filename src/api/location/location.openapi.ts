@@ -4,6 +4,7 @@ import {
   CreateLocationSchema,
   ErrorResponseSchema,
   LocationIdSchema,
+  LocationQuerySchema,
   LocationResponseSchema,
   LocationsResponseSchema,
   UpdateLocationSchema,
@@ -13,22 +14,34 @@ import {
 registry.register("CreateLocation", CreateLocationSchema);
 registry.register("UpdateLocation", UpdateLocationSchema);
 registry.register("LocationIdParam", LocationIdSchema);
+registry.register("LocationQuery", LocationQuerySchema);
 registry.register("LocationResponse", LocationResponseSchema);
 registry.register("LocationsResponse", LocationsResponseSchema);
 
-// GET /api/location - Get all locations
+// GET /api/location - Get all locations with pagination and search
 registry.registerPath({
   method: "get",
   path: openAPITags.location.basepath,
-  description: "Get all locations",
+  description: "Get all locations with optional search and pagination",
   summary: "Retrieve all locations",
   tags: [openAPITags.location.name],
+  request: {
+    query: LocationQuerySchema,
+  },
   responses: {
     200: {
       description: "Locations retrieved successfully",
       content: {
         "application/json": {
           schema: LocationsResponseSchema,
+        },
+      },
+    },
+    400: {
+      description: "Invalid query parameters",
+      content: {
+        "application/json": {
+          schema: ErrorResponseSchema,
         },
       },
     },

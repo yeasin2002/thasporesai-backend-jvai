@@ -1,3 +1,4 @@
+import { PaginationQuerySchema } from "@/common/validations";
 import { extendZodWithOpenApi } from "@asteasolutions/zod-to-openapi";
 import { z } from "zod";
 
@@ -60,6 +61,14 @@ export const LocationIdSchema = z
   })
   .openapi("LocationIdParam");
 
+// Schema for location query with search and pagination
+export const LocationQuerySchema = PaginationQuerySchema.extend({
+  search: z
+    .string()
+    .optional()
+    .openapi({ description: "Search by location name" }),
+}).openapi("LocationQuery");
+
 // Response schemas
 export const LocationResponseSchema = z
   .object({
@@ -75,7 +84,13 @@ export const LocationsResponseSchema = z
     status: z.number(),
     message: z.string(),
     success: z.boolean(),
-    data: z.array(LocationSchema),
+    data: z.object({
+      locations: z.array(LocationSchema),
+      total: z.number(),
+      page: z.number(),
+      limit: z.number(),
+      totalPages: z.number(),
+    }),
   })
   .openapi("LocationsResponse");
 
@@ -92,6 +107,7 @@ export const ErrorResponseSchema = z
 export type Location = z.infer<typeof LocationSchema>;
 export type CreateLocation = z.infer<typeof CreateLocationSchema>;
 export type UpdateLocation = z.infer<typeof UpdateLocationSchema>;
+export type LocationQuery = z.infer<typeof LocationQuerySchema>;
 export type LocationResponse = z.infer<typeof LocationResponseSchema>;
 export type LocationsResponse = z.infer<typeof LocationsResponseSchema>;
 export type ErrorResponse = z.infer<typeof ErrorResponseSchema>;
