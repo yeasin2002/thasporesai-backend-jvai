@@ -87,7 +87,6 @@ export const JobSchema = new Schema<JobDocument>(
     contractorId: {
       type: Schema.Types.ObjectId,
       ref: "User",
-      index: true,
     },
     offerId: {
       type: Schema.Types.ObjectId,

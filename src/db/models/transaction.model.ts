@@ -1,4 +1,4 @@
-import { model, Schema, type Document, type Types } from "mongoose";
+import { Schema, model, type Document, type Types } from "mongoose";
 
 export interface Transaction {
   type:
@@ -38,7 +38,6 @@ const transactionSchema = new Schema<TransactionDocument>(
         "escrow_release",
       ],
       required: true,
-      index: true,
     },
     amount: {
       type: Number,
@@ -48,29 +47,24 @@ const transactionSchema = new Schema<TransactionDocument>(
       type: Schema.Types.ObjectId,
       ref: "User",
       required: true,
-      index: true,
     },
     to: {
       type: Schema.Types.ObjectId,
       ref: "User",
       required: true,
-      index: true,
     },
     offer: {
       type: Schema.Types.ObjectId,
       ref: "Offer",
-      index: true,
     },
     job: {
       type: Schema.Types.ObjectId,
       ref: "Job",
-      index: true,
     },
     status: {
       type: String,
       enum: ["pending", "completed", "failed"],
       default: "pending",
-      index: true,
     },
     description: {
       type: String,

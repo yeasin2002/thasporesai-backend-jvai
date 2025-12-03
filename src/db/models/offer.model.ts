@@ -49,19 +49,16 @@ const offerSchema = new Schema<OfferDocument>(
       type: Schema.Types.ObjectId,
       ref: "Job",
       required: true,
-      index: true,
     },
     customer: {
       type: Schema.Types.ObjectId,
       ref: "User",
       required: true,
-      index: true,
     },
     contractor: {
       type: Schema.Types.ObjectId,
       ref: "User",
       required: true,
-      index: true,
     },
     // application: {
     // 	type: Schema.Types.ObjectId,
@@ -126,7 +123,6 @@ const offerSchema = new Schema<OfferDocument>(
         "expired",
       ],
       default: "pending",
-      index: true,
     },
     acceptedAt: Date,
     rejectedAt: Date,

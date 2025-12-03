@@ -21,7 +21,6 @@ const walletSchema = new Schema<WalletDocument>(
       ref: "User",
       required: true,
       unique: true,
-      index: true,
     },
     balance: {
       type: Number,
