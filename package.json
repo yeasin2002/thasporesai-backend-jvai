@@ -25,7 +25,7 @@
     "docker:stop": "docker-compose down",
     "docker:restart": "docker-compose restart",
     "docker:rebuild": "docker-compose down && docker-compose up -d --build",
-    "docker:logs": "docker-compose logs -f app",
+    "docker:logs": "docker-compose logs -f jobsphere-app",
     "docker:build": "docker-compose up -d --build",
     "docker:clean": "docker-compose down -v",
     "docker:ps": "docker-compose ps",
