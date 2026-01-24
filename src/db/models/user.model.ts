@@ -37,6 +37,11 @@ export interface User {
     expiresAt: Date;
     used: boolean;
   };
+
+  // Stripe integration fields
+  stripeCustomerId?: string; // Stripe Customer ID for payments
+  stripeAccountId?: string; // Stripe Connect Account ID for payouts (contractors)
+  stripeAccountStatus?: "pending" | "verified" | "rejected"; // KYC verification status
 }
 
 export interface UserDocument extends User, Document {}
@@ -88,8 +93,26 @@ const userSchema = new Schema<UserDocument>(
       expiresAt: { type: Date },
       used: { type: Boolean, default: false },
     },
+
+    // Stripe integration fields
+    stripeCustomerId: {
+      type: String,
+      sparse: true, // Allows multiple null values but unique non-null values
+    },
+    stripeAccountId: {
+      type: String,
+      sparse: true,
+    },
+    stripeAccountStatus: {
+      type: String,
+      enum: ["pending", "verified", "rejected"],
+    },
   },
   { timestamps: true }
 );
+
+// Indexes for Stripe fields
+userSchema.index({ stripeCustomerId: 1 }, { sparse: true });
+userSchema.index({ stripeAccountId: 1 }, { sparse: true });
 
 export const User = model<UserDocument>("User", userSchema);

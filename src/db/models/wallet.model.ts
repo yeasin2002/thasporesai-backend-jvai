@@ -10,6 +10,8 @@ export interface Wallet {
   totalEarnings: number;
   totalSpent: number;
   totalWithdrawals: number;
+  pendingDeposits?: number; // Deposits awaiting Stripe confirmation
+  lastStripeSync?: Date; // Last time wallet was synced with Stripe
 }
 
 export interface WalletDocument extends Wallet, Document {}
@@ -58,6 +60,14 @@ const walletSchema = new Schema<WalletDocument>(
       type: Number,
       default: 0,
       min: 0,
+    },
+    pendingDeposits: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
+    lastStripeSync: {
+      type: Date,
     },
   },
   { timestamps: true }
