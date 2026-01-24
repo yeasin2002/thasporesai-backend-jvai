@@ -110,8 +110,7 @@ Remove-Item "doc/payment/QUICK_REFERENCE.md"
 Remove-Item "doc/payment/REVISED_FLOW.md"
 Remove-Item "doc/payment/STRIPE_INTEGRATION.md"
 
-# Move reference document
-Move-Item "doc/payment/MONEY/1.jobsphere-payment-readme.md" "doc/payment/REFERENCE.md"
+
 
 # Remove empty MONEY folder
 Remove-Item -Force "doc/payment/MONEY"
