@@ -65,28 +65,69 @@ cancelled ←──────────────────────�
 - **Service Fee**: 20% (charged on job completion)
 - **Contractor Payout**: 80% (released on job completion)
 - **Total Customer Pays**: Job budget + 5% platform fee
+- **Total Admin Commission**: 25% (5% + 20%)
 
 ### Payment Flow
 
-1. Customer sends offer → Wallet charged (budget + 5% platform fee)
-2. Contractor accepts → Platform fee to admin, rest held in escrow
-3. Job completed → Service fee to admin (20%), contractor receives 80%
-4. Job cancelled → Refund processed based on job status
+1. Customer deposits money → Wallet balance
+2. Customer sends offer → Wallet charged (budget + 5% platform fee), moved to escrow
+3. Contractor accepts → Platform fee ($5) to admin, remaining in escrow
+4. Job in progress → Contractor works on job
+5. Customer marks complete → Service fee ($20) to admin, contractor receives 80%
+6. Alternative: Job cancelled → Full refund to customer
 
 ### Offer System
 
 - Customer sends offer after reviewing application
-- One offer per job (enforced by unique index)
-- Offer includes amount, timeline, description
+- One offer per job (enforced by unique index on job field)
+- Offer includes: amount, timeline, description, calculated fees
+- Offer status: pending, accepted, rejected, cancelled, completed, expired
 - Acceptance triggers payment flow and job assignment
+- Rejection triggers full refund to customer
 
 ### Wallet System
 
-- Internal wallet for each user
+- Internal wallet for each user (auto-created on first use)
 - Balance tracking: available balance, escrow balance
 - Transaction types: platform_fee, service_fee, contractor_payout, refund, deposit, withdrawal, escrow_hold, escrow_release
-- Transaction history and audit trail
-- Withdrawal feature for contractors
+- Complete transaction history and audit trail
+- Withdrawal feature for contractors only
+- Wallet can be frozen by admin for security
+
+### Database Models
+
+- **Wallet**: User balance, escrow, totals (earnings, spent, withdrawals)
+- **Offer**: Job offer with payment breakdown and status
+- **Transaction**: Complete audit trail of all money movements
+- **Job**: Extended with payment fields (contractorId, offerId, assignedAt, completedAt)
+
+### API Endpoints
+
+- `GET /api/wallet` - Get wallet balance
+- `POST /api/wallet/deposit` - Add money (manual, Stripe pending)
+- `POST /api/wallet/withdraw` - Withdraw money (contractors only)
+- `GET /api/wallet/transactions` - Transaction history with pagination
+- `POST /api/job-request/:applicationId/send-offer` - Send offer
+- `POST /api/job-request/offer/:offerId/accept` - Accept offer
+- `POST /api/job-request/offer/:offerId/reject` - Reject offer
+- `POST /api/job/:id/complete` - Mark job complete (releases payment)
+- `POST /api/job/:id/cancel` - Cancel job (triggers refund)
+
+### Payment Documentation
+
+Complete payment system documentation available in `doc/payment/`:
+- `README.md` - Navigation and quick reference
+- `1.SYSTEM_OVERVIEW.md` - Business logic and architecture
+- `2.BACKEND_IMPLEMENTATION.md` - Implementation guide
+- `3.FRONTEND_API_GUIDE.md` - API reference with code examples
+- `REFERENCE.md` - Original detailed reference
+
+### Future: Stripe Integration
+
+- Payment Intents for deposits (real credit card processing)
+- Stripe Connect for contractor payouts (bank transfers)
+- Webhook handling for payment confirmation
+- See `doc/payment/` for Stripe integration plans
 
 ## Real-Time Communication
 

@@ -25,8 +25,11 @@ JobSphere is a mobile marketplace backend API connecting customers with local fr
 - Wallet-based transactions with escrow protection
 - Commission structure: 5% platform fee + 20% service fee
 - Contractor receives 80% of job budget
-- Transaction history and audit trail
-- Future: Stripe integration for external payments
+- Escrow-based offer system (one offer per job)
+- Transaction history and complete audit trail
+- Automatic refund handling on rejection/cancellation
+- Future: Stripe integration for real payment processing
+- Documentation: `doc/payment/` (consolidated guides)
 
 ### Communication
 
