@@ -12,6 +12,7 @@ import {
   getConnectAccountStatus,
   getTransactions,
   getWallet,
+  getWithdrawalStatus,
   refreshConnectAccount,
   returnConnectAccount,
   withdraw,
@@ -45,6 +46,14 @@ wallet.post(
   requireRole("contractor"),
   validateBody(WithdrawSchema),
   withdraw
+);
+
+// Get withdrawal status (contractors only)
+wallet.get(
+  "/withdraw/:transactionId",
+  requireAuth,
+  requireRole("contractor"),
+  getWithdrawalStatus
 );
 
 // Stripe Connect - Create account (contractors only)

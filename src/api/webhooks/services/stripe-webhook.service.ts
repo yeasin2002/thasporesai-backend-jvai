@@ -62,8 +62,22 @@ export const handleStripeWebhook: RequestHandler = async (req, res) => {
         await handleAccountUpdated(event.data.object as Stripe.Account);
         break;
 
+      // Note: Stripe doesn't have transfer.paid/failed events in standard webhooks
+      // Transfers are typically instant, but we handle them for completeness
       default:
         console.log(`ℹ️ Unhandled event type: ${event.type}`);
+
+        // Handle transfer events manually if they come through
+        if (event.type.startsWith("transfer.")) {
+          const transfer = event.data.object as Stripe.Transfer;
+          if (event.type === "transfer.created") {
+            console.log(`💸 Transfer created: ${transfer.id}`);
+          } else if (event.type === "transfer.updated") {
+            console.log(`🔄 Transfer updated: ${transfer.id}`);
+          } else if (event.type === "transfer.reversed") {
+            await handleTransferReversed(transfer);
+          }
+        }
     }
 
     // Return 200 to acknowledge receipt
@@ -312,6 +326,153 @@ async function handleAccountUpdated(account: Stripe.Account) {
     }
   } catch (error) {
     console.error("❌ Error processing account update:", error);
+    throw error;
+  }
+}
+
+/**
+ * Handle successful transfer (withdrawal completed)
+ */
+async function handleTransferPaid(transfer: Stripe.Transfer) {
+  console.log(`💸 Processing successful transfer: ${transfer.id}`);
+
+  const { userId, walletId } = transfer.metadata;
+  const amount = transfer.amount / 100; // Convert from cents
+
+  if (!userId || !walletId) {
+    console.error("❌ Missing metadata in transfer:", transfer.id);
+    return;
+  }
+
+  try {
+    // Find the transaction
+    const transaction = await db.transaction.findOne({
+      stripeTransferId: transfer.id,
+    });
+
+    if (!transaction) {
+      console.error("❌ Transaction not found for transfer:", transfer.id);
+      return;
+    }
+
+    // Update transaction status
+    transaction.status = "completed";
+    transaction.stripeStatus = "paid";
+    transaction.completedAt = new Date();
+    await transaction.save();
+
+    console.log(
+      `✅ Withdrawal completed: $${amount} transferred to contractor ${userId}`
+    );
+
+    // TODO: Send notification to contractor about successful withdrawal
+  } catch (error) {
+    console.error("❌ Error processing successful transfer:", error);
+    throw error;
+  }
+}
+
+/**
+ * Handle failed transfer (withdrawal failed)
+ */
+async function handleTransferFailed(transfer: Stripe.Transfer) {
+  console.log(`❌ Processing failed transfer: ${transfer.id}`);
+
+  const { userId, walletId } = transfer.metadata;
+  const amount = transfer.amount / 100;
+
+  if (!userId || !walletId) {
+    console.error("❌ Missing metadata in transfer:", transfer.id);
+    return;
+  }
+
+  try {
+    // Find the transaction
+    const transaction = await db.transaction.findOne({
+      stripeTransferId: transfer.id,
+    });
+
+    if (!transaction) {
+      console.error("❌ Transaction not found for transfer:", transfer.id);
+      return;
+    }
+
+    // Update transaction status
+    transaction.status = "failed";
+    transaction.stripeStatus = "failed";
+    transaction.failureReason = "Transfer failed";
+    transaction.stripeError = JSON.stringify(transfer);
+    await transaction.save();
+
+    // Refund amount to wallet
+    const wallet = await db.wallet.findById(walletId);
+    if (wallet) {
+      wallet.balance += amount;
+      wallet.totalWithdrawals = Math.max(0, wallet.totalWithdrawals - amount);
+      await wallet.save();
+
+      console.log(
+        `✅ Refunded $${amount} to wallet ${walletId} due to failed transfer`
+      );
+    }
+
+    console.log(`❌ Withdrawal failed: $${amount} for user ${userId}`);
+
+    // TODO: Send notification to contractor about failed withdrawal
+  } catch (error) {
+    console.error("❌ Error processing failed transfer:", error);
+    throw error;
+  }
+}
+
+/**
+ * Handle reversed transfer (withdrawal reversed/refunded)
+ */
+async function handleTransferReversed(transfer: Stripe.Transfer) {
+  console.log(`🔄 Processing reversed transfer: ${transfer.id}`);
+
+  const { userId, walletId } = transfer.metadata;
+  const amount = transfer.amount / 100;
+
+  if (!userId || !walletId) {
+    console.error("❌ Missing metadata in transfer:", transfer.id);
+    return;
+  }
+
+  try {
+    // Find the transaction
+    const transaction = await db.transaction.findOne({
+      stripeTransferId: transfer.id,
+    });
+
+    if (!transaction) {
+      console.error("❌ Transaction not found for transfer:", transfer.id);
+      return;
+    }
+
+    // Update transaction status
+    transaction.status = "failed";
+    transaction.stripeStatus = "reversed";
+    transaction.failureReason = "Transfer reversed";
+    await transaction.save();
+
+    // Refund amount to wallet
+    const wallet = await db.wallet.findById(walletId);
+    if (wallet) {
+      wallet.balance += amount;
+      wallet.totalWithdrawals = Math.max(0, wallet.totalWithdrawals - amount);
+      await wallet.save();
+
+      console.log(
+        `✅ Refunded $${amount} to wallet ${walletId} due to reversed transfer`
+      );
+    }
+
+    console.log(`🔄 Withdrawal reversed: $${amount} for user ${userId}`);
+
+    // TODO: Send notification to contractor about reversed withdrawal
+  } catch (error) {
+    console.error("❌ Error processing reversed transfer:", error);
     throw error;
   }
 }
