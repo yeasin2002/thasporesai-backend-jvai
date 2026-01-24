@@ -58,6 +58,10 @@ export const handleStripeWebhook: RequestHandler = async (req, res) => {
         );
         break;
 
+      case "account.updated":
+        await handleAccountUpdated(event.data.object as Stripe.Account);
+        break;
+
       default:
         console.log(`ℹ️ Unhandled event type: ${event.type}`);
     }
@@ -239,6 +243,75 @@ async function handlePaymentIntentCanceled(
     // TODO: Send notification to user about canceled deposit
   } catch (error) {
     console.error("❌ Error processing canceled payment:", error);
+    throw error;
+  }
+}
+
+/**
+ * Handle Stripe Connect account updates
+ */
+async function handleAccountUpdated(account: Stripe.Account) {
+  console.log(`🔄 Processing account update: ${account.id}`);
+
+  try {
+    // Find user by Stripe account ID
+    const user = await db.user.findOne({ stripeAccountId: account.id });
+
+    if (!user) {
+      console.error("❌ User not found for account:", account.id);
+      return;
+    }
+
+    // Check if onboarding is complete
+    const onboardingComplete =
+      account.details_submitted && account.charges_enabled;
+
+    // Determine account status
+    let accountStatus: "pending" | "verified" | "rejected" = "pending";
+
+    if (onboardingComplete) {
+      accountStatus = "verified";
+    } else if (
+      account.requirements?.disabled_reason === "rejected.fraud" ||
+      account.requirements?.disabled_reason === "rejected.terms_of_service" ||
+      account.requirements?.disabled_reason === "rejected.listed" ||
+      account.requirements?.disabled_reason === "rejected.other"
+    ) {
+      accountStatus = "rejected";
+    }
+
+    // Update user status if changed
+    const statusChanged = user.stripeAccountStatus !== accountStatus;
+    if (statusChanged) {
+      const oldStatus = user.stripeAccountStatus;
+      user.stripeAccountStatus = accountStatus;
+      await user.save();
+
+      console.log(
+        `✅ Account status updated for user ${user._id}: ${oldStatus} → ${accountStatus}`
+      );
+
+      // TODO: Send notification to user about account status change
+      if (accountStatus === "verified") {
+        console.log(`🎉 Contractor ${user.email} can now receive payments!`);
+        // TODO: Send "Account Verified" notification
+      } else if (accountStatus === "rejected") {
+        console.log(
+          `⚠️ Contractor ${user.email} account was rejected: ${account.requirements?.disabled_reason}`
+        );
+        // TODO: Send "Account Rejected" notification with reason
+      }
+    }
+
+    // Log requirements if any
+    if (account.requirements?.currently_due?.length) {
+      console.log(
+        `⚠️ Account ${account.id} has pending requirements:`,
+        account.requirements.currently_due
+      );
+    }
+  } catch (error) {
+    console.error("❌ Error processing account update:", error);
     throw error;
   }
 }
