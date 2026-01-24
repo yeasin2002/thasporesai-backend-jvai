@@ -20,6 +20,7 @@ import { offer } from "@/api/offer/offer.route";
 import { review } from "@/api/review/review.route";
 import { seed } from "@/api/seed/seed.route";
 import { testNotification } from "@/api/test-notification/test-notification.route";
+import { webhook } from "@/api/webhooks/webhook.route";
 
 // admin- dashboard routes
 import { adminUser } from "@/api/admin/admin-user/admin-user.route";
@@ -47,6 +48,10 @@ import { morganDevFormat } from "./lib/morgan";
 const app = express();
 const httpServer = createServer(app);
 
+// Register webhook route BEFORE body parser (needs raw body for signature verification)
+app.use("/api/webhooks", webhook);
+
+// Body parser middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 

@@ -1,5 +1,4 @@
-import { logger, verifyAccessToken } from "@/lib";
-import consola from "consola";
+import { verifyAccessToken } from "@/lib";
 import type { Socket } from "socket.io";
 
 /**
