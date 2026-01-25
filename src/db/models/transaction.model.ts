@@ -26,6 +26,11 @@ export interface Transaction {
   stripePayoutId?: string; // For withdrawals/payouts to bank accounts
   stripeStatus?: string; // Stripe-specific status (succeeded, processing, failed, etc.)
   stripeError?: string; // Detailed error from Stripe if transaction failed
+
+  // Idempotency and retry fields
+  idempotencyKey?: string; // Unique key to prevent duplicate transactions
+  retryCount?: number; // Number of retry attempts for failed transactions
+  lastRetryAt?: Date; // Timestamp of last retry attempt
 }
 
 export interface TransactionDocument extends Transaction, Document {}
@@ -99,6 +104,20 @@ const transactionSchema = new Schema<TransactionDocument>(
     stripeError: {
       type: String,
     },
+
+    // Idempotency and retry fields
+    idempotencyKey: {
+      type: String,
+      sparse: true,
+      unique: true,
+    },
+    retryCount: {
+      type: Number,
+      default: 0,
+    },
+    lastRetryAt: {
+      type: Date,
+    },
   },
   { timestamps: true }
 );
@@ -112,6 +131,9 @@ transactionSchema.index({ to: 1, createdAt: -1 });
 transactionSchema.index({ stripePaymentIntentId: 1 }, { sparse: true });
 transactionSchema.index({ stripeTransferId: 1 }, { sparse: true });
 transactionSchema.index({ stripePayoutId: 1 }, { sparse: true });
+
+// Idempotency index
+transactionSchema.index({ idempotencyKey: 1 }, { sparse: true, unique: true });
 
 export const Transaction = model<TransactionDocument>(
   "Transaction",

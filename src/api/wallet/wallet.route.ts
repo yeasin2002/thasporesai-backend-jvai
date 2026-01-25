@@ -1,6 +1,12 @@
 import "./wallet.openapi";
 
-import { requireAuth, requireRole } from "@/middleware";
+import {
+  connectAccountRateLimiter,
+  depositRateLimiter,
+  requireAuth,
+  requireRole,
+  withdrawalRateLimiter,
+} from "@/middleware";
 import {
   validateBody,
   validateQuery,
@@ -28,8 +34,14 @@ export const wallet: Router = express.Router();
 // Get wallet balance
 wallet.get("/", requireAuth, getWallet);
 
-// Deposit money
-wallet.post("/deposit", requireAuth, validateBody(DepositSchema), deposit);
+// Deposit money (with rate limiting)
+wallet.post(
+  "/deposit",
+  depositRateLimiter,
+  requireAuth,
+  validateBody(DepositSchema),
+  deposit
+);
 
 // Get transaction history
 wallet.get(
@@ -39,9 +51,10 @@ wallet.get(
   getTransactions
 );
 
-// Withdraw money (contractors only)
+// Withdraw money (contractors only, with rate limiting)
 wallet.post(
   "/withdraw",
+  withdrawalRateLimiter,
   requireAuth,
   requireRole("contractor"),
   validateBody(WithdrawSchema),
@@ -56,9 +69,10 @@ wallet.get(
   getWithdrawalStatus
 );
 
-// Stripe Connect - Create account (contractors only)
+// Stripe Connect - Create account (contractors only, with rate limiting)
 wallet.post(
   "/connect-account",
+  connectAccountRateLimiter,
   requireAuth,
   requireRole("contractor"),
   createConnectAccount

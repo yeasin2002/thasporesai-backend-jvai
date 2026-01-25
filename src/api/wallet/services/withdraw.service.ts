@@ -1,6 +1,7 @@
 import { db } from "@/db";
 import { sendBadRequest, sendInternalError, sendSuccess } from "@/helpers";
 import { stripe } from "@/lib/stripe";
+import { randomUUID } from "crypto";
 import type { RequestHandler } from "express";
 import Stripe from "stripe";
 import type { Withdraw } from "../wallet.validation";
@@ -29,6 +30,9 @@ export const withdraw: RequestHandler<{}, any, Withdraw> = async (req, res) => {
     if (amount > 10000) {
       return sendBadRequest(res, "Maximum withdrawal amount is $10,000");
     }
+
+    // Generate idempotency key for this withdrawal
+    const idempotencyKey = randomUUID();
 
     // Get user to check Stripe account
     const user = await db.user.findById(userId);
@@ -89,19 +93,50 @@ export const withdraw: RequestHandler<{}, any, Withdraw> = async (req, res) => {
       );
     }
 
-    // Create Stripe Transfer
-    let transfer: Stripe.Transfer;
-    try {
-      transfer = await stripe.transfers.create({
-        amount: Math.round(amount * 100), // Convert to cents
-        currency: "usd",
-        destination: user.stripeAccountId,
-        metadata: {
-          userId: userId.toString(),
-          walletId: String(existingWallet._id),
-          type: "withdrawal",
+    // Check for existing transaction with same idempotency key
+    const existingTransaction = await db.transaction.findOne({
+      idempotencyKey,
+    });
+
+    if (existingTransaction) {
+      console.log(
+        `⚠️ Duplicate withdrawal request detected with idempotency key: ${idempotencyKey}`
+      );
+
+      // Return existing transaction details
+      return sendSuccess(res, 200, "Withdrawal already processed", {
+        transaction: {
+          id: existingTransaction._id,
+          amount: existingTransaction.amount,
+          status: existingTransaction.status,
+          stripeTransferId: existingTransaction.stripeTransferId,
+        },
+        wallet: {
+          balance: existingWallet.balance,
+          totalWithdrawals: existingWallet.totalWithdrawals,
         },
       });
+    }
+
+    // Create Stripe Transfer with idempotency key
+    let transfer: Stripe.Transfer;
+    try {
+      transfer = await stripe.transfers.create(
+        {
+          amount: Math.round(amount * 100), // Convert to cents
+          currency: "usd",
+          destination: user.stripeAccountId,
+          metadata: {
+            userId: userId.toString(),
+            walletId: String(existingWallet._id),
+            type: "withdrawal",
+            idempotencyKey,
+          },
+        },
+        {
+          idempotencyKey, // Pass idempotency key to Stripe
+        }
+      );
     } catch (stripeError) {
       console.error("Error creating Stripe transfer:", stripeError);
 
@@ -147,7 +182,7 @@ export const withdraw: RequestHandler<{}, any, Withdraw> = async (req, res) => {
       );
     }
 
-    // Create pending transaction record
+    // Create pending transaction record with idempotency key
     const transaction = await db.transaction.create({
       type: "withdrawal",
       amount,
@@ -157,6 +192,7 @@ export const withdraw: RequestHandler<{}, any, Withdraw> = async (req, res) => {
       description: `Withdrawal of $${amount} to bank account`,
       stripeTransferId: transfer.id,
       stripeStatus: "pending",
+      idempotencyKey,
     });
 
     console.log(
