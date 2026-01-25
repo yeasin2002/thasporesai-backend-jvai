@@ -1,5 +1,4 @@
-import type { Document, Types } from "mongoose";
-import { Schema, model } from "mongoose";
+import { Schema, model, type Document, type Types } from "mongoose";
 
 export interface Certification {
   user: Types.ObjectId; // Reference to the user who owns this certification

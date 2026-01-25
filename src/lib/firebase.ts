@@ -1,6 +1,5 @@
 import consola from "consola";
-import type { ServiceAccount } from "firebase-admin";
-import admin from "firebase-admin";
+import admin, { type ServiceAccount } from "firebase-admin";
 import fs from "node:fs";
 import path from "node:path";
 

@@ -43,6 +43,7 @@ export const requireAuth = (
       next();
       // oxlint-disable-next-line no-unused-vars
     } catch (_error) {
+      console.log("🚀 ~ requireAuth ~ _error:", _error);
       return sendUnauthorized(res, "Unauthorized - Invalid or expired token");
     }
   } catch (error) {
@@ -167,6 +168,7 @@ export const optionalAuth = (
         };
         // oxlint-disable-next-line no-unused-vars
       } catch (_error) {
+        console.log("🚀 ~ optionalAuth ~ _error:", _error);
         // Token invalid, but we don't fail - just continue without user
         console.log("Optional auth: Invalid token, continuing without user");
       }

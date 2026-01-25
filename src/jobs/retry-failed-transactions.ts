@@ -47,6 +47,7 @@ function isStripeErrorRetryable(stripeError: string): boolean {
       return false;
     }
   } catch (e) {
+    console.log("🚀 ~ isStripeErrorRetryable ~ e:", e);
     // If we can't parse the error, assume it's retryable
   }
 
@@ -186,6 +187,7 @@ async function retryWithdrawal(transaction: any): Promise<boolean> {
           `🔄 Transfer ${transfer.id} was reversed, creating new one`
         );
       } catch (error) {
+        console.log("🚀 ~ retryWithdrawal ~ error:", error);
         // Transfer not found, create a new one
         console.log(`🔄 Transfer not found, creating new one`);
       }
@@ -215,7 +217,7 @@ async function retryWithdrawal(transaction: any): Promise<boolean> {
         currency: "usd",
         destination: user.stripeAccountId,
         metadata: {
-          userId: user._id.toString(),
+          userId: user.id,
           walletId: String(wallet._id),
           type: "withdrawal",
           originalTransactionId: transaction._id.toString(),

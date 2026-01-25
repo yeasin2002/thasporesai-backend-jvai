@@ -1,7 +1,6 @@
 import { logger } from "@/lib";
 import type { Response } from "express";
-import type { Error as MongooseError } from "mongoose";
-import { isValidObjectId } from "mongoose";
+import { isValidObjectId, type Error as MongooseError } from "mongoose";
 import { sendBadRequest, sendInternalError } from "./response-handler";
 
 /**

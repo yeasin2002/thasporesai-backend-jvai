@@ -23,6 +23,7 @@ export const refresh: RequestHandler<{}, unknown, RefreshToken> = async (
       decoded = verifyRefreshToken(refreshToken);
       // oxlint-disable-next-line no-unused-vars
     } catch (_error) {
+      console.log("🚀 ~ refresh ~ _error:", _error);
       return sendError(res, 401, "Invalid or expired refresh token");
     }
 
