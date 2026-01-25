@@ -10,6 +10,7 @@ import Stripe from "stripe";
  * This is called when the onboarding link expires or user needs to restart
  */
 export const refreshConnectAccount: RequestHandler = async (req, res) => {
+  let user;
   try {
     const userId = req?.user?.id;
 
@@ -19,7 +20,7 @@ export const refreshConnectAccount: RequestHandler = async (req, res) => {
     }
 
     // Get user
-    const user = await db.user.findById(userId);
+    user = await db.user.findById(userId);
     if (!user) {
       return sendBadRequest(res, "User not found");
     }
@@ -45,7 +46,7 @@ export const refreshConnectAccount: RequestHandler = async (req, res) => {
     console.error("Error refreshing Stripe Connect account link:", {
       operation: "refresh_connect_account",
       userId: req?.user?.id,
-      stripeAccountId: req?.user?.stripeAccountId,
+      stripeAccountId: user?.stripeAccountId,
       error: error instanceof Error ? error.message : String(error),
       stack: error instanceof Error ? error.stack : undefined,
       timestamp: new Date().toISOString(),
