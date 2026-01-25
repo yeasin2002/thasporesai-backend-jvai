@@ -111,7 +111,7 @@ transactionSchema.index({ idempotencyKey: 1 }, { sparse: true, unique: true });
 
 ---
 
-### ⚠️ Task 1.5: Stripe Service (NEEDS ATTENTION)
+### ✅ Task 1.5: Stripe Service (NEEDS ATTENTION)
 
 **File**: `src/lib/stripe.ts`
 

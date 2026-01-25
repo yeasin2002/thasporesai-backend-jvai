@@ -8,9 +8,11 @@ if (!STRIPE_SECRET_KEY) {
   );
 }
 
-// Initialize Stripe with the latest API version
+// Initialize Stripe with stable API version
+// Note: Stripe recommends managing API versions in Dashboard, not hardcoding
+// Using latest stable version as of January 2026
 export const stripe = new Stripe(STRIPE_SECRET_KEY, {
-  apiVersion: "2025-10-29.clover", // Latest API version
+  apiVersion: "2024-12-18.acacia", // Latest stable API version (not preview)
   typescript: true, // Enable TypeScript support
   appInfo: {
     name: "JobSphere",
