@@ -8,7 +8,8 @@
     "skipLibCheck": true,
     "baseUrl": "./",
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "#": ["./*"]
     },
     "outDir": "./dist",
     "types": ["node"],
@@ -18,5 +19,5 @@
   // any can be use in this codebase
   "noImplicitAny": false,
 
-  "include": ["globals.d.ts", "src"]
+  "include": ["globals.d.ts", "src", "*/**/.test.ts"]
 }
