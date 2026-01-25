@@ -17,7 +17,7 @@ describe("Stripe Webhook Handler", () => {
   beforeEach(() => {
     sendMock = vi.fn();
     jsonMock = vi.fn();
-    statusMock = vi.fn().mockReturnValue({ send: sendMock, json: jsonMock });
+    statusMock = vi.fn().mockReturnThis();
 
     mockReq = {
       body: Buffer.from("webhook_payload"),
@@ -30,7 +30,7 @@ describe("Stripe Webhook Handler", () => {
       status: statusMock,
       send: sendMock,
       json: jsonMock,
-    };
+    } as unknown as Response;
 
     vi.clearAllMocks();
   });

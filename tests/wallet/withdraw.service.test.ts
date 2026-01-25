@@ -31,7 +31,7 @@ describe("Withdraw Service", () => {
     mockRes = {
       status: statusMock,
       json: jsonMock,
-    };
+    } as unknown as Response;
 
     vi.clearAllMocks();
   });

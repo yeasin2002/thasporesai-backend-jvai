@@ -1,6 +1,5 @@
 import { app } from "@/app";
 import { db } from "@/db";
-import { stripe } from "@/lib/stripe";
 import request from "supertest";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
@@ -90,20 +89,21 @@ describe("Stripe Integration Tests", () => {
 
       // Step 3: Simulate webhook (payment succeeded)
       // In real scenario, Stripe sends this webhook
-      const webhookPayload = {
-        type: "payment_intent.succeeded",
-        data: {
-          object: {
-            id: paymentIntentId,
-            amount: 10000,
-            status: "succeeded",
-            metadata: {
-              userId: customerId,
-              walletId: transaction?.from.toString(),
-            },
-          },
-        },
-      };
+
+      // const webhookPayload = {
+      //   type: "payment_intent.succeeded",
+      //   data: {
+      //     object: {
+      //       id: paymentIntentId,
+      //       amount: 10000,
+      //       status: "succeeded",
+      //       metadata: {
+      //         userId: customerId,
+      //         walletId: transaction?.from.toString(),
+      //       },
+      //     },
+      //   },
+      // };
 
       // Note: In real tests, you'd use Stripe CLI to trigger webhooks
       // For now, we'll verify the transaction was created correctly

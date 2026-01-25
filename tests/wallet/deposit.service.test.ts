@@ -32,7 +32,7 @@ describe("Deposit Service", () => {
     mockRes = {
       status: statusMock,
       json: jsonMock,
-    };
+    } as unknown as Response;
 
     // Reset all mocks
     vi.clearAllMocks();

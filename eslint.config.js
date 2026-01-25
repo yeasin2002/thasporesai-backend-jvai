@@ -24,8 +24,9 @@ export default tseslint.config(
   // TypeScript recommended rules
   ...tseslint.configs.recommended,
 
-  // Global configuration
+  // Global configuration for source files
   {
+    files: ["src/**/*.ts"],
     languageOptions: {
       ecmaVersion: "latest",
       sourceType: "module",
@@ -72,11 +73,29 @@ export default tseslint.config(
     },
   },
 
-  // Specific overrides for test files if needed
+  // Configuration for test files
   {
-    files: ["**/*.test.ts", "**/*.spec.ts"],
+    files: ["tests/**/*.ts", "**/*.test.ts", "**/*.spec.ts"],
+    languageOptions: {
+      ecmaVersion: "latest",
+      sourceType: "module",
+      globals: {
+        ...globals.node,
+        ...globals.es2021,
+      },
+      parserOptions: {
+        project: "./tsconfig.test.json",
+      },
+    },
     rules: {
       "@typescript-eslint/no-explicit-any": "off",
+      "@typescript-eslint/no-unused-vars": [
+        "warn",
+        {
+          argsIgnorePattern: "^_",
+          varsIgnorePattern: "^_",
+        },
+      ],
     },
   },
 

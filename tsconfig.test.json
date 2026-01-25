@@ -2,8 +2,13 @@
   "extends": "./tsconfig.json",
   "compilerOptions": {
     "types": ["vitest/globals", "node"],
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "baseUrl": "./",
+    "paths": {
+      "@/*": ["./src/*"],
+      "#/*": ["./*"]
+    }
   },
-  "include": ["tests/**/*.ts", "src/**/*.ts"],
+  "include": ["tests/**/*.ts", "src/**/*.ts", "globals.d.ts"],
   "exclude": ["node_modules", "dist"]
 }
