@@ -30,7 +30,9 @@ export interface Transaction {
   // Idempotency and retry fields
   idempotencyKey?: string; // Unique key to prevent duplicate transactions
   retryCount?: number; // Number of retry attempts for failed transactions
+  maxRetries?: number; // Maximum number of retry attempts (default: 3)
   lastRetryAt?: Date; // Timestamp of last retry attempt
+  nextRetryAt?: Date; // Timestamp when next retry should be attempted
 }
 
 export interface TransactionDocument extends Transaction, Document {}
@@ -115,7 +117,14 @@ const transactionSchema = new Schema<TransactionDocument>(
       type: Number,
       default: 0,
     },
+    maxRetries: {
+      type: Number,
+      default: 3,
+    },
     lastRetryAt: {
+      type: Date,
+    },
+    nextRetryAt: {
       type: Date,
     },
   },
@@ -134,6 +143,12 @@ transactionSchema.index({ stripePayoutId: 1 }, { sparse: true });
 
 // Idempotency index
 transactionSchema.index({ idempotencyKey: 1 }, { sparse: true, unique: true });
+
+// Retry query optimization index
+transactionSchema.index(
+  { status: 1, retryCount: 1, nextRetryAt: 1 },
+  { sparse: true }
+);
 
 export const Transaction = model<TransactionDocument>(
   "Transaction",

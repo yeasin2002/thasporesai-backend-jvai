@@ -42,6 +42,7 @@ import { authAdmin } from "./api/admin/auth-admin/auth-admin.route";
 import { initializeSocketIO } from "./api/chat/socket";
 import { common } from "./api/common/common.route";
 import { startOfferExpirationJob } from "./jobs/expire-offers";
+import { retryFailedTransactions } from "./jobs/retry-failed-transactions";
 import { getLocalIP } from "./lib/get-my-ip";
 import { morganDevFormat } from "./lib/morgan";
 
@@ -146,6 +147,22 @@ httpServer.listen(PORT, async () => {
 
   // Start offer expiration job
   startOfferExpirationJob();
+
+  // Start failed transaction retry job (runs every hour)
+  consola.info("🔄 Starting failed transaction retry job...");
+  // Run immediately on startup
+  retryFailedTransactions().catch((error) => {
+    consola.error("❌ Initial retry job failed:", error);
+  });
+  // Then run every hour
+  setInterval(
+    () => {
+      retryFailedTransactions().catch((error) => {
+        consola.error("❌ Scheduled retry job failed:", error);
+      });
+    },
+    60 * 60 * 1000
+  ); // 1 hour
 
   consola.log(`🚀 Server is running on port http://localhost:${PORT}`);
   consola.log(`✨ Server is running on port http://${getLocalIP()}:${PORT} \n`);

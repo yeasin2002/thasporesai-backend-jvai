@@ -9,22 +9,25 @@ import Stripe from "stripe";
  * Usage:
  * - Add to cron: `0 * * * * node dist/jobs/retry-failed-transactions.js`
  * - Or call manually: `bun run src/jobs/retry-failed-transactions.ts`
+ * - Or schedule in app: `setInterval(retryFailedTransactions, 60 * 60 * 1000)`
  */
 
-const MAX_RETRY_ATTEMPTS = 3;
 const RETRY_DELAY_MINUTES = [5, 30, 120]; // 5 min, 30 min, 2 hours
 
 /**
- * Check if a transaction is retryable based on error type
+ * Calculate next retry time based on retry count (exponential backoff)
  */
-function isRetryable(transaction: any): boolean {
-  // Don't retry if max attempts reached
-  if ((transaction.retryCount || 0) >= MAX_RETRY_ATTEMPTS) {
-    return false;
-  }
+function calculateNextRetryTime(retryCount: number): Date {
+  const delayMinutes = RETRY_DELAY_MINUTES[retryCount] || 120;
+  return new Date(Date.now() + delayMinutes * 60 * 1000);
+}
 
-  // Don't retry card errors (user needs to fix payment method)
-  const cardErrorCodes = [
+/**
+ * Check if a Stripe error is retryable
+ */
+function isStripeErrorRetryable(stripeError: string): boolean {
+  // Non-retryable card errors (user needs to fix payment method)
+  const nonRetryableCardErrors = [
     "card_declined",
     "insufficient_funds",
     "invalid_card",
@@ -33,34 +36,51 @@ function isRetryable(transaction: any): boolean {
     "incorrect_number",
     "invalid_expiry_month",
     "invalid_expiry_year",
+    "card_not_supported",
+    "processing_error",
   ];
 
-  if (transaction.stripeError) {
-    try {
-      const errorData = JSON.parse(transaction.stripeError);
-      if (cardErrorCodes.includes(errorData.code)) {
-        console.log(`⏭️ Skipping non-retryable card error: ${errorData.code}`);
-        return false;
-      }
-    } catch (e) {
-      // If we can't parse the error, assume it's retryable
-    }
-  }
-
-  // Check if enough time has passed since last retry
-  if (transaction.lastRetryAt) {
-    const retryCount = transaction.retryCount || 0;
-    const delayMinutes = RETRY_DELAY_MINUTES[retryCount] || 120;
-    const nextRetryTime = new Date(
-      transaction.lastRetryAt.getTime() + delayMinutes * 60 * 1000
-    );
-
-    if (new Date() < nextRetryTime) {
-      console.log(
-        `⏰ Too soon to retry transaction ${transaction._id}. Next retry at ${nextRetryTime.toISOString()}`
-      );
+  try {
+    const errorData = JSON.parse(stripeError);
+    if (nonRetryableCardErrors.includes(errorData.code)) {
+      console.log(`⏭️ Skipping non-retryable card error: ${errorData.code}`);
       return false;
     }
+  } catch (e) {
+    // If we can't parse the error, assume it's retryable
+  }
+
+  return true;
+}
+
+/**
+ * Check if a transaction is retryable
+ */
+function isRetryable(transaction: any): boolean {
+  const maxRetries = transaction.maxRetries || 3;
+
+  // Don't retry if max attempts reached
+  if ((transaction.retryCount || 0) >= maxRetries) {
+    console.log(
+      `⏭️ Max retry attempts (${maxRetries}) reached for transaction ${transaction._id}`
+    );
+    return false;
+  }
+
+  // Check if Stripe error is retryable
+  if (
+    transaction.stripeError &&
+    !isStripeErrorRetryable(transaction.stripeError)
+  ) {
+    return false;
+  }
+
+  // Check if enough time has passed (nextRetryAt)
+  if (transaction.nextRetryAt && new Date() < transaction.nextRetryAt) {
+    console.log(
+      `⏰ Too soon to retry transaction ${transaction._id}. Next retry at ${transaction.nextRetryAt.toISOString()}`
+    );
+    return false;
   }
 
   return true;
@@ -240,12 +260,24 @@ export async function retryFailedTransactions() {
   console.log("🔄 Starting failed transaction retry job...");
 
   try {
-    // Find failed transactions that haven't exceeded max retries
+    // Find failed transactions that are ready for retry
     const failedTransactions = await db.transaction.find({
       status: "failed",
       $or: [
+        // Transactions that haven't been retried yet
         { retryCount: { $exists: false } },
-        { retryCount: { $lt: MAX_RETRY_ATTEMPTS } },
+        // Transactions that haven't exceeded max retries and are ready for retry
+        {
+          $and: [
+            { retryCount: { $lt: 3 } }, // Default max retries
+            {
+              $or: [
+                { nextRetryAt: { $exists: false } },
+                { nextRetryAt: { $lte: new Date() } },
+              ],
+            },
+          ],
+        },
       ],
     });
 
@@ -253,31 +285,56 @@ export async function retryFailedTransactions() {
 
     let retriedCount = 0;
     let successCount = 0;
+    let skippedCount = 0;
 
     for (const transaction of failedTransactions) {
       // Check if retryable
       if (!isRetryable(transaction)) {
+        skippedCount++;
         continue;
       }
 
       retriedCount++;
 
-      // Update retry metadata
-      transaction.retryCount = (transaction.retryCount || 0) + 1;
+      // Update retry metadata BEFORE attempting retry
+      const currentRetryCount = (transaction.retryCount || 0) + 1;
+      transaction.retryCount = currentRetryCount;
       transaction.lastRetryAt = new Date();
-      await transaction.save();
+      transaction.nextRetryAt = calculateNextRetryTime(currentRetryCount);
 
       // Retry based on transaction type
       let success = false;
 
-      if (transaction.type === "deposit") {
-        success = await retryDeposit(transaction);
-      } else if (transaction.type === "withdrawal") {
-        success = await retryWithdrawal(transaction);
-      }
+      try {
+        if (transaction.type === "deposit") {
+          success = await retryDeposit(transaction);
+        } else if (transaction.type === "withdrawal") {
+          success = await retryWithdrawal(transaction);
+        } else {
+          console.log(
+            `⏭️ Transaction type ${transaction.type} is not retryable`
+          );
+          await transaction.save();
+          continue;
+        }
 
-      if (success) {
-        successCount++;
+        if (success) {
+          successCount++;
+          console.log(
+            `✅ Successfully retried transaction ${transaction._id} (attempt ${currentRetryCount})`
+          );
+        } else {
+          console.log(
+            `❌ Retry failed for transaction ${transaction._id} (attempt ${currentRetryCount})`
+          );
+          await transaction.save();
+        }
+      } catch (error) {
+        console.error(
+          `❌ Error retrying transaction ${transaction._id}:`,
+          error
+        );
+        await transaction.save();
       }
 
       // Add delay between retries to avoid rate limiting
@@ -285,10 +342,18 @@ export async function retryFailedTransactions() {
     }
 
     console.log(
-      `✅ Retry job completed. Retried: ${retriedCount}, Succeeded: ${successCount}`
+      `✅ Retry job completed. Total: ${failedTransactions.length}, Retried: ${retriedCount}, Succeeded: ${successCount}, Skipped: ${skippedCount}`
     );
+
+    return {
+      total: failedTransactions.length,
+      retried: retriedCount,
+      succeeded: successCount,
+      skipped: skippedCount,
+    };
   } catch (error) {
     console.error("❌ Error in retry job:", error);
+    throw error;
   }
 }
 
