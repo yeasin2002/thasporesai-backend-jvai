@@ -1,3 +1,4 @@
+import { NotificationService } from "@/common/service/notification.service";
 import { db } from "@/db";
 import { STRIPE_WEBHOOK_SECRET } from "@/lib/Env";
 import { stripe } from "@/lib/stripe";
@@ -163,7 +164,19 @@ async function handlePaymentIntentSucceeded(
 
     console.log(`✅ Deposit completed: $${amount} added to wallet ${walletId}`);
 
-    // TODO: Send notification to user about successful deposit
+    // Send notification to user about successful deposit
+    await NotificationService.sendToUser({
+      userId,
+      title: "Deposit Successful",
+      body: `$${amount} has been added to your wallet`,
+      type: "general",
+      data: {
+        transactionId: String(transaction._id),
+        amount: amount.toString(),
+        type: "deposit",
+        status: "completed",
+      },
+    });
   } catch (error) {
     console.error("❌ Error processing successful payment:", error);
     throw error;
@@ -219,7 +232,20 @@ async function handlePaymentIntentFailed(paymentIntent: Stripe.PaymentIntent) {
 
     console.log(`❌ Deposit failed: $${amount} for wallet ${walletId}`);
 
-    // TODO: Send notification to user about failed deposit
+    // Send notification to user about failed deposit
+    await NotificationService.sendToUser({
+      userId,
+      title: "Deposit Failed",
+      body: `Your deposit of $${amount} could not be processed`,
+      type: "general",
+      data: {
+        transactionId: String(transaction._id),
+        amount: amount.toString(),
+        type: "deposit",
+        status: "failed",
+        reason: paymentIntent.last_payment_error?.message || "Unknown error",
+      },
+    });
   } catch (error) {
     console.error("❌ Error processing failed payment:", error);
     throw error;
@@ -275,7 +301,19 @@ async function handlePaymentIntentCanceled(
 
     console.log(`🚫 Deposit canceled: $${amount} for wallet ${walletId}`);
 
-    // TODO: Send notification to user about canceled deposit
+    // Send notification to user about canceled deposit
+    await NotificationService.sendToUser({
+      userId,
+      title: "Deposit Canceled",
+      body: `Your deposit of $${amount} was canceled`,
+      type: "general",
+      data: {
+        transactionId: String(transaction._id),
+        amount: amount.toString(),
+        type: "deposit",
+        status: "canceled",
+      },
+    });
   } catch (error) {
     console.error("❌ Error processing canceled payment:", error);
     throw error;
@@ -326,15 +364,36 @@ async function handleAccountUpdated(account: Stripe.Account) {
         `✅ Account status updated for user ${user._id}: ${oldStatus} → ${accountStatus}`
       );
 
-      // TODO: Send notification to user about account status change
+      // Send notification to user about account status change
       if (accountStatus === "verified") {
         console.log(`🎉 Contractor ${user.email} can now receive payments!`);
-        // TODO: Send "Account Verified" notification
+        // Send "Account Verified" notification
+        await NotificationService.sendToUser({
+          userId: String(user._id),
+          title: "Account Verified",
+          body: "Your Stripe Connect account has been verified. You can now receive payments!",
+          type: "general",
+          data: {
+            accountId: account.id,
+            status: "verified",
+          },
+        });
       } else if (accountStatus === "rejected") {
         console.log(
           `⚠️ Contractor ${user.email} account was rejected: ${account.requirements?.disabled_reason}`
         );
-        // TODO: Send "Account Rejected" notification with reason
+        // Send "Account Rejected" notification with reason
+        await NotificationService.sendToUser({
+          userId: String(user._id),
+          title: "Account Verification Failed",
+          body: `Your Stripe Connect account verification was rejected. Reason: ${account.requirements?.disabled_reason || "Unknown"}`,
+          type: "general",
+          data: {
+            accountId: account.id,
+            status: "rejected",
+            reason: account.requirements?.disabled_reason || "Unknown",
+          },
+        });
       }
     }
 
@@ -389,7 +448,18 @@ async function handlePaymentIntentProcessing(
       `⏳ Payment processing: ${paymentIntent.id} for wallet ${walletId}`
     );
 
-    // TODO: Send notification to user about payment processing
+    // Send notification to user about payment processing
+    await NotificationService.sendToUser({
+      userId,
+      title: "Payment Processing",
+      body: `Your deposit of $${paymentIntent.amount / 100} is being processed`,
+      type: "general",
+      data: {
+        transactionId: String(transaction._id),
+        paymentIntentId: paymentIntent.id,
+        status: "processing",
+      },
+    });
   } catch (error) {
     console.error("❌ Error processing payment intent processing:", error);
     throw error;
@@ -435,7 +505,19 @@ async function handlePaymentIntentRequiresAction(
       `🔐 Payment requires action: ${paymentIntent.id} for wallet ${walletId}`
     );
 
-    // TODO: Send notification to user about required action (3DS authentication)
+    // Send notification to user about required action (3DS authentication)
+    await NotificationService.sendToUser({
+      userId,
+      title: "Action Required",
+      body: `Your deposit of $${paymentIntent.amount / 100} requires additional authentication. Please complete the verification.`,
+      type: "general",
+      data: {
+        transactionId: String(transaction._id),
+        paymentIntentId: paymentIntent.id,
+        status: "requires_action",
+        action: "3ds_authentication",
+      },
+    });
   } catch (error) {
     console.error("❌ Error processing payment intent requires action:", error);
     throw error;
@@ -502,7 +584,19 @@ async function handleChargeRefunded(charge: Stripe.Charge) {
       `✅ Refund processed: ${refundAmount} added to wallet ${wallet._id}`
     );
 
-    // TODO: Send notification to user about refund
+    // Send notification to user about refund
+    await NotificationService.sendToUser({
+      userId: userId.toString(),
+      title: "Refund Processed",
+      body: `A refund of $${refundAmount} has been added to your wallet`,
+      type: "general",
+      data: {
+        transactionId: String(_refundTransaction._id),
+        amount: refundAmount.toString(),
+        type: "refund",
+        chargeId: charge.id,
+      },
+    });
   } catch (error) {
     console.error("❌ Error processing charge refund:", error);
     throw error;
@@ -536,7 +630,18 @@ async function handleCustomerUpdated(customer: Stripe.Customer) {
         `📧 Customer email changed: ${user.email} → ${customer.email}`
       );
       // Note: We don't auto-update user email as it's a sensitive field
-      // TODO: Send notification to user about email mismatch
+      // Send notification to user about email mismatch
+      await NotificationService.sendToUser({
+        userId: String(user._id),
+        title: "Email Mismatch Detected",
+        body: `Your Stripe customer email (${customer.email}) doesn't match your account email. Please update if needed.`,
+        type: "general",
+        data: {
+          customerId: customer.id,
+          stripeEmail: customer.email,
+          accountEmail: user.email,
+        },
+      });
     }
 
     console.log(`✅ Customer data synced for user ${user._id}`);
@@ -589,7 +694,22 @@ async function handleTransferUpdated(transfer: Stripe.Transfer) {
       `✅ Transfer updated: ${transfer.id} for user ${userId}, amount: ${amount}`
     );
 
-    // TODO: Send notification to contractor about transfer update if needed
+    // Send notification to contractor about transfer update if needed
+    // Only notify on significant status changes (not just routine updates)
+    if (transaction.status === "completed") {
+      await NotificationService.sendToUser({
+        userId,
+        title: "Withdrawal Completed",
+        body: `Your withdrawal of $${amount} has been successfully transferred to your bank account`,
+        type: "general",
+        data: {
+          transactionId: String(transaction._id),
+          transferId: transfer.id,
+          amount: amount.toString(),
+          status: "completed",
+        },
+      });
+    }
   } catch (error) {
     console.error("❌ Error processing transfer update:", error);
     throw error;
@@ -641,7 +761,19 @@ async function handleTransferReversed(transfer: Stripe.Transfer) {
 
     console.log(`🔄 Withdrawal reversed: ${amount} for user ${userId}`);
 
-    // TODO: Send notification to contractor about reversed withdrawal
+    // Send notification to contractor about reversed withdrawal
+    await NotificationService.sendToUser({
+      userId,
+      title: "Withdrawal Reversed",
+      body: `Your withdrawal of $${amount} was reversed and refunded to your wallet`,
+      type: "general",
+      data: {
+        transactionId: String(transaction._id),
+        transferId: transfer.id,
+        amount: amount.toString(),
+        status: "reversed",
+      },
+    });
   } catch (error) {
     console.error("❌ Error processing reversed transfer:", error);
     throw error;
