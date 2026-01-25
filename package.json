@@ -20,8 +20,6 @@
     "lint": "eslint . && prettier --check \"src/**/*.{ts,js,json}\"",
     "lint:fix": "eslint . --fix && prettier --write \"src/**/*.{ts,js,json}\"",
     "lint-staged": "lint-staged",
-    "test:unit": "vitest run tests/wallet tests/webhooks",
-    "test:integration": "vitest run tests/integration",
     "docker:setup": "cp .env.docker .env && mkdir -p uploads logs && echo '✓ Docker setup complete. Edit .env with your configuration.'",
     "docker:start": "docker-compose up -d",
     "docker:stop": "docker-compose down",
