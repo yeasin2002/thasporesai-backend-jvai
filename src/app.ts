@@ -53,7 +53,11 @@ app.use(morgan(morganDevFormat));
 
 app.use(
   cors({
-    origin: ["http://localhost:5173", "http://31.97.129.37:5173"],
+    origin: [
+      "http://localhost:5173",
+      "http://31.97.129.37:5173",
+      "https://admin.myquickjobs.com/",
+    ],
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     credentials: true,
   })
