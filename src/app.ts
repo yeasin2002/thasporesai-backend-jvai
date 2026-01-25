@@ -1,10 +1,10 @@
-import { apiReference } from "@scalar/express-api-reference";
-import consola from "consola";
-import cors from "cors";
 import "dotenv/config";
-import express from "express";
+
+import { apiReference } from "@scalar/express-api-reference";
+import cors from "cors";
+import express, { type Express } from "express";
 import morgan from "morgan";
-import { createServer } from "node:http";
+import { createServer, type Server } from "node:http";
 import swaggerUi from "swagger-ui-express";
 
 import { auth } from "@/api/auth/auth.route";
@@ -26,12 +26,7 @@ import { webhook } from "@/api/webhooks/webhook.route";
 import { adminUser } from "@/api/admin/admin-user/admin-user.route";
 
 // common routes
-import {
-  connectDB,
-  generateOpenAPIDocument,
-  initializeFirebase,
-  PORT,
-} from "@/lib";
+import { generateOpenAPIDocument } from "@/lib";
 import {
   errorHandler,
   notFoundHandler,
@@ -41,13 +36,10 @@ import {
 import { authAdmin } from "./api/admin/auth-admin/auth-admin.route";
 import { initializeSocketIO } from "./api/chat/socket";
 import { common } from "./api/common/common.route";
-import { startOfferExpirationJob } from "./jobs/expire-offers";
-import { retryFailedTransactions } from "./jobs/retry-failed-transactions";
-import { getLocalIP } from "./lib/get-my-ip";
 import { morganDevFormat } from "./lib/morgan";
 
-const app = express();
-const httpServer = createServer(app);
+const app: Express = express();
+const httpServer: Server = createServer(app);
 
 // Register webhook route BEFORE body parser (needs raw body for signature verification)
 app.use("/api/webhooks", webhook);
@@ -131,43 +123,5 @@ app.use(errorHandler);
 // Initialize Socket.IO
 initializeSocketIO(httpServer);
 
-httpServer.listen(PORT, async () => {
-  await connectDB();
-
-  // Initialize Firebase Admin SDK for push notifications
-  try {
-    initializeFirebase();
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  } catch (_error) {
-    consola.warn(
-      "⚠️ Firebase initialization failed. Push notifications will not work."
-    );
-  }
-  consola.warn(` 💬 Socket.IO chat enabled \n`);
-
-  // Start offer expiration job
-  startOfferExpirationJob();
-
-  // Start failed transaction retry job (runs every hour)
-  consola.info("🔄 Starting failed transaction retry job...");
-  // Run immediately on startup
-  retryFailedTransactions().catch((error) => {
-    consola.error("❌ Initial retry job failed:", error);
-  });
-  // Then run every hour
-  setInterval(
-    () => {
-      retryFailedTransactions().catch((error) => {
-        consola.error("❌ Scheduled retry job failed:", error);
-      });
-    },
-    60 * 60 * 1000
-  ); // 1 hour
-
-  consola.log(`🚀 Server is running on port http://localhost:${PORT}`);
-  consola.log(`✨ Server is running on port http://${getLocalIP()}:${PORT} \n`);
-
-  consola.info("Doc: ");
-  consola.log(`✍️  Swagger doc: http://localhost:${PORT}/swagger`);
-  consola.log(`📋 Scaler doc: http://localhost:${PORT}/scaler \n`);
-});
+// Export app and httpServer for server.ts
+export { app, httpServer };
