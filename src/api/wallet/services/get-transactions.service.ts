@@ -41,7 +41,19 @@ export const getTransactions: RequestHandler = async (req, res) => {
       },
     });
   } catch (error) {
-    console.error("Error getting transactions:", error);
+    // TODO: Integrate with error tracking service (e.g., Sentry) for production monitoring
+    // Enhanced error logging with context
+    console.error("Error getting transactions:", {
+      operation: "get_transactions",
+      userId: req?.user?.id,
+      type: req.query?.type,
+      page: req.query?.page,
+      limit: req.query?.limit,
+      error: error instanceof Error ? error.message : String(error),
+      stack: error instanceof Error ? error.stack : undefined,
+      timestamp: new Date().toISOString(),
+    });
+
     return sendInternalError(res, "Failed to get transactions", error);
   }
 };

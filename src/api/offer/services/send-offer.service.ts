@@ -198,7 +198,19 @@ export const sendOffer: RequestHandler<
       session.endSession();
     }
   } catch (error) {
-    logger.error("Error sending offer", error);
+    // TODO: Integrate with error tracking service (e.g., Sentry) for production monitoring
+    // Enhanced error logging with context
+    logger.error("Error sending offer", {
+      operation: "send_offer",
+      applicationId: req.params?.applicationId,
+      customerId: req?.user?.id,
+      amount: req.body?.amount,
+      timeline: req.body?.timeline,
+      error: error instanceof Error ? error.message : String(error),
+      stack: error instanceof Error ? error.stack : undefined,
+      timestamp: new Date().toISOString(),
+    });
+
     return sendInternalError(res, "Failed to send offer", error as Error);
   }
 };

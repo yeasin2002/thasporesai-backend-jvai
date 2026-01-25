@@ -40,7 +40,25 @@ export const refreshConnectAccount: RequestHandler = async (req, res) => {
     // Redirect to new onboarding URL
     return res.redirect(accountLink.url);
   } catch (error) {
-    console.error("Error refreshing Stripe Connect account link:", error);
+    // TODO: Integrate with error tracking service (e.g., Sentry) for production monitoring
+    // Enhanced error logging with context
+    console.error("Error refreshing Stripe Connect account link:", {
+      operation: "refresh_connect_account",
+      userId: req?.user?.id,
+      stripeAccountId: req?.user?.stripeAccountId,
+      error: error instanceof Error ? error.message : String(error),
+      stack: error instanceof Error ? error.stack : undefined,
+      timestamp: new Date().toISOString(),
+      stripeError:
+        error instanceof Stripe.errors.StripeError
+          ? {
+              type: error.type,
+              code: error.code,
+              statusCode: error.statusCode,
+              requestId: error.requestId,
+            }
+          : undefined,
+    });
 
     // Handle Stripe-specific errors
     if (error instanceof Stripe.errors.StripeError) {
@@ -165,7 +183,25 @@ export const returnConnectAccount: RequestHandler = async (req, res) => {
       `);
     }
   } catch (error) {
-    console.error("Error handling Stripe Connect return:", error);
+    // TODO: Integrate with error tracking service (e.g., Sentry) for production monitoring
+    // Enhanced error logging with context
+    console.error("Error handling Stripe Connect return:", {
+      operation: "return_connect_account",
+      userId: req?.user?.id,
+      error: error instanceof Error ? error.message : String(error),
+      stack: error instanceof Error ? error.stack : undefined,
+      timestamp: new Date().toISOString(),
+      stripeError:
+        error instanceof Stripe.errors.StripeError
+          ? {
+              type: error.type,
+              code: error.code,
+              statusCode: error.statusCode,
+              requestId: error.requestId,
+            }
+          : undefined,
+    });
+
     return res.status(500).send(`
       <html>
         <body>

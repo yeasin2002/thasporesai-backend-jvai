@@ -215,7 +215,31 @@ export const withdraw: RequestHandler<{}, any, Withdraw> = async (req, res) => {
         "Your withdrawal is being processed. Funds will arrive in your bank account within 2-3 business days.",
     });
   } catch (error) {
-    console.error("Error processing withdrawal:", error);
+    // TODO: Integrate with error tracking service (e.g., Sentry) for production monitoring
+    // Enhanced error logging with context
+    console.error("Error processing withdrawal:", {
+      operation: "withdrawal",
+      userId: req?.user?.id,
+      amount: req.body?.amount,
+      error: error instanceof Error ? error.message : String(error),
+      stack: error instanceof Error ? error.stack : undefined,
+      timestamp: new Date().toISOString(),
+      stripeError:
+        error instanceof Stripe.errors.StripeError
+          ? {
+              type: error.type,
+              code: error.code,
+              statusCode: error.statusCode,
+              requestId: error.requestId,
+            }
+          : undefined,
+    });
+
+    // Handle Stripe-specific errors
+    if (error instanceof Stripe.errors.StripeError) {
+      return sendBadRequest(res, error.message);
+    }
+
     return sendInternalError(res, "Failed to process withdrawal", error);
   }
 };

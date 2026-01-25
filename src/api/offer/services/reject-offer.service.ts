@@ -94,7 +94,18 @@ export const rejectOffer: RequestHandler<
       refundAmount: offer.totalCharge,
     });
   } catch (error) {
-    console.error("Error rejecting offer:", error);
+    // TODO: Integrate with error tracking service (e.g., Sentry) for production monitoring
+    // Enhanced error logging with context
+    console.error("Error rejecting offer:", {
+      operation: "reject_offer",
+      offerId: req.params?.offerId,
+      contractorId: req?.user?.id,
+      reason: req.body?.reason,
+      error: error instanceof Error ? error.message : String(error),
+      stack: error instanceof Error ? error.stack : undefined,
+      timestamp: new Date().toISOString(),
+    });
+
     return sendInternalError(res, "Failed to reject offer", error);
   }
 };

@@ -114,7 +114,31 @@ export const getWithdrawalStatus: RequestHandler<{
             : "Failed",
     });
   } catch (error) {
-    console.error("Error fetching withdrawal status:", error);
+    // TODO: Integrate with error tracking service (e.g., Sentry) for production monitoring
+    // Enhanced error logging with context
+    console.error("Error fetching withdrawal status:", {
+      operation: "get_withdrawal_status",
+      userId: req?.user?.id,
+      transactionId: req.params?.transactionId,
+      error: error instanceof Error ? error.message : String(error),
+      stack: error instanceof Error ? error.stack : undefined,
+      timestamp: new Date().toISOString(),
+      stripeError:
+        error instanceof Stripe.errors.StripeError
+          ? {
+              type: error.type,
+              code: error.code,
+              statusCode: error.statusCode,
+              requestId: error.requestId,
+            }
+          : undefined,
+    });
+
+    // Handle Stripe-specific errors
+    if (error instanceof Stripe.errors.StripeError) {
+      return sendBadRequest(res, error.message);
+    }
+
     return sendInternalError(res, "Failed to fetch withdrawal status", error);
   }
 };

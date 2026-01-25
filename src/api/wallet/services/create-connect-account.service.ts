@@ -111,7 +111,25 @@ export const createConnectAccount: RequestHandler = async (req, res) => {
       }
     );
   } catch (error) {
-    console.error("Error creating Stripe Connect account:", error);
+    // TODO: Integrate with error tracking service (e.g., Sentry) for production monitoring
+    // Enhanced error logging with context
+    console.error("Error creating Stripe Connect account:", {
+      operation: "create_connect_account",
+      userId: req?.user?.id,
+      userEmail: req?.user?.email,
+      error: error instanceof Error ? error.message : String(error),
+      stack: error instanceof Error ? error.stack : undefined,
+      timestamp: new Date().toISOString(),
+      stripeError:
+        error instanceof Stripe.errors.StripeError
+          ? {
+              type: error.type,
+              code: error.code,
+              statusCode: error.statusCode,
+              requestId: error.requestId,
+            }
+          : undefined,
+    });
 
     // Handle Stripe-specific errors
     if (error instanceof Stripe.errors.StripeError) {

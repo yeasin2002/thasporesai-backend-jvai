@@ -91,7 +91,25 @@ export const getConnectAccountStatus: RequestHandler = async (req, res) => {
       }
     );
   } catch (error) {
-    console.error("Error fetching Stripe Connect account status:", error);
+    // TODO: Integrate with error tracking service (e.g., Sentry) for production monitoring
+    // Enhanced error logging with context
+    console.error("Error fetching Stripe Connect account status:", {
+      operation: "get_connect_account_status",
+      userId: req?.user?.id,
+      stripeAccountId: req?.user?.stripeAccountId,
+      error: error instanceof Error ? error.message : String(error),
+      stack: error instanceof Error ? error.stack : undefined,
+      timestamp: new Date().toISOString(),
+      stripeError:
+        error instanceof Stripe.errors.StripeError
+          ? {
+              type: error.type,
+              code: error.code,
+              statusCode: error.statusCode,
+              requestId: error.requestId,
+            }
+          : undefined,
+    });
 
     // Handle Stripe-specific errors
     if (error instanceof Stripe.errors.StripeError) {

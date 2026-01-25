@@ -141,7 +141,25 @@ export const deposit: RequestHandler<{}, any, Deposit> = async (req, res) => {
       },
     });
   } catch (error) {
-    console.error("Error processing deposit:", error);
+    // Enhanced error logging with context
+    console.error("Error processing deposit:", {
+      operation: "deposit",
+      userId: req?.user?.id,
+      amount: req.body?.amount,
+      paymentMethodId: req.body?.paymentMethodId,
+      error: error instanceof Error ? error.message : String(error),
+      stack: error instanceof Error ? error.stack : undefined,
+      timestamp: new Date().toISOString(),
+      stripeError:
+        error instanceof Stripe.errors.StripeError
+          ? {
+              type: error.type,
+              code: error.code,
+              statusCode: error.statusCode,
+              requestId: error.requestId,
+            }
+          : undefined,
+    });
 
     // Handle Stripe-specific errors
     if (error instanceof Stripe.errors.StripeError) {

@@ -168,7 +168,17 @@ export const acceptOffer: RequestHandler = async (req, res) => {
       session.endSession();
     }
   } catch (error) {
-    console.error("Error accepting offer:", error);
+    // TODO: Integrate with error tracking service (e.g., Sentry) for production monitoring
+    // Enhanced error logging with context
+    console.error("Error accepting offer:", {
+      operation: "accept_offer",
+      offerId: req.params?.offerId,
+      contractorId: req?.user?.id,
+      error: error instanceof Error ? error.message : String(error),
+      stack: error instanceof Error ? error.stack : undefined,
+      timestamp: new Date().toISOString(),
+    });
+
     return sendInternalError(res, "Failed to accept offer", error as Error);
   }
 };

@@ -20,7 +20,16 @@ export const getWallet: RequestHandler = async (req, res) => {
 
     return sendSuccess(res, 200, "Wallet retrieved successfully", wallet);
   } catch (error) {
-    console.error("Error getting wallet:", error);
+    // TODO: Integrate with error tracking service (e.g., Sentry) for production monitoring
+    // Enhanced error logging with context
+    console.error("Error getting wallet:", {
+      operation: "get_wallet",
+      userId: req?.user?.id,
+      error: error instanceof Error ? error.message : String(error),
+      stack: error instanceof Error ? error.stack : undefined,
+      timestamp: new Date().toISOString(),
+    });
+
     return sendInternalError(res, "Failed to get wallet", error);
   }
 };

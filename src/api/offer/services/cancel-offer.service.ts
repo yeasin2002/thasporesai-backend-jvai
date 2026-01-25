@@ -175,7 +175,21 @@ export const cancelOffer: RequestHandler<any, any, CancelOffer> = async (
     });
   } catch (error) {
     await session.abortTransaction();
-    console.error("Error cancelling offer:", error);
+
+    // TODO: Integrate with error tracking service (e.g., Sentry) for production monitoring
+    // Enhanced error logging with context
+    console.error("Error cancelling offer:", {
+      operation: "cancel_offer",
+      customerId: req.body?.customer,
+      contractorId: req.body?.contractor,
+      jobId: req.body?.jobId,
+      userId: req.user?.id,
+      reason: req.body?.reason,
+      error: error instanceof Error ? error.message : String(error),
+      stack: error instanceof Error ? error.stack : undefined,
+      timestamp: new Date().toISOString(),
+    });
+
     return sendInternalError(res, "Failed to cancel offer", error);
   } finally {
     session.endSession();

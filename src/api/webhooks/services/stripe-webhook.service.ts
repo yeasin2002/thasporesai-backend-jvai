@@ -105,7 +105,17 @@ export const handleStripeWebhook: RequestHandler = async (req, res) => {
     // Return 200 to acknowledge receipt
     return res.json({ received: true });
   } catch (error) {
-    console.error("❌ Error processing webhook:", error);
+    // TODO: Integrate with error tracking service (e.g., Sentry) for production monitoring
+    // Enhanced error logging with context
+    console.error("❌ Error processing webhook:", {
+      operation: "stripe_webhook",
+      eventType: event?.type,
+      eventId: event?.id,
+      error: error instanceof Error ? error.message : String(error),
+      stack: error instanceof Error ? error.stack : undefined,
+      timestamp: new Date().toISOString(),
+    });
+
     return res.status(500).send("Webhook processing failed");
   }
 };
@@ -178,7 +188,19 @@ async function handlePaymentIntentSucceeded(
       },
     });
   } catch (error) {
-    console.error("❌ Error processing successful payment:", error);
+    // TODO: Integrate with error tracking service (e.g., Sentry) for production monitoring
+    // Enhanced error logging with context
+    console.error("❌ Error processing successful payment:", {
+      operation: "payment_intent_succeeded",
+      paymentIntentId: paymentIntent.id,
+      userId: paymentIntent.metadata?.userId,
+      walletId: paymentIntent.metadata?.walletId,
+      amount: paymentIntent.amount / 100,
+      error: error instanceof Error ? error.message : String(error),
+      stack: error instanceof Error ? error.stack : undefined,
+      timestamp: new Date().toISOString(),
+    });
+
     throw error;
   }
 }
@@ -247,7 +269,20 @@ async function handlePaymentIntentFailed(paymentIntent: Stripe.PaymentIntent) {
       },
     });
   } catch (error) {
-    console.error("❌ Error processing failed payment:", error);
+    // TODO: Integrate with error tracking service (e.g., Sentry) for production monitoring
+    // Enhanced error logging with context
+    console.error("❌ Error processing failed payment:", {
+      operation: "payment_intent_failed",
+      paymentIntentId: paymentIntent.id,
+      userId: paymentIntent.metadata?.userId,
+      walletId: paymentIntent.metadata?.walletId,
+      amount: paymentIntent.amount / 100,
+      failureReason: paymentIntent.last_payment_error?.message,
+      error: error instanceof Error ? error.message : String(error),
+      stack: error instanceof Error ? error.stack : undefined,
+      timestamp: new Date().toISOString(),
+    });
+
     throw error;
   }
 }
@@ -315,7 +350,19 @@ async function handlePaymentIntentCanceled(
       },
     });
   } catch (error) {
-    console.error("❌ Error processing canceled payment:", error);
+    // TODO: Integrate with error tracking service (e.g., Sentry) for production monitoring
+    // Enhanced error logging with context
+    console.error("❌ Error processing canceled payment:", {
+      operation: "payment_intent_canceled",
+      paymentIntentId: paymentIntent.id,
+      userId: paymentIntent.metadata?.userId,
+      walletId: paymentIntent.metadata?.walletId,
+      amount: paymentIntent.amount / 100,
+      error: error instanceof Error ? error.message : String(error),
+      stack: error instanceof Error ? error.stack : undefined,
+      timestamp: new Date().toISOString(),
+    });
+
     throw error;
   }
 }
@@ -405,7 +452,18 @@ async function handleAccountUpdated(account: Stripe.Account) {
       );
     }
   } catch (error) {
-    console.error("❌ Error processing account update:", error);
+    // TODO: Integrate with error tracking service (e.g., Sentry) for production monitoring
+    // Enhanced error logging with context
+    console.error("❌ Error processing account update:", {
+      operation: "account_updated",
+      accountId: account.id,
+      accountStatus: account.charges_enabled ? "verified" : "pending",
+      disabledReason: account.requirements?.disabled_reason,
+      error: error instanceof Error ? error.message : String(error),
+      stack: error instanceof Error ? error.stack : undefined,
+      timestamp: new Date().toISOString(),
+    });
+
     throw error;
   }
 }
@@ -461,7 +519,19 @@ async function handlePaymentIntentProcessing(
       },
     });
   } catch (error) {
-    console.error("❌ Error processing payment intent processing:", error);
+    // TODO: Integrate with error tracking service (e.g., Sentry) for production monitoring
+    // Enhanced error logging with context
+    console.error("❌ Error processing payment intent processing:", {
+      operation: "payment_intent_processing",
+      paymentIntentId: paymentIntent.id,
+      userId: paymentIntent.metadata?.userId,
+      walletId: paymentIntent.metadata?.walletId,
+      amount: paymentIntent.amount / 100,
+      error: error instanceof Error ? error.message : String(error),
+      stack: error instanceof Error ? error.stack : undefined,
+      timestamp: new Date().toISOString(),
+    });
+
     throw error;
   }
 }
@@ -519,7 +589,19 @@ async function handlePaymentIntentRequiresAction(
       },
     });
   } catch (error) {
-    console.error("❌ Error processing payment intent requires action:", error);
+    // TODO: Integrate with error tracking service (e.g., Sentry) for production monitoring
+    // Enhanced error logging with context
+    console.error("❌ Error processing payment intent requires action:", {
+      operation: "payment_intent_requires_action",
+      paymentIntentId: paymentIntent.id,
+      userId: paymentIntent.metadata?.userId,
+      walletId: paymentIntent.metadata?.walletId,
+      amount: paymentIntent.amount / 100,
+      error: error instanceof Error ? error.message : String(error),
+      stack: error instanceof Error ? error.stack : undefined,
+      timestamp: new Date().toISOString(),
+    });
+
     throw error;
   }
 }
@@ -598,7 +680,18 @@ async function handleChargeRefunded(charge: Stripe.Charge) {
       },
     });
   } catch (error) {
-    console.error("❌ Error processing charge refund:", error);
+    // TODO: Integrate with error tracking service (e.g., Sentry) for production monitoring
+    // Enhanced error logging with context
+    console.error("❌ Error processing charge refund:", {
+      operation: "charge_refunded",
+      chargeId: charge.id,
+      paymentIntentId: charge.payment_intent,
+      refundAmount: charge.amount_refunded / 100,
+      error: error instanceof Error ? error.message : String(error),
+      stack: error instanceof Error ? error.stack : undefined,
+      timestamp: new Date().toISOString(),
+    });
+
     throw error;
   }
 }
@@ -646,7 +739,18 @@ async function handleCustomerUpdated(customer: Stripe.Customer) {
 
     console.log(`✅ Customer data synced for user ${user._id}`);
   } catch (error) {
-    console.error("❌ Error processing customer update:", error);
+    // TODO: Integrate with error tracking service (e.g., Sentry) for production monitoring
+    // Enhanced error logging with context
+    console.error("❌ Error processing customer update:", {
+      operation: "customer_updated",
+      customerId: customer.id,
+      customerEmail: customer.email,
+      deleted: customer.deleted,
+      error: error instanceof Error ? error.message : String(error),
+      stack: error instanceof Error ? error.stack : undefined,
+      timestamp: new Date().toISOString(),
+    });
+
     throw error;
   }
 }
@@ -711,7 +815,20 @@ async function handleTransferUpdated(transfer: Stripe.Transfer) {
       });
     }
   } catch (error) {
-    console.error("❌ Error processing transfer update:", error);
+    // TODO: Integrate with error tracking service (e.g., Sentry) for production monitoring
+    // Enhanced error logging with context
+    console.error("❌ Error processing transfer update:", {
+      operation: "transfer_updated",
+      transferId: transfer.id,
+      userId: transfer.metadata?.userId,
+      walletId: transfer.metadata?.walletId,
+      amount: transfer.amount / 100,
+      reversed: transfer.reversed,
+      error: error instanceof Error ? error.message : String(error),
+      stack: error instanceof Error ? error.stack : undefined,
+      timestamp: new Date().toISOString(),
+    });
+
     throw error;
   }
 }
@@ -775,7 +892,19 @@ async function handleTransferReversed(transfer: Stripe.Transfer) {
       },
     });
   } catch (error) {
-    console.error("❌ Error processing reversed transfer:", error);
+    // TODO: Integrate with error tracking service (e.g., Sentry) for production monitoring
+    // Enhanced error logging with context
+    console.error("❌ Error processing reversed transfer:", {
+      operation: "transfer_reversed",
+      transferId: transfer.id,
+      userId: transfer.metadata?.userId,
+      walletId: transfer.metadata?.walletId,
+      amount: transfer.amount / 100,
+      error: error instanceof Error ? error.message : String(error),
+      stack: error instanceof Error ? error.stack : undefined,
+      timestamp: new Date().toISOString(),
+    });
+
     throw error;
   }
 }
