@@ -2,22 +2,22 @@ import { Schema, model, type Document, type Types } from "mongoose";
 
 export interface Transaction {
   type:
-    | "platform_fee"
-    | "service_fee"
-    | "contractor_payout"
-    | "refund"
     | "deposit"
     | "withdrawal"
-    | "escrow_hold"
-    | "escrow_release";
+    | "wallet_transfer"
+    | "contractor_payout"
+    | "refund";
   amount: number;
-  from: Types.ObjectId;
-  to: Types.ObjectId;
+  from: Types.ObjectId | null;
+  to: Types.ObjectId | null;
   offer?: Types.ObjectId;
   job?: Types.ObjectId;
   status: "pending" | "completed" | "failed";
   description: string;
   failureReason?: string;
+  stripePaymentIntentId?: string;
+  stripeTransferId?: string;
+  stripeCheckoutSessionId?: string;
   completedAt?: Date;
 }
 
@@ -28,14 +28,11 @@ const transactionSchema = new Schema<TransactionDocument>(
     type: {
       type: String,
       enum: [
-        "platform_fee",
-        "service_fee",
-        "contractor_payout",
-        "refund",
         "deposit",
         "withdrawal",
-        "escrow_hold",
-        "escrow_release",
+        "wallet_transfer",
+        "contractor_payout",
+        "refund",
       ],
       required: true,
     },
@@ -46,12 +43,12 @@ const transactionSchema = new Schema<TransactionDocument>(
     from: {
       type: Schema.Types.ObjectId,
       ref: "User",
-      required: true,
+      default: null,
     },
     to: {
       type: Schema.Types.ObjectId,
       ref: "User",
-      required: true,
+      default: null,
     },
     offer: {
       type: Schema.Types.ObjectId,
@@ -71,6 +68,19 @@ const transactionSchema = new Schema<TransactionDocument>(
       required: true,
     },
     failureReason: String,
+    stripePaymentIntentId: {
+      type: String,
+      sparse: true,
+    },
+    stripeTransferId: {
+      type: String,
+      sparse: true,
+    },
+    stripeCheckoutSessionId: {
+      type: String,
+      sparse: true,
+      unique: true,
+    },
     completedAt: Date,
   },
   { timestamps: true }

@@ -3,13 +3,14 @@ import { Schema, Types, model, type Document } from "mongoose";
 export interface Wallet {
   user: Types.ObjectId;
   balance: number;
-  escrowBalance: number;
   currency: string;
   isActive: boolean;
   isFrozen: boolean;
   totalEarnings: number;
   totalSpent: number;
   totalWithdrawals: number;
+  stripeCustomerId: string | null;
+  stripeConnectAccountId: string | null;
 }
 
 export interface WalletDocument extends Wallet, Document {}
@@ -23,11 +24,6 @@ const walletSchema = new Schema<WalletDocument>(
       unique: true,
     },
     balance: {
-      type: Number,
-      default: 0,
-      min: 0,
-    },
-    escrowBalance: {
       type: Number,
       default: 0,
       min: 0,
@@ -58,6 +54,16 @@ const walletSchema = new Schema<WalletDocument>(
       type: Number,
       default: 0,
       min: 0,
+    },
+    stripeCustomerId: {
+      type: String,
+      default: null,
+      sparse: true,
+    },
+    stripeConnectAccountId: {
+      type: String,
+      default: null,
+      sparse: true,
     },
   },
   { timestamps: true }

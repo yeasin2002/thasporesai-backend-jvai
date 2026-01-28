@@ -1,5 +1,6 @@
 import { Category } from "./models/category.model";
 import { Certification } from "./models/certification.model";
+import { CompletionRequest } from "./models/completion-request.model";
 import { Conversation } from "./models/conversation.model";
 import { Experience } from "./models/experience.model";
 import { FcmToken } from "./models/fcm-token.model";
@@ -20,6 +21,7 @@ export const db = {
   offer: Offer,
   wallet: Wallet,
   transaction: Transaction,
+  completionRequest: CompletionRequest,
   user: User,
   category: Category,
   job: Job,
