@@ -24,14 +24,14 @@ Minimal MVP implementation focused on core payment functionality. Manual testing
   - Add indexes: job (unique), status + createdAt (compound)
   - Register in db/index.ts
 
-- [~] 4. Create WithdrawalRequest Model
+- [x] 4. Create WithdrawalRequest Model
   - Create schema with fields: contractor, amount, status, approvedBy, rejectedBy, rejectionReason, stripeTransferId, timestamps
   - Add indexes: contractor + status + createdAt, status + createdAt
   - Register in db/index.ts
 
 ### Phase 2: Stripe Setup
 
-- [~] 5. Configure Stripe SDK
+- [-] 5. Configure Stripe SDK
   - Install stripe package
   - Create src/lib/stripe.ts with Stripe initialization
   - Add STRIPE_SECRET_KEY and STRIPE_WEBHOOK_SECRET to .env.example

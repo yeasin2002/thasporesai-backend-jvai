@@ -14,6 +14,7 @@ import { Review } from "./models/review.model";
 import { Transaction } from "./models/transaction.model";
 import { User } from "./models/user.model";
 import { Wallet } from "./models/wallet.model";
+import { WithdrawalRequest } from "./models/withdrawal-request.model";
 import { WorkSample } from "./models/work-samples.model";
 
 export const db = {
@@ -22,6 +23,7 @@ export const db = {
   wallet: Wallet,
   transaction: Transaction,
   completionRequest: CompletionRequest,
+  withdrawalRequest: WithdrawalRequest,
   user: User,
   category: Category,
   job: Job,
