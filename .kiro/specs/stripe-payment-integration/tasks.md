@@ -51,12 +51,12 @@ Minimal MVP implementation focused on core payment functionality. Manual testing
   - GET /api/wallet: Return wallet balance and Stripe Connect status
   - GET /api/wallet/transactions: Return paginated transaction history
 
-- [~] 8. Update Offer Endpoints
+- [x] 8. Update Offer Endpoints
   - Update POST /api/job-request/:applicationId/send-offer: Calculate commissions, validate balance (no deduction), create offer with expiresAt
   - Update POST /api/job-request/offer/:offerId/accept: MongoDB transaction to transfer funds (customer → admin), update job/offer status
   - Update POST /api/job-request/offer/:offerId/reject: If accepted, MongoDB transaction to refund (admin → customer), update status
 
-- [~] 9. Implement Job Completion Flow
+- [ ] 9. Implement Job Completion Flow
   - POST /api/job/:id/complete: Create CompletionRequest with status "pending"
   - POST /api/admin/completion-requests/:id/approve: MongoDB transaction (admin → contractor), initiate Stripe Connect transfer, update job/offer status
   - POST /api/admin/completion-requests/:id/reject: Update request status, send notification
@@ -64,7 +64,7 @@ Minimal MVP implementation focused on core payment functionality. Manual testing
 
 ### Phase 4: Admin Approval System
 
-- [~] 10. Implement Admin Endpoints
+- [ ] 10. Implement Admin Endpoints
   - GET /api/admin/completion-requests: Return paginated completion requests with filters
   - GET /api/admin/withdrawal-requests: Return paginated withdrawal requests with filters
   - POST /api/admin/withdrawal-requests/:id/approve: MongoDB transaction (deduct from contractor), initiate Stripe Connect transfer
@@ -72,28 +72,28 @@ Minimal MVP implementation focused on core payment functionality. Manual testing
 
 ### Phase 5: Contractor Withdrawal & Connect
 
-- [~] 11. Implement Withdrawal & Connect
+- [ ] 11. Implement Withdrawal & Connect
   - POST /api/wallet/withdraw: Validate contractor role, balance, Connect account, create WithdrawalRequest
   - POST /api/wallet/stripe/onboard: Create/retrieve Connect account, generate onboarding link, return URL
   - GET /api/wallet/stripe/status: Query Stripe API, return account status and requirements
 
 ### Phase 6: Cron Job
 
-- [~] 12. Implement Offer Expiration
+- [ ] 12. Implement Offer Expiration
   - Create src/jobs/expire-offers.ts cron job (runs hourly)
   - Query expired accepted offers
   - For each: MongoDB transaction to refund (admin → customer), update offer status to "expired", send notifications
 
 ### Phase 7: Validation & Documentation
 
-- [~] 13. Add Validation & OpenAPI
+- [ ] 13. Add Validation & OpenAPI
   - Add Zod validation schemas for all new/updated endpoints
   - Add OpenAPI documentation for all endpoints
   - Update existing validation schemas where needed
 
 ### Phase 8: Deployment Setup
 
-- [~] 14. Configure Stripe Dashboard
+- [ ] 14. Configure Stripe Dashboard
   - Set up webhook endpoint in Stripe Dashboard
   - Configure webhook events: checkout.session.completed, checkout.session.async_payment_succeeded, checkout.session.async_payment_failed
   - Set up Stripe Connect settings
