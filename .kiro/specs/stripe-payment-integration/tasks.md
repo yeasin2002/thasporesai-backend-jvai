@@ -36,7 +36,7 @@ Minimal MVP implementation focused on core payment functionality. Manual testing
   - Create src/lib/stripe.ts with Stripe initialization
   - Add STRIPE_SECRET_KEY and STRIPE_WEBHOOK_SECRET to .env.example
 
-- [-] 6. Create Stripe Helper Services
+- [x] 6. Create Stripe Helper Services
   - Create Stripe Checkout Session helper (returns URL)
   - Create Stripe Connect account helper (create/retrieve account)
   - Create Stripe Connect onboarding link helper
@@ -45,7 +45,7 @@ Minimal MVP implementation focused on core payment functionality. Manual testing
 
 ### Phase 3: Core Payment Endpoints
 
-- [~] 7. Implement Deposit Flow
+- [-] 7. Implement Deposit Flow
   - POST /api/wallet/deposit: Create Checkout Session, return URL
   - POST /api/webhooks/stripe: Verify signature, handle checkout.session.completed, update wallet balance, create transaction record
   - GET /api/wallet: Return wallet balance and Stripe Connect status

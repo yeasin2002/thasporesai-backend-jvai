@@ -5,11 +5,9 @@ extendZodWithOpenApi(z);
 
 export const DepositSchema = z
   .object({
-    amount: z.number().positive().openapi({ description: "Amount to deposit" }),
-    paymentMethodId: z
-      .string()
-      .min(1)
-      .openapi({ description: "Payment method ID" }),
+    amount: z.number().positive().min(1).max(10000).openapi({
+      description: "Amount to deposit (min: $1, max: $10,000)",
+    }),
   })
   .openapi("Deposit");
 
