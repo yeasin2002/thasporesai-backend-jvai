@@ -6,6 +6,7 @@ import { registry } from "@/lib/openapi";
 import { z } from "zod";
 import {
   DepositSchema,
+  StripeOnboardSchema,
   TransactionQuerySchema,
   WithdrawSchema,
 } from "./wallet.validation";
@@ -281,6 +282,126 @@ registry.registerPath({
       content: {
         [mediaTypeFormat.json]: {
           schema: TransactionsResponseSchema,
+        },
+      },
+    },
+    401: {
+      description: "Unauthorized",
+      content: {
+        [mediaTypeFormat.json]: {
+          schema: ErrorResponseSchema,
+        },
+      },
+    },
+    500: {
+      description: "Internal server error",
+      content: {
+        [mediaTypeFormat.json]: {
+          schema: ErrorResponseSchema,
+        },
+      },
+    },
+  },
+});
+
+// Response schemas for Stripe Connect
+const StripeOnboardResponseSchema = z.object({
+  status: z.number(),
+  message: z.string(),
+  data: z.object({
+    url: z.string(),
+    accountId: z.string(),
+  }),
+});
+
+const StripeStatusResponseSchema = z.object({
+  status: z.number(),
+  message: z.string(),
+  data: z.object({
+    accountId: z.string().nullable(),
+    status: z.enum(["not_connected", "pending", "verified", "restricted"]),
+    payoutsEnabled: z.boolean(),
+    requirementsNeeded: z.array(z.string()),
+  }),
+});
+
+// POST /api/wallet/stripe/onboard - Get Stripe Connect onboarding link
+registry.registerPath({
+  method: "post",
+  path: `${openAPITags.wallet.basepath}/stripe/onboard`,
+  description:
+    "Get Stripe Connect onboarding link for contractor to connect bank account",
+  summary: "Get Stripe Connect onboarding link",
+  tags: [openAPITags.wallet.name],
+  security: [{ bearerAuth: [] }],
+  request: {
+    body: {
+      content: {
+        [mediaTypeFormat.json]: {
+          schema: StripeOnboardSchema,
+        },
+      },
+    },
+  },
+  responses: {
+    200: {
+      description: "Onboarding link created successfully",
+      content: {
+        [mediaTypeFormat.json]: {
+          schema: StripeOnboardResponseSchema,
+        },
+      },
+    },
+    400: {
+      description: "Bad request - Only contractors can onboard",
+      content: {
+        [mediaTypeFormat.json]: {
+          schema: ErrorResponseSchema,
+        },
+      },
+    },
+    401: {
+      description: "Unauthorized",
+      content: {
+        [mediaTypeFormat.json]: {
+          schema: ErrorResponseSchema,
+        },
+      },
+    },
+    500: {
+      description: "Internal server error",
+      content: {
+        [mediaTypeFormat.json]: {
+          schema: ErrorResponseSchema,
+        },
+      },
+    },
+  },
+});
+
+// GET /api/wallet/stripe/status - Get Stripe Connect account status
+registry.registerPath({
+  method: "get",
+  path: `${openAPITags.wallet.basepath}/stripe/status`,
+  description:
+    "Check Stripe Connect account status and verification requirements",
+  summary: "Get Stripe Connect status",
+  tags: [openAPITags.wallet.name],
+  security: [{ bearerAuth: [] }],
+  responses: {
+    200: {
+      description: "Stripe account status retrieved successfully",
+      content: {
+        [mediaTypeFormat.json]: {
+          schema: StripeStatusResponseSchema,
+        },
+      },
+    },
+    400: {
+      description: "Bad request - Only contractors can check status",
+      content: {
+        [mediaTypeFormat.json]: {
+          schema: ErrorResponseSchema,
         },
       },
     },

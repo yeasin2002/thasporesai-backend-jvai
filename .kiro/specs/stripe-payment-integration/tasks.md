@@ -72,7 +72,7 @@ Minimal MVP implementation focused on core payment functionality. Manual testing
 
 ### Phase 5: Contractor Withdrawal & Connect
 
-- [ ] 11. Implement Withdrawal & Connect
+- [x] 11. Implement Withdrawal & Connect
   - POST /api/wallet/withdraw: Validate contractor role, balance, Connect account, create WithdrawalRequest
   - POST /api/wallet/stripe/onboard: Create/retrieve Connect account, generate onboarding link, return URL
   - GET /api/wallet/stripe/status: Query Stripe API, return account status and requirements

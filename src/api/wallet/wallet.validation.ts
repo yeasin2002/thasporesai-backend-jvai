@@ -20,6 +20,21 @@ export const WithdrawSchema = z
   })
   .openapi("Withdraw");
 
+export const StripeOnboardSchema = z
+  .object({
+    refreshUrl: z
+      .string()
+      .url()
+      .optional()
+      .openapi({ description: "URL to return if onboarding needs refresh" }),
+    returnUrl: z
+      .string()
+      .url()
+      .optional()
+      .openapi({ description: "URL to return after successful onboarding" }),
+  })
+  .openapi("StripeOnboard");
+
 export const TransactionQuerySchema = z
   .object({
     type: z
@@ -41,4 +56,5 @@ export const TransactionQuerySchema = z
 
 export type Deposit = z.infer<typeof DepositSchema>;
 export type Withdraw = z.infer<typeof WithdrawSchema>;
+export type StripeOnboard = z.infer<typeof StripeOnboardSchema>;
 export type TransactionQuery = z.infer<typeof TransactionQuerySchema>;
