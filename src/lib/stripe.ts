@@ -23,7 +23,7 @@ export const initializeStripe = (): Stripe => {
 
     // Initialize Stripe with secret key
     stripeInstance = new Stripe(stripeSecretKey, {
-      apiVersion: "2024-12-18.acacia", // Use latest API version
+      apiVersion: "2025-10-29.clover", // Use latest API version
       typescript: true,
     });
 

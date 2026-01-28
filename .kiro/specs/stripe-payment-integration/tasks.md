@@ -31,12 +31,12 @@ Minimal MVP implementation focused on core payment functionality. Manual testing
 
 ### Phase 2: Stripe Setup
 
-- [-] 5. Configure Stripe SDK
+- [x] 5. Configure Stripe SDK
   - Install stripe package
   - Create src/lib/stripe.ts with Stripe initialization
   - Add STRIPE_SECRET_KEY and STRIPE_WEBHOOK_SECRET to .env.example
 
-- [~] 6. Create Stripe Helper Services
+- [-] 6. Create Stripe Helper Services
   - Create Stripe Checkout Session helper (returns URL)
   - Create Stripe Connect account helper (create/retrieve account)
   - Create Stripe Connect onboarding link helper
