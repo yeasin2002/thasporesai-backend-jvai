@@ -24,6 +24,7 @@ import { testNotification } from "@/api/test-notification/test-notification.rout
 // admin- dashboard routes
 import { adminUser } from "@/api/admin/admin-user/admin-user.route";
 import { completionRequests } from "@/api/admin/completion-requests/completion-requests.route";
+import { withdrawalRequests } from "@/api/admin/withdrawal-requests/withdrawal-requests.route";
 
 // common routes
 import {
@@ -109,6 +110,12 @@ app.use(
   requireAuth,
   requireRole("admin"),
   completionRequests
+);
+app.use(
+  "/api/admin/withdrawal-requests",
+  requireAuth,
+  requireRole("admin"),
+  withdrawalRequests
 );
 
 // User routes
