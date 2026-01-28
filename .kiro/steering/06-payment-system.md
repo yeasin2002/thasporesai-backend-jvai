@@ -2,9 +2,10 @@
 
 ## Overview
 
-JobSphere uses a wallet-based payment system with Stripe integration and a 25% total commission structure (5% platform fee + 20% service fee). The system uses Stripe as the "bank" while tracking all transactions via database wallet balances, ensuring secure transactions between customers and contractors with complete audit trails.
+JobSphere uses a simplified wallet-based payment system with Stripe integration and a 25% total commission structure (5% platform fee + 20% service fee). The system uses Stripe as the "bank" while tracking all transactions via database wallet balances only, minimizing real money transfers and ensuring secure transactions between customers and contractors with complete audit trails.
 
-**Status**: ✅ Stripe Integration Complete (v2.0)
+**Status**: ✅ Stripe Integration Complete (v2.0)  
+**Key Change**: No escrow system - all transactions via simple database wallet adjustments
 
 ## Commission Structure
 
@@ -44,16 +45,16 @@ Total Admin Commission: $25 (25%)
 2. CUSTOMER SENDS OFFER
    └─> POST /api/job-request/:applicationId/send-offer
    └─> Offer created with status "pending"
-   └─> No wallet changes yet (pending acceptance)
+   └─> Balance validation only (no wallet deduction until acceptance)
 
 3. CONTRACTOR ACCEPTS OFFER
    └─> POST /api/job-request/offer/:offerId/accept
-   └─> Wallet updates (DB only, no real money transfer):
+   └─> Database-only wallet updates (no real money transfer):
        - Customer wallet: -$105
        - Admin wallet: +$105
    └─> Job status → "assigned"
    └─> Offer status → "accepted"
-   └─> Transaction: wallet_transfer
+   └─> Transaction: wallet_transfer (DB only)
 
 4. CONTRACTOR WORKS
    └─> PATCH /api/job/:id/status { "status": "in_progress" }
@@ -65,21 +66,29 @@ Total Admin Commission: $25 (25%)
 
 6. ADMIN APPROVES COMPLETION
    └─> POST /api/admin/completion-requests/:id/approve
-   └─> Wallet updates (DB):
+   └─> Database-only wallet updates:
        - Admin wallet: -$80 (keeps $25 commission)
        - Contractor wallet: +$80
-   └─> Admin initiates Stripe Connect transfer ($80 to contractor)
+   └─> Real money transfer: Admin initiates Stripe Connect transfer ($80 to contractor)
    └─> Job status → "completed"
    └─> Offer status → "completed"
-   └─> Transactions: contractor_payout
+   └─> Transactions: contractor_payout (DB + Stripe transfer)
 
 ALTERNATIVE: REJECTION/CANCELLATION
    └─> POST /api/job-request/offer/:offerId/reject
    └─> OR POST /api/job/:id/cancel
-   └─> Wallet updates (DB only):
+   └─> Database-only wallet refund (no real money transfer):
        - Admin wallet: -$105
        - Customer wallet: +$105 (full refund)
-   └─> Transaction: refund
+   └─> Transaction: refund (DB only)
+
+AUTOMATIC EXPIRATION (Cron Job)
+   └─> Hourly cron job checks expired offers
+   └─> Database-only wallet refund for expired accepted offers:
+       - Admin wallet: -$105
+       - Customer wallet: +$105 (full refund)
+   └─> Application status reset
+   └─> Notifications sent
 ```
 
 ## Database Models
@@ -102,10 +111,11 @@ ALTERNATIVE: REJECTION/CANCELLATION
 ```
 
 **Key Changes in v2.0**:
-- ❌ Removed `escrowBalance` field
-- ✅ Single `balance` field tracks everything
+- ❌ Removed `escrowBalance` field (no escrow system)
+- ✅ Single `balance` field tracks everything via simple adjustments
 - ✅ Added `stripeCustomerId` for all users
 - ✅ Added `stripeConnectAccountId` for contractors
+- ✅ Minimal real money transfers (only deposits and admin-approved payouts)
 
 ### Offer Model
 
@@ -154,11 +164,11 @@ ALTERNATIVE: REJECTION/CANCELLATION
 ```
 
 **Transaction Types in v2.0**:
-- `deposit`: Real money added via Stripe
-- `withdrawal`: Real money withdrawn via Stripe Connect
-- `wallet_transfer`: Internal balance movement (offer acceptance)
-- `contractor_payout`: Payment to contractor (DB + Stripe transfer)
-- `refund`: Refund to customer (DB only)
+- `deposit`: Real money added via Stripe (actual money transfer)
+- `withdrawal`: Real money withdrawn via Stripe Connect (actual money transfer)
+- `wallet_transfer`: Internal balance movement (DB only - offer acceptance)
+- `contractor_payout`: Payment to contractor (DB adjustment + Stripe transfer)
+- `refund`: Refund to customer (DB only - no real money transfer)
 
 ## API Endpoints
 
@@ -193,18 +203,20 @@ ALTERNATIVE: REJECTION/CANCELLATION
 ### Offer Rules
 
 - One offer per job (enforced by unique index)
-- Customer must have sufficient balance (budget + 5%)
+- Customer must have sufficient balance (budget + 5%) for validation
 - Job must be in "open" status to send offer
 - Only offer recipient can accept/reject
-- Offers expire after 7 days if not accepted
-- Wallet deduction occurs only on acceptance (not on send)
+- Offers expire after 7 days if not accepted (automated cron job)
+- **No wallet deduction on offer send**: Only balance validation, deduction on acceptance
+- **Database-only transactions**: All offer acceptance/rejection via DB wallet adjustments
 
 ### Payment Rules
 
-- Money moves in DB only when offer accepted (no real Stripe transfer)
-- Real Stripe transfers occur only for deposits and admin-approved payouts
-- Full refund on offer rejection or job cancellation (DB only)
-- Contractors can only withdraw with admin approval
+- **Minimal real money transfers**: Only deposits (customer → Stripe) and admin-approved payouts (Stripe → contractor)
+- **Database-only wallet tracking**: All offer transactions via simple balance adjustments
+- **Stripe as bank**: Stripe holds actual money, database wallet tracks user balances
+- Full refund on offer rejection or job cancellation (DB adjustments only)
+- Contractors can only withdraw with admin approval (real Stripe transfer)
 - Wallets can be frozen by admin for security
 - All outgoing money requires admin approval
 
@@ -279,16 +291,17 @@ ALTERNATIVE: REJECTION/CANCELLATION
 
 ### Test Scenarios
 
-1. Customer deposits money via Stripe Checkout
-2. Customer sends offer (check no balance change)
-3. Contractor accepts offer (check DB wallet changes)
+1. Customer deposits money via Stripe Checkout (real money transfer)
+2. Customer sends offer (check balance validation only, no deduction)
+3. Contractor accepts offer (check DB wallet adjustments only)
 4. Customer marks job complete
-5. Admin approves completion (check Stripe transfer initiated)
+5. Admin approves completion (check DB adjustment + Stripe transfer initiated)
 6. Contractor requests withdrawal
 7. Admin approves withdrawal (check Stripe transfer)
-8. Offer rejection (check DB refund)
-9. Job cancellation (check DB refund)
-10. Stripe webhook handling (success/failure)
+8. Offer rejection (check DB refund only)
+9. Job cancellation (check DB refund only)
+10. Offer expiration via cron job (check DB refund only)
+11. Stripe webhook handling (success/failure)
 
 ### Test Data
 
@@ -322,8 +335,10 @@ Located in `doc/payment/`:
 - Contractor gets: Budget × 80%
 - Admin gets: Budget × 25%
 - One offer per job
-- Wallet-based tracking (no escrow)
-- Stripe for real money (deposits/withdrawals only)
+- **Simplified wallet system**: Single balance, no escrow
+- **Minimal real money transfers**: Only deposits and admin-approved payouts
+- **Database-only transactions**: All offer operations via DB wallet adjustments
+- **Stripe as bank**: Holds actual money, wallet tracks user balances
 
 ## Implementation Notes
 
@@ -338,10 +353,12 @@ Located in `doc/payment/`:
 
 - Always use MongoDB transactions for money movements
 - Create transaction records for audit trail
-- Validate before making changes
+- **Balance validation only on offer send**: No wallet deduction until acceptance
+- **Database-only adjustments**: All offer transactions via simple balance updates
 - Send notifications for payment events
 - Handle errors gracefully with clear messages
 - Verify user permissions before operations
+- **Minimize real money transfers**: Only deposits and admin-approved payouts involve Stripe
 
 ### Atomic Operations
 

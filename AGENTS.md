@@ -207,34 +207,42 @@ $100 Job Example:
 Total Admin Commission: $25 (25%)
 ```
 
-### Payment Flow Lifecycle
+### Simplified Payment Flow Lifecycle
 ```
-1. CUSTOMER DEPOSITS → Stripe Checkout (returns URL for browser)
-2. CUSTOMER SENDS OFFER → No wallet change (pending acceptance)
-3. CONTRACTOR ACCEPTS → DB wallet updates (customer -$105, admin +$105)
+1. CUSTOMER DEPOSITS → Stripe Checkout (returns URL for browser, real money transfer)
+2. CUSTOMER SENDS OFFER → Balance validation only (no wallet deduction)
+3. CONTRACTOR ACCEPTS → DB wallet adjustments only (customer -$105, admin +$105)
 4. JOB IN PROGRESS → Contractor works
 5. CUSTOMER MARKS COMPLETE → Creates admin approval request
-6. ADMIN APPROVES → DB updates (admin -$80, contractor +$80) + Stripe Connect transfer
-7. ALTERNATIVE: CANCELLATION → DB refund (admin -$105, customer +$105)
+6. ADMIN APPROVES → DB updates (admin -$80, contractor +$80) + Real Stripe Connect transfer
+7. ALTERNATIVE: CANCELLATION → DB refund only (admin -$105, customer +$105)
+8. AUTOMATIC EXPIRATION → Cron job + DB refund only
 ```
 
 ### Key Database Models
 - **Wallet**: Single `balance` field (no escrow), `stripeCustomerId`, `stripeConnectAccountId`
 - **Offer**: One per job (unique index), includes all fee calculations, status tracking
-- **Transaction**: Complete audit trail (`deposit`, `withdrawal`, `wallet_transfer`, `contractor_payout`, `refund`)
+- **Transaction**: Complete audit trail with types:
+  - `deposit`: Real money (Stripe)
+  - `withdrawal`: Real money (Stripe Connect)
+  - `wallet_transfer`: DB only (offer acceptance)
+  - `contractor_payout`: DB + Stripe transfer
+  - `refund`: DB only (cancellations/rejections)
 
 ### Critical API Endpoints
 - `POST /api/wallet/deposit` - Create Stripe Checkout Session (returns URL)
-- `POST /api/job-request/:applicationId/send-offer` - Customer sends offer
-- `POST /api/job-request/offer/:offerId/accept` - Contractor accepts (triggers wallet transfer)
+- `POST /api/job-request/:applicationId/send-offer` - Customer sends offer (balance validation only)
+- `POST /api/job-request/offer/:offerId/accept` - Contractor accepts (DB wallet adjustments)
 - `POST /api/job/:id/complete` - Request completion (customer)
-- `POST /api/admin/completion-requests/:id/approve` - Approve completion (admin)
+- `POST /api/admin/completion-requests/:id/approve` - Approve completion (admin + Stripe transfer)
 - `POST /api/webhooks/stripe` - Stripe webhook handler
 
 ### Business Rules
 - One offer per job (enforced by unique index)
-- Money moves in DB only when offer accepted (no real Stripe transfer)
-- Real Stripe transfers only for deposits and admin-approved payouts
+- **No escrow system**: Simple wallet balance adjustments
+- **Minimal real money transfers**: Only deposits and admin-approved payouts
+- **Database-only transactions**: All offer operations via DB wallet adjustments
+- **Stripe as bank**: Stripe holds money, wallet tracks user balances
 - All money movements create transaction records
 - Use MongoDB transactions for atomicity
 - Admin approval required for all outgoing money
@@ -245,6 +253,7 @@ Complete guides in `doc/payment/`:
 - `1.MAIN-REFERENCE.md` - Complete system with Stripe
 - `2.BACKEND_IMPLEMENTATION.md` - Implementation guide  
 - `3.FRONTEND_API_GUIDE.md` - API reference for Flutter
+- `new-requirements.md` - Latest payment flow changes
 
 ## 7. Real-Time Communication & Notifications
 
