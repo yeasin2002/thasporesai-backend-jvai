@@ -23,6 +23,7 @@ import { testNotification } from "@/api/test-notification/test-notification.rout
 
 // admin- dashboard routes
 import { adminUser } from "@/api/admin/admin-user/admin-user.route";
+import { completionRequests } from "@/api/admin/completion-requests/completion-requests.route";
 
 // common routes
 import {
@@ -103,6 +104,12 @@ app.use("/api/seed", seed);
 // Admin routes
 app.use("/api/admin/auth", authAdmin);
 app.use("/api/admin/users", requireAuth, requireRole("admin"), adminUser);
+app.use(
+  "/api/admin/completion-requests",
+  requireAuth,
+  requireRole("admin"),
+  completionRequests
+);
 
 // User routes
 import { certifications } from "./api/users/certifications/certifications.route";

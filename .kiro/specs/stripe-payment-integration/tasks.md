@@ -56,7 +56,7 @@ Minimal MVP implementation focused on core payment functionality. Manual testing
   - Update POST /api/job-request/offer/:offerId/accept: MongoDB transaction to transfer funds (customer → admin), update job/offer status
   - Update POST /api/job-request/offer/:offerId/reject: If accepted, MongoDB transaction to refund (admin → customer), update status
 
-- [ ] 9. Implement Job Completion Flow
+- [x] 9. Implement Job Completion Flow
   - POST /api/job/:id/complete: Create CompletionRequest with status "pending"
   - POST /api/admin/completion-requests/:id/approve: MongoDB transaction (admin → contractor), initiate Stripe Connect transfer, update job/offer status
   - POST /api/admin/completion-requests/:id/reject: Update request status, send notification
