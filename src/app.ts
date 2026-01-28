@@ -47,6 +47,11 @@ import { morganDevFormat } from "./lib/morgan";
 const app = express();
 const httpServer = createServer(app);
 
+// Webhook routes MUST come before express.json() middleware
+// Stripe webhooks need raw body for signature verification
+import { stripeWebhook } from "./api/webhooks/stripe-webhook.route";
+app.use("/api/webhooks", stripeWebhook);
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -137,6 +142,18 @@ httpServer.listen(PORT, async () => {
       "⚠️ Firebase initialization failed. Push notifications will not work."
     );
   }
+
+  // Initialize Stripe SDK
+  try {
+    const { initializeStripe } = await import("./lib/stripe");
+    initializeStripe();
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  } catch (_error) {
+    consola.warn(
+      "⚠️ Stripe initialization failed. Payment features will not work."
+    );
+  }
+
   consola.warn(` 💬 Socket.IO chat enabled \n`);
 
   // Start offer expiration job
@@ -148,4 +165,4 @@ httpServer.listen(PORT, async () => {
   consola.info("Doc: ");
   consola.log(`✍️  Swagger doc: http://localhost:${PORT}/swagger`);
   consola.log(`📋 Scaler doc: http://localhost:${PORT}/scaler \n`);
-});
+};);
