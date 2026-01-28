@@ -96,8 +96,9 @@ async function handleSuccessfulDeposit(event: Stripe.Event) {
       let wallet = await db.wallet
         .findOne({ user: userId })
         .session(mongoSession);
+
       if (!wallet) {
-        wallet = await db.wallet.create(
+        const wallets = await db.wallet.create(
           [
             {
               user: userId,
@@ -107,7 +108,7 @@ async function handleSuccessfulDeposit(event: Stripe.Event) {
           ],
           { session: mongoSession }
         );
-        wallet = wallet[0];
+        wallet = wallets[0];
       }
 
       // Update wallet balance and Stripe customer ID

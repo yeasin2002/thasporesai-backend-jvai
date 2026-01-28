@@ -165,4 +165,4 @@ httpServer.listen(PORT, async () => {
   consola.info("Doc: ");
   consola.log(`✍️  Swagger doc: http://localhost:${PORT}/swagger`);
   consola.log(`📋 Scaler doc: http://localhost:${PORT}/scaler \n`);
-};);
+});

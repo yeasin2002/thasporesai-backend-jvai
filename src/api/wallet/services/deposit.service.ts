@@ -10,6 +10,10 @@ export const deposit: RequestHandler<{}, any, Deposit> = async (req, res) => {
     const userEmail = req?.user?.email;
     const { amount } = req.body;
 
+    if (!userId || !userEmail) {
+      return sendBadRequest(res, "User not authenticated");
+    }
+
     // Validate amount
     if (amount < 1) {
       return sendBadRequest(res, "Minimum deposit amount is $1");

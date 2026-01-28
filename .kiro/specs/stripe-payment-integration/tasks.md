@@ -45,7 +45,7 @@ Minimal MVP implementation focused on core payment functionality. Manual testing
 
 ### Phase 3: Core Payment Endpoints
 
-- [-] 7. Implement Deposit Flow
+- [x] 7. Implement Deposit Flow
   - POST /api/wallet/deposit: Create Checkout Session, return URL
   - POST /api/webhooks/stripe: Verify signature, handle checkout.session.completed, update wallet balance, create transaction record
   - GET /api/wallet: Return wallet balance and Stripe Connect status
