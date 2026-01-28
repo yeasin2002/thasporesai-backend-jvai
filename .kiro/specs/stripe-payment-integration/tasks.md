@@ -79,10 +79,11 @@ Minimal MVP implementation focused on core payment functionality. Manual testing
 
 ### Phase 6: Cron Job
 
-- [ ] 12. Implement Offer Expiration
+- [x] 12. Implement Offer Expiration
   - Create src/jobs/expire-offers.ts cron job (runs hourly)
   - Query expired accepted offers
   - For each: MongoDB transaction to refund (admin → customer), update offer status to "expired", send notifications
+  - use Agenda for scheduling 
 
 ### Phase 7: Validation & Documentation
 

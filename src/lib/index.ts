@@ -1,4 +1,5 @@
 export * from "./Env";
+export * from "./agenda";
 export * from "./apply-defaults.mongoose-plugins";
 export * from "./connect-mongo";
 export * from "./firebase";

@@ -32,11 +32,13 @@
     "docker:test": "curl -s http://localhost:4000/ && echo '\n✓ API is responding' || echo '\n✗ API is not responding'"
   },
   "dependencies": {
+    "@agendajs/mongo-backend": "^1.0.0",
     "@asteasolutions/zod-to-openapi": "^8.1.0",
     "@scalar/express-api-reference": "^0.8.22",
     "@types/jsonwebtoken": "^9.0.10",
     "@types/morgan": "^1.9.10",
     "@types/nodemailer": "^7.0.2",
+    "agenda": "^6.0.0",
     "bcryptjs": "^3.0.2",
     "chalk": "^5.6.2",
     "consola": "^3.4.2",

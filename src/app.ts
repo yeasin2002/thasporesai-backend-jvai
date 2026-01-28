@@ -30,8 +30,10 @@ import { withdrawalRequests } from "@/api/admin/withdrawal-requests/withdrawal-r
 import {
   connectDB,
   generateOpenAPIDocument,
+  initializeAgenda,
   initializeFirebase,
   PORT,
+  startAgenda,
 } from "@/lib";
 import {
   errorHandler,
@@ -42,7 +44,7 @@ import {
 import { authAdmin } from "./api/admin/auth-admin/auth-admin.route";
 import { initializeSocketIO } from "./api/chat/socket";
 import { common } from "./api/common/common.route";
-import { startOfferExpirationJob } from "./jobs/expire-offers";
+import { initializeExpireOffersJob } from "./jobs/expire-offers";
 import { getLocalIP } from "./lib/get-my-ip";
 import { morganDevFormat } from "./lib/morgan";
 
@@ -168,10 +170,20 @@ httpServer.listen(PORT, async () => {
     );
   }
 
-  consola.warn(` 💬 Socket.IO chat enabled \n`);
+  // Initialize Agenda job scheduler
+  try {
+    const agenda = await initializeAgenda();
+    await initializeExpireOffersJob(agenda);
+    await startAgenda();
+    consola.success("✅ Agenda job scheduler started");
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  } catch (_error) {
+    consola.warn(
+      "⚠️ Agenda initialization failed. Scheduled jobs will not work."
+    );
+  }
 
-  // Start offer expiration job
-  startOfferExpirationJob();
+  consola.warn(` 💬 Socket.IO chat enabled \n`);
 
   consola.log(`🚀 Server is running on port http://localhost:${PORT}`);
   consola.log(`✨ Server is running on port http://${getLocalIP()}:${PORT} \n`);
