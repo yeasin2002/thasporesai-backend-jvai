@@ -16,13 +16,14 @@ const WalletSchema = z.object({
   _id: z.string(),
   user: z.string(),
   balance: z.number(),
-  escrowBalance: z.number(),
   currency: z.string(),
   isActive: z.boolean(),
   isFrozen: z.boolean(),
   totalEarnings: z.number(),
   totalSpent: z.number(),
   totalWithdrawals: z.number(),
+  stripeCustomerId: z.string().optional(),
+  stripeConnectAccountId: z.string().optional(),
   createdAt: z.string(),
   updatedAt: z.string(),
 });
@@ -30,14 +31,11 @@ const WalletSchema = z.object({
 const TransactionSchema = z.object({
   _id: z.string(),
   type: z.enum([
-    "platform_fee",
-    "service_fee",
-    "contractor_payout",
-    "refund",
     "deposit",
     "withdrawal",
-    "escrow_hold",
-    "escrow_release",
+    "wallet_transfer",
+    "contractor_payout",
+    "refund",
   ]),
   amount: z.number(),
   from: z.object({
@@ -52,6 +50,9 @@ const TransactionSchema = z.object({
   }),
   status: z.enum(["pending", "completed", "failed"]),
   description: z.string(),
+  stripePaymentIntentId: z.string().optional(),
+  stripeTransferId: z.string().optional(),
+  stripeCheckoutSessionId: z.string().optional(),
   createdAt: z.string(),
   updatedAt: z.string(),
 });
