@@ -35,6 +35,12 @@ git clone https://github.com/your-org/jobsphere-backend.git
 cd jobsphere-backend
 ```
 
+ ### start stripe-cli
+
+ ```
+stripe listen --forward-to http://localhost:4000/api/webhooks/stripe --api-key STRIPE_SECRET_KEY
+ ``` 
+
 2. **Install dependencies**
 
 ```bash
@@ -50,48 +56,6 @@ cp .env.example .env
 ```
 
 Edit `.env` with your configuration:
-
-```env
-# Server Configuration
-PORT=4000
-NODE_ENV=development
-API_BASE_URL=http://localhost:4000
-
-# Database
-MONGODB_URI=mongodb://localhost:27017/jobsphere
-# Or use MongoDB Atlas:
-# MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/jobsphere
-
-# JWT Secrets (generate secure random strings)
-JWT_ACCESS_SECRET=your_secure_access_secret_here
-JWT_REFRESH_SECRET=your_secure_refresh_secret_here
-JWT_ACCESS_EXPIRY=15m
-JWT_REFRESH_EXPIRY=30d
-
-# Email Configuration (for OTP)
-SMTP_HOST=smtp.gmail.com
-SMTP_PORT=587
-SMTP_USER=your_email@gmail.com
-SMTP_PASS=your_app_password
-SMTP_FROM=noreply@jobsphere.com
-
-# File Upload
-UPLOAD_DIR=./uploads
-MAX_FILE_SIZE=10485760  # 10MB in bytes
-
-# Firebase (Push Notifications)
-# Place firebase-service-account.json in project root
-# Download from Firebase Console > Project Settings > Service Accounts
-
-# Future: Stripe (Payment Processing)
-STRIPE_SECRET_KEY=sk_test_...
-STRIPE_PUBLISHABLE_KEY=pk_test_...
-STRIPE_WEBHOOK_SECRET=whsec_...
-
-# Commission Rates (percentage)
-PLATFORM_FEE_PERCENT=5
-SERVICE_FEE_PERCENT=20
-```
 
 4. **Setup Firebase**
 

@@ -4,9 +4,9 @@
 
 ### Variables
 @baseUrl = http://localhost:4000
-@customerToken = YOUR_CUSTOMER_JWT_TOKEN_HERE
-@contractorToken = YOUR_CONTRACTOR_JWT_TOKEN_HERE
-@adminToken = YOUR_ADMIN_JWT_TOKEN_HERE
+@customerToken ="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTJhOTViNTIyNTIyM2Y3NWExYTM3MmQiLCJlbWFpbCI6ImN1c3RvbWVyQGcuY29tIiwicm9sZSI6ImN1c3RvbWVyIiwiaWF0IjoxNzY5NjYyMjEwLCJleHAiOjE3NzA5NTgyMTB9.x0zKdMAGAD1lVTgjNQRL5f87GC78-KLxqIlS3DKAWvI"
+@contractorToken ="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTJhOTViNTIyNTIyM2Y3NWExYTM3MmUiLCJlbWFpbCI6ImNvbnRyYWN0b3JAZy5jb20iLCJyb2xlIjoiY29udHJhY3RvciIsImlhdCI6MTc2OTY2MjI0NiwiZXhwIjoxNzcwOTU4MjQ2fQ.NtK0IbilHyJN6c4bcQN2AbPD6NjB-fIGauR7NRW2b2Q"
+@adminToken ="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTJhOTViNTIyNTIyM2Y3NWExYTM3MmYiLCJlbWFpbCI6ImFkbWluQGcuY29tIiwicm9sZSI6ImFkbWluIiwiaWF0IjoxNzY5NjYyMjYxLCJleHAiOjE3NzA5NTgyNjF9.ouxEFRC88MFg3DAau_LMGPuc_MFalwdXkHOgzudOpfE"
 
 ###############################################################################
 # WALLET ENDPOINTS
