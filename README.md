@@ -132,6 +132,7 @@ The platform facilitates the entire job lifecycle from posting to completion, wi
 - **Logger**: Winston v3.18.3
 - **HTTP Logger**: Morgan v1.10.1
 - **Daily Rotation**: winston-daily-rotate-file v5.0.0
+- **System Monitoring**: Beszel (lightweight server & container monitoring)
 
 ### Future Integrations
 - **Payments**: Stripe v19.3.1 (planned)
@@ -157,6 +158,23 @@ bun dev
 # Access API documentation
 open http://localhost:4000/swagger
 ```
+
+### 📊 Monitoring Setup (Optional)
+
+JobSphere includes Beszel for lightweight system and container monitoring:
+
+```bash
+# Windows
+.\scripts\setup-beszel.ps1
+
+# Linux/Mac
+chmod +x scripts/setup-beszel.sh
+./scripts/setup-beszel.sh
+```
+
+Access monitoring dashboard at http://localhost:8090
+
+See [Beszel Quick Start](doc/deployment/BESZEL_QUICKSTART.md) for details.
 
 ## 📁 Project Structure
 
