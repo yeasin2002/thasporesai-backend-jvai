@@ -78,14 +78,14 @@ export default tseslint.config(
     rules: {
       "@typescript-eslint/no-explicit-any": "off",
     },
-  }
+  },
 
   // Prettier integration
-  // prettierConfig,
-  // {
-  //   plugins: {prettier: prettierPlugin,},
-  //   rules: {
-  //     "prettier/prettier": "warn",
-  //   },
-  // }
+  prettierConfig,
+  {
+    plugins: { prettier: prettierPlugin },
+    rules: {
+      "prettier/prettier": "warn",
+    },
+  }
 );
