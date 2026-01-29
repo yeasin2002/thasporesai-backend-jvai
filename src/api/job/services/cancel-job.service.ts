@@ -13,8 +13,8 @@ export const cancelJob: RequestHandler = async (req, res) => {
   try {
     const { id: jobId } = req.params;
     const { reason } = req.body;
-    const userId = req.user!.id;
-    const userRole = req.user!.role;
+    const userId = req?.user?.id;
+    const userRole = req?.user?.role;
 
     const job = await db.job.findById(jobId);
 

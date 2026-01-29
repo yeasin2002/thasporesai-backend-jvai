@@ -152,7 +152,6 @@ httpServer.listen(PORT, async () => {
   // Initialize Firebase Admin SDK for push notifications
   try {
     initializeFirebase();
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
   } catch (_error) {
     consola.warn(
       "⚠️ Firebase initialization failed. Push notifications will not work."
@@ -163,7 +162,6 @@ httpServer.listen(PORT, async () => {
   try {
     const { initializeStripe } = await import("./lib/stripe");
     initializeStripe();
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
   } catch (_error) {
     consola.warn(
       "⚠️ Stripe initialization failed. Payment features will not work."
@@ -176,7 +174,6 @@ httpServer.listen(PORT, async () => {
     await initializeExpireOffersJob(agenda);
     await startAgenda();
     consola.success("✅ Agenda job scheduler started");
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
   } catch (_error) {
     consola.warn(
       "⚠️ Agenda initialization failed. Scheduled jobs will not work."

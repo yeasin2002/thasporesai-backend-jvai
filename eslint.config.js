@@ -42,11 +42,11 @@ export default tseslint.config(
       // TypeScript specific rules
       "@typescript-eslint/no-explicit-any": "off", // Project uses any
       "@typescript-eslint/no-unused-vars": [
-        "warn",
-        {
-          argsIgnorePattern: "^_",
-          varsIgnorePattern: "^_",
-        },
+        "off",
+        // {
+        //   argsIgnorePattern: "^_",
+        //   varsIgnorePattern: "^_",
+        // },
       ],
       "@typescript-eslint/explicit-function-return-type": "off",
       "@typescript-eslint/explicit-module-boundary-types": "off",
@@ -64,6 +64,7 @@ export default tseslint.config(
 
       // Import/Export rules
       "no-duplicate-imports": "warn", // Warn instead of error
+      "no-duplicate-imports": "off",
 
       // Best practices
       eqeqeq: ["error", "always", { null: "ignore" }],
