@@ -151,6 +151,10 @@ export const approveWithdrawalRequest: RequestHandler = async (req, res) => {
     }
   } catch (error) {
     console.error("Error approving withdrawal request:", error);
-    return sendInternalError(res, "Failed to approve withdrawal request", error);
+    return sendInternalError(
+      res,
+      "Failed to approve withdrawal request",
+      error
+    );
   }
 };
