@@ -59,6 +59,29 @@ This directory contains complete documentation for the JobSphere payment system,
 - Error handling in Flutter
 - **Target Audience**: Flutter mobile developers
 
+### Stripe Configuration & Testing
+
+**[Stripe Dashboard Setup](./STRIPE_DASHBOARD_SETUP.md)** - Complete Configuration Guide
+- Initial Stripe account setup
+- Webhook configuration (development & production)
+- Stripe Connect setup for contractor payouts
+- API keys configuration
+- Local development testing with Stripe CLI
+- Production deployment checklist
+- Comprehensive testing checklist
+- Troubleshooting guide
+- **Target Audience**: DevOps, Backend developers, System administrators
+
+**[Stripe CLI Quick Reference](./STRIPE_CLI_QUICK_REFERENCE.md)** - Command Reference
+- Installation instructions
+- Webhook testing commands
+- Payment testing commands
+- Stripe Connect testing
+- Monitoring and debugging
+- Test cards and data
+- Common workflows
+- **Target Audience**: Developers testing locally
+
 ### Legacy Documentation
 
 **[1. System Overview](./1.SYSTEM_OVERVIEW.md)** - Original Business Logic
@@ -91,21 +114,29 @@ This directory contains complete documentation for the JobSphere payment system,
 
 ## Quick Start
 
+**[Getting Started Guide](./GETTING_STARTED.md)** - 30-Minute Setup
+- Complete quick start guide
+- Step-by-step Stripe setup
+- Local testing instructions
+- Common issues and solutions
+- Testing checklist
+- **Start here if you're new to the payment system!**
+
 ### For Backend Developers
 
-1. Read [2.BACKEND_IMPLEMENTATION.md](./2.BACKEND_IMPLEMENTATION.md)
-2. Set up Stripe test keys
-3. Configure webhook endpoint
-4. Test deposit flow with Stripe CLI
-5. Test offer and completion flows
+1. Read [GETTING_STARTED.md](./GETTING_STARTED.md) for quick setup
+2. Read [2.BACKEND_IMPLEMENTATION.md](./2.BACKEND_IMPLEMENTATION.md) for details
+3. Follow [STRIPE_DASHBOARD_SETUP.md](./STRIPE_DASHBOARD_SETUP.md) for configuration
+4. Use [STRIPE_CLI_QUICK_REFERENCE.md](./STRIPE_CLI_QUICK_REFERENCE.md) for testing
 
 ### For Frontend Developers
 
-1. Read [3.FRONTEND_API_GUIDE.md](./3.FRONTEND_API_GUIDE.md)
-2. Implement wallet balance display
-3. Integrate deposit flow (open Stripe Checkout in browser)
-4. Add offer send/accept functionality
-5. Handle job completion and notifications
+1. Read [GETTING_STARTED.md](./GETTING_STARTED.md) for system overview
+2. Read [3.FRONTEND_API_GUIDE.md](./3.FRONTEND_API_GUIDE.md) for API reference
+3. Implement wallet balance display
+4. Integrate deposit flow (open Stripe Checkout in browser)
+5. Add offer send/accept functionality
+6. Handle job completion and notifications
 
 ---
 

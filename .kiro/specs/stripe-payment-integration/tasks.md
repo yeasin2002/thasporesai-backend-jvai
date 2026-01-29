@@ -87,14 +87,14 @@ Minimal MVP implementation focused on core payment functionality. Manual testing
 
 ### Phase 7: Validation & Documentation
 
-- [ ] 13. Add Validation & OpenAPI
+- [x] 13. Add Validation & OpenAPI
   - Add Zod validation schemas for all new/updated endpoints
   - Add OpenAPI documentation for all endpoints
   - Update existing validation schemas where needed
 
 ### Phase 8: Deployment Setup
 
-- [ ] 14. Configure Stripe Dashboard
+- [x] 14. Configure Stripe Dashboard
   - Set up webhook endpoint in Stripe Dashboard
   - Configure webhook events: checkout.session.completed, checkout.session.async_payment_succeeded, checkout.session.async_payment_failed
   - Set up Stripe Connect settings
