@@ -1,4 +1,3 @@
-import { NotificationService } from "@/common/service/notification.service";
 import { db } from "@/db";
 import { sendBadRequest, sendCreated, sendInternalError } from "@/helpers";
 import type { RequestHandler } from "express";
