@@ -4,6 +4,7 @@ export * from "./apply-defaults.mongoose-plugins";
 export * from "./connect-mongo";
 export * from "./firebase";
 export * from "./get-my-ip";
+export * from "./imagekit";
 export * from "./jwt";
 export * from "./logger";
 export * from "./morgan";

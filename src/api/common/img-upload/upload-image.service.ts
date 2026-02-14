@@ -1,10 +1,10 @@
 import { sendError, sendSuccess } from "@/helpers";
-import { API_BASE_URL, getFileUrl, logError, logger } from "@/lib";
+import { imagekit, logError, logger } from "@/lib";
 import type { RequestHandler } from "express";
 
 /**
- * Upload image handler
- * Accepts a single image file and returns the URL
+ * Upload image handler using ImageKit
+ * Accepts a single image file and uploads it to ImageKit
  */
 export const uploadImage: RequestHandler = async (req, res) => {
   try {
@@ -25,37 +25,83 @@ export const uploadImage: RequestHandler = async (req, res) => {
       filename: req.file.originalname,
       size: req.file.size,
       mimetype: req.file.mimetype,
-      savedPath: req.file.path,
     });
 
-    // Get the base URL from environment or request
-    const baseUrl = API_BASE_URL || `${req.protocol}://${req.get("host")}`;
+    // Upload to ImageKit
+    const uploadResponse = await imagekit.upload({
+      file: req.file.buffer, // File buffer from multer memory storage
+      fileName: req.file.originalname,
+      folder: "/uploads", // Optional: organize files in folders
+      useUniqueFileName: true, // Generate unique filename
+      tags: ["user-upload"], // Optional: add tags for organization
+    });
 
-    // Get the file URL using helper function
-    const relativeUrl = getFileUrl(req.file.filename);
-    const imageUrl = `${baseUrl}${relativeUrl}`;
-    const image_details = {
-      url: imageUrl,
-      filename: req.file.filename,
+    const imageDetails = {
+      url: uploadResponse.url,
+      fileId: uploadResponse.fileId,
+      filename: uploadResponse.name,
       originalName: req.file.originalname,
-      size: req.file.size,
+      size: uploadResponse.size,
       mimetype: req.file.mimetype,
+      thumbnailUrl: uploadResponse.thumbnailUrl,
+      filePath: uploadResponse.filePath,
     };
 
-    logger.info("Image uploaded successfully", {
+    logger.info("Image uploaded successfully to ImageKit", {
       userId: (req as any).user?.id,
-      filename: req.file.filename,
-      url: imageUrl,
-      size: req.file.size,
+      fileId: uploadResponse.fileId,
+      url: uploadResponse.url,
+      size: uploadResponse.size,
     });
 
-    return sendSuccess(res, 200, "Image uploaded successfully", image_details);
+    return sendSuccess(res, 200, "Image uploaded successfully", imageDetails);
   } catch (error) {
-    logError("Image upload failed", error, {
+    logError("Image upload to ImageKit failed", error, {
       userId: (req as any).user?.id,
       filename: req.file?.originalname,
       size: req.file?.size,
     });
     return sendError(res, 500, "Failed to upload image");
+  }
+};
+
+/**
+ * Get ImageKit authentication parameters for client-side upload
+ * Frontend will use these parameters to upload directly to ImageKit
+ */
+export const getImageKitAuth: RequestHandler = async (req, res) => {
+  try {
+    const userId = (req as any).user?.id;
+
+    logger.info("ImageKit auth parameters requested", {
+      userId,
+      url: req.originalUrl,
+    });
+
+    // Generate authentication parameters
+    const authParams = imagekit.getAuthenticationParameters();
+
+    logger.info("ImageKit auth parameters generated", {
+      userId,
+      expire: authParams.expire,
+    });
+
+    return sendSuccess(
+      res,
+      200,
+      "Authentication parameters generated successfully",
+      {
+        token: authParams.token,
+        expire: authParams.expire,
+        signature: authParams.signature,
+        publicKey: process.env.IMAGEKIT_PUBLIC_KEY,
+        urlEndpoint: process.env.IMAGEKIT_URL_ENDPOINT,
+      }
+    );
+  } catch (error) {
+    logError("Failed to generate ImageKit auth parameters", error, {
+      userId: (req as any).user?.id,
+    });
+    return sendError(res, 500, "Failed to generate authentication parameters");
   }
 };

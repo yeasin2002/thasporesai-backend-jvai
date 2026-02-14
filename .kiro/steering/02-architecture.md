@@ -128,4 +128,4 @@ parent/sub-module/
 - **Path Aliases**: `@/*` maps to `./src/*`
 - **ES Modules**: `"type": "module"` in package.json
 - **Environment Variables**: Managed via dotenv
-- **Git Hooks**: Husky + lint-staged for pre-commit checks
+- **Git Hooks**: Lefthook for pre-commit checks (prettier, eslint, oxlint)

@@ -6,25 +6,13 @@ import path from "node:path";
 const projectRoot = process.cwd();
 const uploadsDir = path.join(projectRoot, "uploads");
 
-// Ensure uploads directory exists
+// Ensure uploads directory exists (for backward compatibility if needed)
 if (!fs.existsSync(uploadsDir)) {
   fs.mkdirSync(uploadsDir, { recursive: true });
 }
 
-// Configure storage
-const storage = multer.diskStorage({
-  destination: (_req, _file, cb) => {
-    // Store in uploads folder at project root
-    cb(null, uploadsDir);
-  },
-  filename: (_req, file, cb) => {
-    // Generate unique filename: timestamp-randomstring-originalname
-    const uniqueSuffix = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
-    const ext = path.extname(file.originalname);
-    const nameWithoutExt = path.basename(file.originalname, ext);
-    cb(null, `${nameWithoutExt}-${uniqueSuffix}${ext}`);
-  },
-});
+// Configure memory storage for ImageKit uploads
+const storage = multer.memoryStorage();
 
 // File filter for images only
 const fileFilter = (
@@ -57,7 +45,7 @@ const fileFilter = (
   }
 };
 
-// Create multer instance
+// Create multer instance with memory storage for ImageKit
 export const upload = multer({
   storage,
   fileFilter,
@@ -66,12 +54,12 @@ export const upload = multer({
   },
 });
 
-// Helper function to get file URL
+// Helper function to get file URL (deprecated - kept for backward compatibility)
 export function getFileUrl(filename: string): string {
   return `/uploads/${filename}`;
 }
 
-// Helper function to delete file
+// Helper function to delete file (deprecated - kept for backward compatibility)
 export async function deleteFile(filename: string): Promise<void> {
   const fsPromises = await import("node:fs/promises");
   const filePath = path.join(uploadsDir, filename);
