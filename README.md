@@ -117,11 +117,13 @@ The platform facilitates the entire job lifecycle from posting to completion, wi
 - **CORS**: cors v2.8.5
 
 ### Development Tools
+- **Task Runner**: Task v3 (Taskfile.yml)
 - **Build**: tsdown v0.15.9
 - **Type Checking**: TypeScript v5.9.3
-- **Linting**: eslint v1.24.0
-- **Formatting**: Biome v2.2.6
-- **Git Hooks**: Husky v9.1.7 + lint-staged
+- **Linting**: oxlint v1.24.0
+- **Formatting**: Prettier v3.7.1
+- **Git Hooks**: Lefthook v2.1.1
+- **Package Manager**: pnpm v10.18.3
 
 ### Documentation
 - **OpenAPI**: @asteasolutions/zod-to-openapi v8.1.0
@@ -132,6 +134,7 @@ The platform facilitates the entire job lifecycle from posting to completion, wi
 - **Logger**: Winston v3.18.3
 - **HTTP Logger**: Morgan v1.10.1
 - **Daily Rotation**: winston-daily-rotate-file v5.0.0
+- **Server Monitoring**: Beszel (Docker-based)
 
 ### Future Integrations
 - **Payments**: Stripe v19.3.1 (planned)
@@ -145,18 +148,62 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed setup instructions, developm
 
 ```bash
 # Install dependencies
-bun install
+pnpm install
 
 # Setup environment
 cp .env.example .env
 # Edit .env with your configuration
 
 # Start development server
-bun dev
+task dev
+# or
+pnpm dev
+
+# Start with Docker
+task docker:start
 
 # Access API documentation
-open http://localhost:4000/swagger
+open http://localhost:4000/api-docs
 ```
+
+### Available Commands
+
+We use [Task](https://taskfile.dev/) for running commands. See [TASK-COMMANDS.md](TASK-COMMANDS.md) for complete reference.
+
+**Development:**
+```bash
+task dev                    # Start dev server
+task build                  # Build for production
+task start                  # Start production server
+```
+
+**Docker:**
+```bash
+task docker:start           # Start all services (App + Beszel)
+task docker:stop            # Stop all services
+task docker:logs            # View logs
+task docker:restart         # Restart services
+```
+
+**Code Quality:**
+```bash
+task lint                   # Run linter
+task lint:fix               # Fix issues
+task format                 # Format code
+```
+
+**Deployment:**
+```bash
+task deploy                 # Deploy to production
+task update                 # Pull and rebuild
+```
+
+**List all commands:**
+```bash
+task                        # Show all available tasks
+```
+
+See [TASK-COMMANDS.md](TASK-COMMANDS.md) for 60+ commands and complete documentation.
 
 ## 📁 Project Structure
 
@@ -362,6 +409,14 @@ We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for:
 - Testing guidelines
 - Pull request process
 - Code review checklist
+
+### Quick Links
+
+- **[TASK-COMMANDS.md](TASK-COMMANDS.md)** - Complete command reference (60+ commands)
+- **[DEPLOYMENT.md](DEPLOYMENT.md)** - Production deployment guide
+- **[BESZEL-SETUP.md](BESZEL-SETUP.md)** - Server monitoring setup
+- **[VPS-DEBUG.md](VPS-DEBUG.md)** - Troubleshooting guide
+- **[ENVIRONMENT-FILES.md](ENVIRONMENT-FILES.md)** - Environment configuration guide
 
 ## 📄 License
 
