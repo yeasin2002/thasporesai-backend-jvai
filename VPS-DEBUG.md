@@ -70,7 +70,23 @@ nano firebase-service-account.json
 # Paste your Firebase service account JSON
 ```
 
-### D. Port Already in Use
+### D. ImageKit Configuration Missing (Warning Only)
+
+Warning: `⚠️  ImageKit configuration missing. Image upload features will not work.`
+
+**This is just a warning, not an error.** The app will still work, but image uploads will use local storage instead of ImageKit CDN.
+
+**To fix (optional):**
+1. Sign up at https://imagekit.io/
+2. Get your API keys from Dashboard → Developer → API Keys
+3. Add to `.env`:
+```bash
+IMAGEKIT_PUBLIC_KEY=your_public_key
+IMAGEKIT_PRIVATE_KEY=your_private_key
+IMAGEKIT_URL_ENDPOINT=https://ik.imagekit.io/your_imagekit_id
+```
+
+### E. Port Already in Use
 
 Error: `Error: listen EADDRINUSE: address already in use :::4000`
 

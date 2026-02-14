@@ -37,6 +37,11 @@ services:
       # Firebase
       FIREBASE_KEY_PAIR: ${FIREBASE_KEY_PAIR}
       
+      # ImageKit (optional - for image uploads)
+      IMAGEKIT_PUBLIC_KEY: ${IMAGEKIT_PUBLIC_KEY:-}
+      IMAGEKIT_PRIVATE_KEY: ${IMAGEKIT_PRIVATE_KEY:-}
+      IMAGEKIT_URL_ENDPOINT: ${IMAGEKIT_URL_ENDPOINT:-}
+      
       # Stripe (optional)
       STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY}
       STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET}

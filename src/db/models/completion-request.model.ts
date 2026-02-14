@@ -22,7 +22,6 @@ const completionRequestSchema = new Schema<CompletionRequestDocument>(
       type: Schema.Types.ObjectId,
       ref: "Job",
       required: true,
-      unique: true,
     },
     offer: {
       type: Schema.Types.ObjectId,

@@ -119,7 +119,7 @@ The platform facilitates the entire job lifecycle from posting to completion, wi
 ### Development Tools
 - **Build**: tsdown v0.15.9
 - **Type Checking**: TypeScript v5.9.3
-- **Linting**: oxlint v1.24.0
+- **Linting**: eslint v1.24.0
 - **Formatting**: Biome v2.2.6
 - **Git Hooks**: Husky v9.1.7 + lint-staged
 

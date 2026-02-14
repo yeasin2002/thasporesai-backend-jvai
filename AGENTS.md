@@ -31,7 +31,7 @@ JobSphere is a mobile marketplace backend API connecting customers with local fr
 - **Logging**: Winston with daily rotation
 - **Package Manager**: pnpm
 - **Build**: tsdown bundler
-- **Linting**: oxlint + biome
+- **Linting**: eslint 
 
 ## 3. Directory Structure
 
