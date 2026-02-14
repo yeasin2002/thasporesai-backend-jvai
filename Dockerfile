@@ -23,7 +23,8 @@ COPY package.json pnpm-lock.yaml* ./
 FROM base AS builder
 
 # Install all dependencies (including dev dependencies for build)
-RUN pnpm install --frozen-lockfile
+# Skip prepare script (lefthook) since Git hooks aren't needed in Docker
+RUN pnpm install --frozen-lockfile --ignore-scripts
 
 # Copy source code
 COPY . .
