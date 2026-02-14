@@ -9,7 +9,7 @@
     "dev:b": "bun --hot src/app.ts",
     "start": "node dist/app.js",
     "compile": "bun build --compile --minify --sourcemap --bytecode ./src/app.ts --outfile server",
-    "prepare": "husky",
+    "prepare": "lefthook install",
     "check": "oxlint",
     "eslint": "eslint .",
     "eslint:fix": "eslint . --fix",
@@ -19,7 +19,6 @@
     "format:check": "prettier --check \"src/**/*.{ts,js,json}\"",
     "lint": "eslint . && prettier --check \"src/**/*.{ts,js,json}\"",
     "lint:fix": "eslint . --fix && prettier --write \"src/**/*.{ts,js,json}\"",
-    "lint-staged": "lint-staged",
     "docker:setup": "cp .env.docker .env && mkdir -p uploads logs && echo '✓ Docker setup complete. Edit .env with your configuration.'",
     "docker:start": "docker-compose up -d",
     "docker:stop": "docker-compose down",
@@ -74,8 +73,7 @@
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.5.4",
     "globals": "^16.5.0",
-    "husky": "^9.1.7",
-    "lint-staged": "^16.2.6",
+    "lefthook": "^2.1.1",
     "oxlint": "^1.24.0",
     "prettier": "^3.7.1",
     "tsdown": "^0.15.9",
@@ -93,12 +91,5 @@
     "url": "https://github.com/yeasin2002/thasporesai-backend-jvai/issues"
   },
   "homepage": "https://github.com/yeasin2002/thasporesai-backend-jvai#readme",
-  "lint-staged": {
-    "**/*.{js,mjs,cjs,jsx,ts,mts,cts,tsx,vue,astro,svelte}": [
-      "prettier --write",
-      "eslint --fix",
-      "oxlint"
-    ]
-  },
   "packageManager": "pnpm@10.18.3"
 }

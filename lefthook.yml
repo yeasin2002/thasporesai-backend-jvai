@@ -1,0 +1,16 @@
+pre-commit:
+  parallel: true
+  commands:
+    prettier:
+      glob: "*.{js,mjs,cjs,jsx,ts,mts,cts,tsx,vue,astro,svelte}"
+      run: prettier --write {staged_files}
+      stage_fixed: true
+
+    eslint:
+      glob: "*.{js,mjs,cjs,jsx,ts,mts,cts,tsx,vue,astro,svelte}"
+      run: eslint --fix {staged_files}
+      stage_fixed: true
+
+    oxlint:
+      glob: "*.{js,mjs,cjs,jsx,ts,mts,cts,tsx,vue,astro,svelte}"
+      run: oxlint {staged_files}
