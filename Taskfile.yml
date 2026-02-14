@@ -1,0 +1,363 @@
+version: '3'
+
+vars:
+  GREETING: "JobSphere Task Runner"
+  TIMESTAMP:
+    sh: date +%Y%m%d_%H%M%S
+
+tasks:
+  default:
+    desc: Show available tasks
+    cmds:
+      - task --list
+    silent: true
+
+  # ============================================
+  # Development Commands
+  # ============================================
+
+  dev:
+    desc: Start development server with hot reload
+    cmds:
+      - tsx watch src/app.ts
+
+  dev:bun:
+    desc: Start development server with Bun hot reload
+    cmds:
+      - bun --hot src/app.ts
+
+  build:
+    desc: Build the application for production
+    cmds:
+      - tsdown
+
+  compile:
+    desc: Compile to standalone binary
+    cmds:
+      - bun build --compile --minify --sourcemap --bytecode ./src/app.ts --outfile server
+
+  start:
+    desc: Start production server
+    cmds:
+      - node dist/app.js
+
+  # ============================================
+  # Code Quality Commands
+  # ============================================
+
+  check-types:
+    desc: Run TypeScript type checking
+    cmds:
+      - tsc -b
+
+  lint:
+    desc: Run linter and format checker
+    cmds:
+      - eslint . && prettier --check "src/**/*.{ts,js,json}"
+
+  lint:fix:
+    desc: Fix linting and formatting issues
+    cmds:
+      - eslint . --fix && prettier --write "src/**/*.{ts,js,json}"
+
+  eslint:
+    desc: Run ESLint only
+    cmds:
+      - eslint ./src
+
+  eslint:fix:
+    desc: Fix ESLint issues
+    cmds:
+      - eslint ./src --fix
+
+  format:
+    desc: Format code with Prettier
+    cmds:
+      - prettier --write "src/**/*.{ts,js,json}"
+
+  format:check:
+    desc: Check code formatting
+    cmds:
+      - prettier --check "src/**/*.{ts,js,json}"
+
+  # ============================================
+  # Git Hooks & Tools
+  # ============================================
+
+  prepare:
+    desc: Install Lefthook git hooks
+    cmds:
+      - lefthook install
+
+  ruler:apply:
+    desc: Apply Ruler configuration
+    cmds:
+      - pnpm dlx @intellectronica/ruler@latest apply --local-only
+
+  # ============================================
+  # Module Generation
+  # ============================================
+
+  generate:module:
+    desc: Generate a new API module
+    cmds:
+      - node script/generate-module.js
+
+  # ============================================
+  # Docker - Starting Services
+  # ============================================
+
+  docker:start:
+    desc: Start all Docker services (App + Beszel)
+    cmds:
+      - echo "Starting all services..."
+      - docker compose up -d
+      - echo "✓ Services started"
+      - task: docker:ps
+
+  docker:start:app:
+    desc: Start only JobSphere API
+    cmds:
+      - echo "Starting JobSphere API..."
+      - docker compose up -d app
+      - echo "✓ API started"
+
+  docker:start:beszel:
+    desc: Start only Beszel monitoring
+    cmds:
+      - echo "Starting Beszel monitoring..."
+      - docker compose up -d beszel beszel-agent
+      - echo "✓ Beszel started"
+
+  # ============================================
+  # Docker - Stopping Services
+  # ============================================
+
+  docker:stop:
+    desc: Stop all Docker services
+    cmds:
+      - echo "Stopping all services..."
+      - docker compose down
+      - echo "✓ Services stopped"
+
+  docker:stop:app:
+    desc: Stop only JobSphere API
+    cmds:
+      - docker compose stop app
+
+  docker:stop:beszel:
+    desc: Stop only Beszel monitoring
+    cmds:
+      - docker compose stop beszel beszel-agent
+
+  # ============================================
+  # Docker - Restarting Services
+  # ============================================
+
+  docker:restart:
+    desc: Restart all Docker services
+    cmds:
+      - echo "Restarting all services..."
+      - docker compose restart
+      - echo "✓ Services restarted"
+
+  docker:restart:app:
+    desc: Restart only JobSphere API
+    cmds:
+      - docker compose restart app
+
+  docker:restart:beszel:
+    desc: Restart only Beszel monitoring
+    cmds:
+      - docker compose restart beszel beszel-agent
+
+  # ============================================
+  # Docker - Building & Rebuilding
+  # ============================================
+
+  docker:build:
+    desc: Build and start Docker services
+    cmds:
+      - echo "Building and starting services..."
+      - docker compose up -d --build
+      - echo "✓ Build complete"
+
+  docker:rebuild:
+    desc: Clean rebuild all services
+    cmds:
+      - echo "Stopping services..."
+      - docker compose down
+      - echo "Rebuilding and starting services..."
+      - docker compose up -d --build
+      - echo "✓ Rebuild complete"
+
+  # ============================================
+  # Docker - Logs
+  # ============================================
+
+  docker:logs:
+    desc: View all Docker logs (live)
+    cmds:
+      - docker compose logs -f
+
+  docker:logs:app:
+    desc: View JobSphere API logs
+    cmds:
+      - docker compose logs -f app
+
+  docker:logs:beszel:
+    desc: View Beszel monitoring logs
+    cmds:
+      - docker compose logs -f beszel beszel-agent
+
+  # ============================================
+  # Docker - Status & Testing
+  # ============================================
+
+  docker:ps:
+    desc: Show Docker container status
+    cmds:
+      - docker compose ps
+
+  docker:test:
+    desc: Test API health
+    cmds:
+      - curl -s http://localhost:4000/ && echo "\n✓ API is responding" || echo "\n✗ API is not responding"
+
+  docker:test:beszel:
+    desc: Test Beszel dashboard
+    cmds:
+      - curl -s http://localhost:8090/ && echo "\n✓ Beszel is responding" || echo "\n✗ Beszel is not responding"
+
+  docker:health:
+    desc: Check service health
+    cmds:
+      - echo "Checking health..."
+      - docker inspect --format='{{{{.State.Health.Status}}}}' jobsphere-app 2>/dev/null || echo "Health check not available"
+      - curl -s http://localhost:4000/ > /dev/null && echo "✓ API is healthy" || echo "✗ API is not responding"
+
+  # ============================================
+  # Docker - Cleanup
+  # ============================================
+
+  docker:clean:
+    desc: Stop services and remove volumes (⚠️ deletes data)
+    prompt: "⚠️  This will delete all data. Continue?"
+    cmds:
+      - docker compose down -v
+      - echo "✓ Cleaned"
+
+  docker:prune:
+    desc: Clean up Docker resources
+    cmds:
+      - echo "Cleaning Docker resources..."
+      - docker system prune -a --volumes -f
+      - echo "✓ Cleanup complete"
+
+  # ============================================
+  # Docker - Shell Access
+  # ============================================
+
+  docker:shell:
+    desc: Access app container shell
+    cmds:
+      - docker compose exec app sh
+
+  docker:shell:beszel:
+    desc: Access Beszel container shell
+    cmds:
+      - docker compose exec beszel sh
+
+  # ============================================
+  # Setup & Maintenance
+  # ============================================
+
+  setup:
+    desc: Initial project setup
+    cmds:
+      - echo "Setting up environment..."
+      - cmd: cp .env.example .env
+        ignore_error: true
+      - mkdir -p uploads logs beszel_data beszel_agent_data beszel_socket
+      - echo "✓ Setup complete. Edit .env with your configuration."
+
+  update:
+    desc: Pull latest code and rebuild
+    cmds:
+      - echo "Updating application..."
+      - git pull origin main
+      - docker compose up -d --build
+      - echo "✓ Update complete"
+
+  # ============================================
+  # Backup & Restore
+  # ============================================
+
+  backup:
+    desc: Backup uploads and logs
+    cmds:
+      - echo "Creating backup..."
+      - mkdir -p backups
+      - tar -czf ./backups/uploads_{{.TIMESTAMP}}.tar.gz uploads/
+      - tar -czf ./backups/logs_{{.TIMESTAMP}}.tar.gz logs/
+      - tar -czf ./backups/beszel_{{.TIMESTAMP}}.tar.gz beszel_data/
+      - echo "✓ Backup complete in ./backups/"
+
+  # ============================================
+  # Deployment
+  # ============================================
+
+  deploy:
+    desc: Deploy to production (VPS)
+    cmds:
+      - chmod +x deploy.sh
+      - ./deploy.sh
+
+  # ============================================
+  # Utility Commands
+  # ============================================
+
+  clean:
+    desc: Clean build artifacts and temporary files
+    cmds:
+      - rm -rf dist/
+      - rm -rf node_modules/.cache/
+      - rm -rf .turbo/
+      - echo "✓ Cleaned build artifacts"
+
+  install:
+    desc: Install dependencies
+    cmds:
+      - pnpm install
+
+  # ============================================
+  # Combined Workflows
+  # ============================================
+
+  dev:full:
+    desc: Start full development environment (API + Beszel)
+    cmds:
+      - task: docker:start
+      - task: docker:logs
+
+  test:all:
+    desc: Run all tests
+    cmds:
+      - task: docker:test
+      - task: docker:test:beszel
+      - task: docker:health
+
+  ci:
+    desc: Run CI checks (lint, type-check, build)
+    cmds:
+      - task: lint
+      - task: check-types
+      - task: build
+
+  fresh:
+    desc: Fresh start (clean, install, build, start)
+    cmds:
+      - task: clean
+      - task: install
+      - task: build
+      - task: docker:rebuild
