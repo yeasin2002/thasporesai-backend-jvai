@@ -321,6 +321,27 @@ The script will:
 
 ## 🐛 Troubleshooting
 
+### Docker Compose v2 Issues
+
+**Error:** `docker-compose: command not found`
+
+**Cause:** Docker v29+ uses `docker compose` (without dash) instead of `docker-compose`
+
+**Solution:**
+```bash
+# Check Docker version
+docker --version
+
+# If v20+, use new syntax (no dash):
+docker compose up -d
+docker compose down
+docker compose logs -f app
+
+# The deploy.sh script already uses the correct syntax
+```
+
+**Note:** All Docker commands in this project use the new `docker compose` syntax (v2).
+
 ### Container won't start
 ```bash
 # Check logs
