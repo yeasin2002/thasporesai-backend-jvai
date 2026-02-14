@@ -3,7 +3,7 @@ version: '3'
 vars:
   GREETING: "JobSphere Task Runner"
   TIMESTAMP:
-    sh: date +%Y%m%d_%H%M%S
+    sh: node -e "console.log(new Date().toISOString().replace(/[:.]/g, '-').slice(0, -5))"
 
 tasks:
   default:
@@ -19,7 +19,7 @@ tasks:
   dev:
     desc: Start development server with hot reload
     cmds:
-      - tsx watch src/app.ts
+      - pnpm exec tsx watch src/app.ts
 
   dev:bun:
     desc: Start development server with Bun hot reload
@@ -29,7 +29,7 @@ tasks:
   build:
     desc: Build the application for production
     cmds:
-      - tsdown
+      - pnpm exec tsdown
 
   compile:
     desc: Compile to standalone binary
@@ -48,37 +48,37 @@ tasks:
   check-types:
     desc: Run TypeScript type checking
     cmds:
-      - tsc -b
+      - pnpm exec tsc -b
 
   lint:
     desc: Run linter and format checker
     cmds:
-      - eslint . && prettier --check "src/**/*.{ts,js,json}"
+      - pnpm exec eslint . && pnpm exec prettier --check "src/**/*.{ts,js,json}"
 
   lint:fix:
     desc: Fix linting and formatting issues
     cmds:
-      - eslint . --fix && prettier --write "src/**/*.{ts,js,json}"
+      - pnpm exec eslint . --fix && pnpm exec prettier --write "src/**/*.{ts,js,json}"
 
   eslint:
     desc: Run ESLint only
     cmds:
-      - eslint ./src
+      - pnpm exec eslint ./src
 
   eslint:fix:
     desc: Fix ESLint issues
     cmds:
-      - eslint ./src --fix
+      - pnpm exec eslint ./src --fix
 
   format:
     desc: Format code with Prettier
     cmds:
-      - prettier --write "src/**/*.{ts,js,json}"
+      - pnpm exec prettier --write "src/**/*.{ts,js,json}"
 
   format:check:
     desc: Check code formatting
     cmds:
-      - prettier --check "src/**/*.{ts,js,json}"
+      - pnpm exec prettier --check "src/**/*.{ts,js,json}"
 
   # ============================================
   # Git Hooks & Tools
@@ -87,7 +87,7 @@ tasks:
   prepare:
     desc: Install Lefthook git hooks
     cmds:
-      - lefthook install
+      - pnpm exec lefthook install
 
   ruler:apply:
     desc: Apply Ruler configuration
