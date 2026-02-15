@@ -1,5 +1,5 @@
 ### Get all users (no filters)
-GET http://localhost:4000/api/users
+GET http://localhost:4000/api/user
 
 ### Get all users with pagination
 GET http://localhost:4000/api/users?page=1&limit=10

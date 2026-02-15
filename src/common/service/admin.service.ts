@@ -90,13 +90,14 @@ export class AdminService {
       wallet = await db.wallet.create({
         user: adminId,
         balance: 0,
-        escrowBalance: 0,
         currency: "USD",
         isActive: true,
         isFrozen: false,
         totalEarnings: 0,
         totalSpent: 0,
         totalWithdrawals: 0,
+        stripeCustomerId: null,
+        stripeConnectAccountId: null,
       });
 
       console.log("✅ Admin wallet created:", wallet._id);

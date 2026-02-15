@@ -4,7 +4,6 @@ import { db } from "@/db";
 import { sendBadRequest, sendInternalError, sendSuccess } from "@/helpers";
 import { logger } from "@/lib";
 import type { RequestHandler } from "express";
-import mongoose from "mongoose";
 import type { SendOffer } from "../offer.validation";
 
 /**
@@ -64,139 +63,85 @@ export const sendOffer: RequestHandler<
     // 5. Calculate payment amounts
     const amounts = calculatePaymentAmounts(amount);
 
-    // 6. Get or create wallet (without balance check yet)
+    // 6. Get or create wallet and validate balance (no deduction yet)
     let wallet = await db.wallet.findOne({ user: customerId });
     if (!wallet) {
       wallet = await db.wallet.create({
         user: customerId,
         balance: 0,
-        escrowBalance: 0,
+        currency: "USD",
+        isActive: true,
+        isFrozen: false,
+        totalEarnings: 0,
+        totalSpent: 0,
+        totalWithdrawals: 0,
+        stripeCustomerId: null,
+        stripeConnectAccountId: null,
       });
     }
 
-    // 7-10. Execute all database operations atomically with optimistic locking
-    const session = await mongoose.startSession();
-    session.startTransaction();
-
-    try {
-      // Atomically deduct from wallet with balance check (prevents race conditions)
-      const updatedWallet = await db.wallet.findOneAndUpdate(
-        {
-          user: customerId,
-          balance: { $gte: amounts.totalCharge }, // Atomic check - ensures sufficient balance
-        },
-        {
-          $inc: {
-            balance: -amounts.totalCharge,
-            escrowBalance: amounts.totalCharge,
-            totalSpent: amounts.totalCharge,
-          },
-        },
-        { new: true, session }
+    // 7. Validate customer has sufficient balance (no deduction)
+    if (wallet.balance < amounts.totalCharge) {
+      return sendBadRequest(
+        res,
+        `Insufficient balance. Required: $${amounts.totalCharge}, Available: $${wallet.balance}`
       );
+    }
 
-      // If wallet update failed, balance was insufficient
-      if (!updatedWallet) {
-        await session.abortTransaction();
-        return sendBadRequest(
-          res,
-          `Insufficient balance. Required: ${amounts.totalCharge}, Available: ${wallet.balance}`
-        );
-      }
+    // 8. Check if wallet is frozen
+    if (wallet.isFrozen) {
+      return sendBadRequest(res, "Wallet is frozen. Please contact support.");
+    }
 
-      // Create offer
-      const [offer] = await db.offer.create(
-        [
-          {
-            job: job._id,
-            customer: customerId,
-            contractor: application.contractor._id,
-            engaged: applicationId, // Link to unified application model
-            amount: amounts.jobBudget,
-            platformFee: amounts.platformFee,
-            serviceFee: amounts.serviceFee,
-            contractorPayout: amounts.contractorPayout,
-            totalCharge: amounts.totalCharge,
-            timeline,
-            description,
-            status: "pending",
-            expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
-          },
-        ],
-        { session }
-      );
+    // 9. Create offer with expiresAt (7 days from now)
+    const offer = await db.offer.create({
+      job: job._id,
+      customer: customerId,
+      contractor: application.contractor._id,
+      engaged: applicationId, // Link to unified application model
+      amount: amounts.jobBudget,
+      platformFee: amounts.platformFee,
+      serviceFee: amounts.serviceFee,
+      contractorPayout: amounts.contractorPayout,
+      totalCharge: amounts.totalCharge,
+      timeline,
+      description,
+      status: "pending",
+      expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
+    });
 
-      await db.inviteApplication.findOneAndUpdate(
-        {
-          _id: applicationId,
-        },
-        {
-          status: "offered",
-          offerId: offer._id,
-        },
-        { session }
-      );
+    // 10. Update application status to offered
+    application.status = "offered";
+    application.offerId = offer._id as any;
+    await application.save();
 
-      // Create transaction record
-      await db.transaction.create(
-        [
-          {
-            type: "escrow_hold",
-            amount: amounts.totalCharge,
-            from: customerId,
-            to: customerId, // Escrow is still customer's money
-            offer: offer._id,
-            job: job._id,
-            status: "completed",
-            description: `Escrow hold for job offer: ${amounts.totalCharge}`,
-            completedAt: new Date(),
-          },
-        ],
-        { session }
-      );
+    // Populate offer with customer and contractor details
+    await offer.populate([
+      { path: "customer", select: "full_name email profile_img role" },
+      { path: "contractor", select: "full_name email profile_img role" },
+      { path: "job", select: "title description budget location category" },
+    ]);
 
-      // Update application status to offered
-      application.status = "offered";
-      application.offerId = offer._id as any;
-      await application.save({ session });
-
-      // Commit transaction
-      await session.commitTransaction();
-
-      // Populate offer with customer and contractor details
-      await offer.populate([
-        { path: "customer", select: "full_name email profile_img role" },
-        { path: "contractor", select: "full_name email profile_img role" },
-        { path: "job", select: "title description budget location category" },
-      ]);
-
-      // 11. Send notification to contractor (outside transaction)
-      await NotificationService.sendToUser({
-        userId: (application.contractor as any)._id.toString(),
-        title: "New Offer Received",
-        body: `You received an offer of ${amount} for "${job.title}"`,
-        type: "sent_offer",
-        data: {
-          offerId: (offer._id as any).toString(),
-          jobId: job._id.toString(),
-          amount: amount.toString(),
-          source: "application",
-        },
-      });
-
-      return sendSuccess(res, 201, "Offer sent successfully", {
-        offer,
-        walletBalance: updatedWallet.balance,
-        amounts,
+    // 11. Send notification to contractor
+    await NotificationService.sendToUser({
+      userId: (application.contractor as any)._id.toString(),
+      title: "New Offer Received",
+      body: `You received an offer of $${amount} for "${job.title}"`,
+      type: "sent_offer",
+      data: {
+        offerId: (offer._id as any).toString(),
+        jobId: job._id.toString(),
+        amount: amount.toString(),
         source: "application",
-      });
-    } catch (error) {
-      // Rollback transaction on error
-      await session.abortTransaction();
-      throw error;
-    } finally {
-      session.endSession();
-    }
+      },
+    });
+
+    return sendSuccess(res, 201, "Offer sent successfully", {
+      offer,
+      walletBalance: wallet.balance,
+      amounts,
+      source: "application",
+    });
   } catch (error) {
     logger.error("Error sending offer", error);
     return sendInternalError(res, "Failed to send offer", error as Error);

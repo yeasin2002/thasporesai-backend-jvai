@@ -3,14 +3,10 @@ pre-commit:
   commands:
     prettier:
       glob: "*.{js,mjs,cjs,jsx,ts,mts,cts,tsx,vue,astro,svelte}"
-      run: prettier --write {staged_files}
+      run: pnpm run format:check
       stage_fixed: true
 
     eslint:
       glob: "*.{js,mjs,cjs,jsx,ts,mts,cts,tsx,vue,astro,svelte}"
-      run: eslint --fix {staged_files}
+      run: pnpm run  eslint
       stage_fixed: true
-
-    oxlint:
-      glob: "*.{js,mjs,cjs,jsx,ts,mts,cts,tsx,vue,astro,svelte}"
-      run: oxlint {staged_files}

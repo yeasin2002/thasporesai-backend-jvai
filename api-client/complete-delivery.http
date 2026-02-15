@@ -17,12 +17,21 @@ Content-Type: application/json
 ### Expected Response (200 OK):
 # {
 #   "status": 200,
-#   "message": "Job marked as complete successfully",
+#   "message": "Completion request created successfully",
 #   "data": {
+#     "completionRequest": {
+#       "_id": "completion_request_id",
+#       "job": "job_id",
+#       "customer": "customer_id",
+#       "contractor": "contractor_id",
+#       "offer": "offer_id",
+#       "status": "pending",
+#       "requestedAt": "2025-11-28T..."
+#     },
 #     "job": {
 #       "_id": "job_id",
 #       "title": "Job Title",
-#       "status": "completed",
+#       "status": "assigned",
 #       "completedAt": "2025-11-28T..."
 #     },
 #     "payment": {
@@ -32,23 +41,13 @@ Content-Type: application/json
 #       "platformFee": 5,
 #       "totalAdminCommission": 25
 #     },
-#     "wallets": {
-#       "customer": {
-#         "balance": 0,
-#         "escrowBalance": 0
-#       },
-#       "contractor": {
-#         "balance": 80,
-#         "totalEarnings": 80
-#       }
-#     },
-#     "message": "Job completed successfully. Contractor received 80 (80% of 100). Service fee of 20 (20%) was deducted."
+#     "message": "Completion request submitted. Admin will review and approve payment release."
 #   }
 # }
 
 ### Error Cases:
 
-### 2. Try to complete job that's not in_progress (400)
+### 2. Try to complete job that's not assigned (400)
 POST {{baseUrl}}/api/delivery/complete-delivery
 Authorization: Bearer {{customerToken}}
 Content-Type: application/json

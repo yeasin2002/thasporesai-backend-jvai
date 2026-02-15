@@ -126,14 +126,6 @@ export const CancelOfferResponseSchema = z
         cancelledAt: z.string(),
         cancellationReason: z.string().optional(),
       }),
-      refund: z.object({
-        amount: z.number(),
-        description: z.string(),
-      }),
-      wallet: z.object({
-        balance: z.number(),
-        escrowBalance: z.number(),
-      }),
       message: z.string(),
     }),
   })

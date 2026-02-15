@@ -6,9 +6,17 @@ import {
   validateQuery,
 } from "@/middleware/validation.middleware";
 import express, { type Router } from "express";
-import { deposit, getTransactions, getWallet, withdraw } from "./services";
+import {
+  deposit,
+  getTransactions,
+  getWallet,
+  stripeOnboard,
+  stripeStatus,
+  withdraw,
+} from "./services";
 import {
   DepositSchema,
+  StripeOnboardSchema,
   TransactionQuerySchema,
   WithdrawSchema,
 } from "./wallet.validation";
@@ -36,4 +44,21 @@ wallet.post(
   requireRole("contractor"),
   validateBody(WithdrawSchema),
   withdraw
+);
+
+// Stripe Connect onboarding (contractors only)
+wallet.post(
+  "/stripe/onboard",
+  requireAuth,
+  requireRole("contractor"),
+  validateBody(StripeOnboardSchema),
+  stripeOnboard
+);
+
+// Get Stripe Connect status (contractors only)
+wallet.get(
+  "/stripe/status",
+  requireAuth,
+  requireRole("contractor"),
+  stripeStatus
 );
