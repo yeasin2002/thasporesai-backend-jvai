@@ -81,3 +81,8 @@ uploads/
 !uploads/.gitkeep
 firebase-service-account.json
 ssl/
+
+# Beszel Monitoring
+beszel_data/
+beszel_agent_data/
+beszel_socket/

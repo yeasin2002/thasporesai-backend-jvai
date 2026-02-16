@@ -5,11 +5,9 @@ extendZodWithOpenApi(z);
 
 export const DepositSchema = z
   .object({
-    amount: z.number().positive().openapi({ description: "Amount to deposit" }),
-    paymentMethodId: z
-      .string()
-      .min(1)
-      .openapi({ description: "Payment method ID" }),
+    amount: z.number().positive().min(1).max(10000).openapi({
+      description: "Amount to deposit (min: $1, max: $10,000)",
+    }),
   })
   .openapi("Deposit");
 
@@ -21,6 +19,21 @@ export const WithdrawSchema = z
       .openapi({ description: "Amount to withdraw" }),
   })
   .openapi("Withdraw");
+
+export const StripeOnboardSchema = z
+  .object({
+    refreshUrl: z
+      .string()
+      .url()
+      .optional()
+      .openapi({ description: "URL to return if onboarding needs refresh" }),
+    returnUrl: z
+      .string()
+      .url()
+      .optional()
+      .openapi({ description: "URL to return after successful onboarding" }),
+  })
+  .openapi("StripeOnboard");
 
 export const TransactionQuerySchema = z
   .object({
@@ -43,4 +56,5 @@ export const TransactionQuerySchema = z
 
 export type Deposit = z.infer<typeof DepositSchema>;
 export type Withdraw = z.infer<typeof WithdrawSchema>;
+export type StripeOnboard = z.infer<typeof StripeOnboardSchema>;
 export type TransactionQuery = z.infer<typeof TransactionQuerySchema>;

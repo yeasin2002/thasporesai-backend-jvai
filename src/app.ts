@@ -23,13 +23,17 @@ import { testNotification } from "@/api/test-notification/test-notification.rout
 
 // admin- dashboard routes
 import { adminUser } from "@/api/admin/admin-user/admin-user.route";
+import { completionRequests } from "@/api/admin/completion-requests/completion-requests.route";
+import { withdrawalRequests } from "@/api/admin/withdrawal-requests/withdrawal-requests.route";
 
 // common routes
 import {
   connectDB,
   generateOpenAPIDocument,
+  initializeAgenda,
   initializeFirebase,
   PORT,
+  startAgenda,
 } from "@/lib";
 import {
   errorHandler,
@@ -40,12 +44,17 @@ import {
 import { authAdmin } from "./api/admin/auth-admin/auth-admin.route";
 import { initializeSocketIO } from "./api/chat/socket";
 import { common } from "./api/common/common.route";
-import { startOfferExpirationJob } from "./jobs/expire-offers";
+import { initializeExpireOffersJob } from "./jobs/expire-offers";
 import { getLocalIP } from "./lib/get-my-ip";
 import { morganDevFormat } from "./lib/morgan";
 
 const app = express();
 const httpServer = createServer(app);
+
+// Webhook routes MUST come before express.json() middleware
+// Stripe webhooks need raw body for signature verification
+import { stripeWebhook } from "./api/webhooks/stripe-webhook.route";
+app.use("/api/webhooks", stripeWebhook);
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -98,6 +107,18 @@ app.use("/api/seed", seed);
 // Admin routes
 app.use("/api/admin/auth", authAdmin);
 app.use("/api/admin/users", requireAuth, requireRole("admin"), adminUser);
+app.use(
+  "/api/admin/completion-requests",
+  requireAuth,
+  requireRole("admin"),
+  completionRequests
+);
+app.use(
+  "/api/admin/withdrawal-requests",
+  requireAuth,
+  requireRole("admin"),
+  withdrawalRequests
+);
 
 // User routes
 import { certifications } from "./api/users/certifications/certifications.route";
@@ -131,16 +152,35 @@ httpServer.listen(PORT, async () => {
   // Initialize Firebase Admin SDK for push notifications
   try {
     initializeFirebase();
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
   } catch (_error) {
     consola.warn(
       "⚠️ Firebase initialization failed. Push notifications will not work."
     );
   }
-  consola.warn(` 💬 Socket.IO chat enabled \n`);
 
-  // Start offer expiration job
-  startOfferExpirationJob();
+  // Initialize Stripe SDK
+  try {
+    const { initializeStripe } = await import("./lib/stripe");
+    initializeStripe();
+  } catch (_error) {
+    consola.warn(
+      "⚠️ Stripe initialization failed. Payment features will not work."
+    );
+  }
+
+  // Initialize Agenda job scheduler
+  try {
+    const agenda = await initializeAgenda();
+    await initializeExpireOffersJob(agenda);
+    await startAgenda();
+    consola.success("✅ Agenda job scheduler started");
+  } catch (_error) {
+    consola.warn(
+      "⚠️ Agenda initialization failed. Scheduled jobs will not work."
+    );
+  }
+
+  consola.warn(` 💬 Socket.IO chat enabled \n`);
 
   consola.log(`🚀 Server is running on port http://localhost:${PORT}`);
   consola.log(`✨ Server is running on port http://${getLocalIP()}:${PORT} \n`);

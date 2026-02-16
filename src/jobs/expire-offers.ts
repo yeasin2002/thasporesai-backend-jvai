@@ -1,57 +1,95 @@
+import { AdminService } from "@/common/service/admin.service";
 import { NotificationService } from "@/common/service/notification.service";
 import { db } from "@/db";
+import type { Agenda, Job } from "agenda";
+import consola from "consola";
+import mongoose from "mongoose";
+
+// Job name constant
+export const EXPIRE_OFFERS_JOB = "expire-offers";
 
 /**
- * Expire Offers Job
- * Automatically expires pending offers that have passed their expiration date
- * Refunds customers and resets application status
+ * Expire Offers Job Handler
+ * Automatically expires accepted offers that have passed their expiration date (7 days)
+ * Performs database-only wallet refunds (admin → customer)
+ * Resets application status and sends notifications
  */
-export const expireOffers = async () => {
+export const expireOffersHandler = async (_job: Job) => {
   try {
     const now = new Date();
 
-    // Find all expired pending offers
+    consola.info(`⏰ Running ${EXPIRE_OFFERS_JOB} job at ${now.toISOString()}`);
+
+    // Find all expired ACCEPTED offers (only accepted offers need refunds)
     const expiredOffers = await db.offer.find({
-      status: "pending",
+      status: "accepted",
       expiresAt: { $lt: now },
     });
 
     if (expiredOffers.length === 0) {
-      console.log("✅ No expired offers found");
-      return;
+      consola.info("✅ No expired offers found");
+      return { processed: 0, message: "No expired offers found" };
     }
 
-    console.log(`⏰ Processing ${expiredOffers.length} expired offers...`);
+    consola.info(`⏰ Processing ${expiredOffers.length} expired offers...`);
+
+    let successCount = 0;
+    let failureCount = 0;
 
     for (const offer of expiredOffers) {
+      const session = await mongoose.startSession();
+      session.startTransaction();
+
       try {
+        // Get admin wallet and user ID
+        const adminWallet = await AdminService.getAdminWallet();
+        const adminUserId = await AdminService.getAdminUserId();
+
+        // Deduct from admin wallet
+        adminWallet.balance -= offer.totalCharge;
+        await adminWallet.save({ session });
+
+        // Get or create customer wallet
+        let customerWallet = await db.wallet.findOne({
+          user: offer.customer,
+        });
+        if (!customerWallet) {
+          [customerWallet] = await db.wallet.create(
+            [
+              {
+                user: offer.customer,
+                balance: 0,
+              },
+            ],
+            { session }
+          );
+        }
+
+        // Add refund to customer wallet
+        customerWallet.balance += offer.totalCharge;
+        await customerWallet.save({ session });
+
         // Update offer status
         offer.status = "expired";
-        await offer.save();
-
-        // Refund customer wallet
-        await db.wallet.findOneAndUpdate(
-          { user: offer.customer },
-          {
-            $inc: {
-              balance: offer.totalCharge,
-              escrowBalance: -offer.totalCharge,
-            },
-          }
-        );
+        await offer.save({ session });
 
         // Create refund transaction
-        await db.transaction.create({
-          type: "refund",
-          amount: offer.totalCharge,
-          from: offer.customer,
-          to: offer.customer,
-          offer: offer._id,
-          job: offer.job,
-          status: "completed",
-          description: `Refund for expired offer: $${offer.totalCharge}`,
-          completedAt: new Date(),
-        });
+        await db.transaction.create(
+          [
+            {
+              type: "refund",
+              amount: offer.totalCharge,
+              from: adminUserId,
+              to: offer.customer,
+              offer: offer._id,
+              job: offer.job,
+              status: "completed",
+              description: `Refund for expired offer (7 days): $${offer.totalCharge}`,
+              completedAt: new Date(),
+            },
+          ],
+          { session }
+        );
 
         // Reset engaged application/invite status to allow new offers
         if (offer.engaged) {
@@ -65,53 +103,117 @@ export const expireOffers = async () => {
               // Customer invited - reset to engaged
               engagement.status = "engaged";
             }
-            // Clear offer reference (cast to any to avoid TypeScript error)
+            // Clear offer reference
             engagement.offerId = undefined as any;
-            await engagement.save();
+            await engagement.save({ session });
           }
         }
 
-        // Notify customer
+        // Update job status back to open if it was assigned
+        const jobDoc = await db.job.findById(offer.job);
+        if (jobDoc && jobDoc.status === "assigned") {
+          jobDoc.status = "open";
+          jobDoc.contractorId = undefined;
+          jobDoc.offerId = undefined;
+          jobDoc.assignedAt = undefined;
+          await jobDoc.save({ session });
+        }
+
+        // Commit transaction
+        await session.commitTransaction();
+
+        // Notify customer (outside transaction)
         await NotificationService.sendToUser({
           userId: offer.customer.toString(),
           title: "Offer Expired",
-          body: `Your offer has expired and $${offer.totalCharge} has been refunded to your wallet`,
+          body: `Your offer has expired after 7 days and $${offer.totalCharge} has been refunded to your wallet`,
           type: "general",
           data: {
-            offerId: (offer._id as any).toString(),
+            offerId: String(offer._id),
             jobId: offer.job.toString(),
             refundAmount: offer.totalCharge.toString(),
           },
         });
 
-        console.log(
-          `✅ Expired offer ${(offer._id as any).toString()} and refunded $${
+        // Notify contractor (outside transaction)
+        await NotificationService.sendToUser({
+          userId: offer.contractor.toString(),
+          title: "Offer Expired",
+          body: `The offer for this job has expired after 7 days`,
+          type: "general",
+          data: {
+            offerId: String(offer._id),
+            jobId: offer.job.toString(),
+          },
+        });
+
+        consola.success(
+          `✅ Expired offer ${String(offer._id)} and refunded $${
             offer.totalCharge
           }`
         );
+        successCount++;
       } catch (error) {
-        console.error(`❌ Error expiring offer ${offer._id}:`, error);
+        // Rollback transaction on error
+        await session.abortTransaction();
+        consola.error(`❌ Error expiring offer ${offer._id}:`, error);
+        failureCount++;
+      } finally {
+        session.endSession();
       }
     }
 
-    console.log(
-      `✅ Successfully processed ${expiredOffers.length} expired offers`
+    const result = {
+      processed: expiredOffers.length,
+      successful: successCount,
+      failed: failureCount,
+      message: `Processed ${expiredOffers.length} expired offers (${successCount} successful, ${failureCount} failed)`,
+    };
+
+    consola.success(
+      `✅ Successfully processed ${successCount}/${expiredOffers.length} expired offers`
     );
+
+    return result;
   } catch (error) {
-    console.error("❌ Error in expireOffers job:", error);
+    consola.error("❌ Error in expireOffers job:", error);
+    throw error; // Agenda will handle retry logic
   }
 };
 
 /**
- * Start the offer expiration job
- * Runs every hour
+ * Define and schedule the expire offers job with Agenda
  */
-export const startOfferExpirationJob = () => {
-  console.log("🚀 Starting offer expiration job (runs every hour)");
+export const defineExpireOffersJob = (agenda: Agenda) => {
+  // Define the job
+  agenda.define(EXPIRE_OFFERS_JOB, expireOffersHandler, {
+    concurrency: 1, // Only one instance should run at a time
+    lockLifetime: 5 * 60 * 1000, // 5 minutes lock lifetime
+  });
 
-  // Run immediately on startup
-  expireOffers();
+  consola.success(`✅ Defined job: ${EXPIRE_OFFERS_JOB}`);
+};
 
-  // Run every hour
-  setInterval(expireOffers, 60 * 60 * 1000);
+/**
+ * Schedule the expire offers job to run every hour
+ */
+export const scheduleExpireOffersJob = async (agenda: Agenda) => {
+  // Cancel any existing jobs to avoid duplicates
+  await agenda.cancel({ name: EXPIRE_OFFERS_JOB });
+
+  // Schedule to run every hour
+  await agenda.every("1 hour", EXPIRE_OFFERS_JOB, {}, { skipImmediate: false });
+
+  consola.success(
+    `✅ Scheduled job: ${EXPIRE_OFFERS_JOB} (runs every hour, starting immediately)`
+  );
+};
+
+/**
+ * Initialize the expire offers job
+ * Call this after Agenda is initialized
+ */
+export const initializeExpireOffersJob = async (agenda: Agenda) => {
+  defineExpireOffersJob(agenda);
+  await scheduleExpireOffersJob(agenda);
 };

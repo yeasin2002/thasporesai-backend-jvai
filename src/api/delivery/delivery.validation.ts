@@ -37,7 +37,6 @@ export const PaymentBreakdownSchema = z
 export const WalletBalanceSchema = z
   .object({
     balance: z.number(),
-    escrowBalance: z.number(),
     totalEarnings: z.number().optional(),
   })
   .openapi("WalletBalance");
@@ -47,18 +46,17 @@ export const CompleteDeliveryResponseSchema = z
     status: z.number(),
     message: z.string(),
     data: z.object({
+      completionRequest: z.object({
+        _id: z.string(),
+        job: z.string(),
+        customer: z.string(),
+        contractor: z.string(),
+        offer: z.string(),
+        status: z.string(),
+        requestedAt: z.string(),
+      }),
       job: JobResponseSchema,
       payment: PaymentBreakdownSchema,
-      wallets: z.object({
-        customer: z.object({
-          balance: z.number(),
-          escrowBalance: z.number(),
-        }),
-        contractor: z.object({
-          balance: z.number(),
-          totalEarnings: z.number(),
-        }),
-      }),
       message: z.string(),
     }),
   })

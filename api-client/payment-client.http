@@ -1,0 +1,367 @@
+### Payment System API Testing
+### Base URL: http://localhost:4000
+### All endpoints require authentication unless specified
+
+### Variables
+@baseUrl = http://localhost:4000
+@customerToken ="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTJhOTViNTIyNTIyM2Y3NWExYTM3MmQiLCJlbWFpbCI6ImN1c3RvbWVyQGcuY29tIiwicm9sZSI6ImN1c3RvbWVyIiwiaWF0IjoxNzY5NjYyMjEwLCJleHAiOjE3NzA5NTgyMTB9.x0zKdMAGAD1lVTgjNQRL5f87GC78-KLxqIlS3DKAWvI"
+@contractorToken ="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTJhOTViNTIyNTIyM2Y3NWExYTM3MmUiLCJlbWFpbCI6ImNvbnRyYWN0b3JAZy5jb20iLCJyb2xlIjoiY29udHJhY3RvciIsImlhdCI6MTc2OTY2MjI0NiwiZXhwIjoxNzcwOTU4MjQ2fQ.NtK0IbilHyJN6c4bcQN2AbPD6NjB-fIGauR7NRW2b2Q"
+@adminToken ="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OTJhOTViNTIyNTIyM2Y3NWExYTM3MmYiLCJlbWFpbCI6ImFkbWluQGcuY29tIiwicm9sZSI6ImFkbWluIiwiaWF0IjoxNzY5NjYyMjYxLCJleHAiOjE3NzA5NTgyNjF9.ouxEFRC88MFg3DAau_LMGPuc_MFalwdXkHOgzudOpfE"
+
+###############################################################################
+# WALLET ENDPOINTS
+###############################################################################
+
+### 1. Get Wallet Balance and Details
+# GET /api/wallet
+# Authentication: Required (any role)
+GET {{baseUrl}}/api/wallet
+Authorization: Bearer {{customerToken}}
+
+###
+
+### 2. Create Deposit (Stripe Checkout Session)
+# POST /api/wallet/deposit
+# Authentication: Required (any role)
+# Returns: Stripe Checkout URL to open in browser
+POST {{baseUrl}}/api/wallet/deposit
+Authorization: Bearer {{customerToken}}
+Content-Type: application/json
+
+{
+  "amount": 100
+}
+
+###
+
+### 3. Get Transaction History
+# GET /api/wallet/transactions
+# Authentication: Required (any role)
+# Query params: page (default: 1), limit (default: 20, max: 100)
+GET {{baseUrl}}/api/wallet/transactions?page=1&limit=20
+Authorization: Bearer {{customerToken}}
+
+###
+
+### 4. Request Withdrawal (Contractor Only)
+# POST /api/wallet/withdraw
+# Authentication: Required (contractor role)
+# Creates a pending withdrawal request for admin approval
+POST {{baseUrl}}/api/wallet/withdraw
+Authorization: Bearer {{contractorToken}}
+Content-Type: application/json
+
+{
+  "amount": 50
+}
+
+###
+
+###############################################################################
+# STRIPE CONNECT ENDPOINTS (Contractor Only)
+###############################################################################
+
+### 5. Get Stripe Connect Onboarding Link
+# POST /api/wallet/stripe/onboard
+# Authentication: Required (contractor role)
+# Returns: Stripe Connect onboarding URL to open in browser
+POST {{baseUrl}}/api/wallet/stripe/onboard
+Authorization: Bearer {{contractorToken}}
+Content-Type: application/json
+
+{
+  "refreshUrl": "http://localhost:3000/contractor/stripe/refresh",
+  "returnUrl": "http://localhost:3000/contractor/stripe/success"
+}
+
+###
+
+### 6. Check Stripe Connect Account Status
+# GET /api/wallet/stripe/status
+# Authentication: Required (contractor role)
+GET {{baseUrl}}/api/wallet/stripe/status
+Authorization: Bearer {{contractorToken}}
+
+###
+
+###############################################################################
+# OFFER ENDPOINTS
+###############################################################################
+
+### 7. Send Offer to Contractor
+# POST /api/job-request/:applicationId/send-offer
+# Authentication: Required (customer role, job owner)
+# Note: Replace :applicationId with actual application ID
+POST {{baseUrl}}/api/job-request/APPLICATION_ID_HERE/send-offer
+Authorization: Bearer {{customerToken}}
+Content-Type: application/json
+
+{
+  "amount": 100,
+  "timeline": "2 weeks",
+  "description": "Complete the plumbing work as discussed"
+}
+
+###
+
+### 8. Accept Offer (Contractor)
+# POST /api/job-request/offer/:offerId/accept
+# Authentication: Required (contractor role, offer recipient)
+# Note: Replace :offerId with actual offer ID
+# Side Effects: Customer wallet -$105, Admin wallet +$105, Job status -> "assigned"
+POST {{baseUrl}}/api/job-request/offer/OFFER_ID_HERE/accept
+Authorization: Bearer {{contractorToken}}
+
+###
+
+### 9. Reject Offer (Contractor)
+# POST /api/job-request/offer/:offerId/reject
+# Authentication: Required (contractor role, offer recipient)
+# Note: Replace :offerId with actual offer ID
+# Side Effects (if accepted): Admin wallet -$105, Customer wallet +$105 (refund)
+POST {{baseUrl}}/api/job-request/offer/OFFER_ID_HERE/reject
+Authorization: Bearer {{contractorToken}}
+Content-Type: application/json
+
+{
+  "reason": "Schedule conflict - unable to complete within timeline"
+}
+
+###
+
+###############################################################################
+# JOB COMPLETION ENDPOINTS
+###############################################################################
+
+### 10. Mark Job as Complete (Customer)
+# POST /api/job/:id/complete
+# Authentication: Required (customer role, job owner)
+# Note: Replace :id with actual job ID
+# Creates a pending completion request for admin approval
+POST {{baseUrl}}/api/job/JOB_ID_HERE/complete
+Authorization: Bearer {{customerToken}}
+
+###
+
+### 11. Cancel Job
+# POST /api/job/:id/cancel
+# Authentication: Required (customer or contractor, job participant)
+# Note: Replace :id with actual job ID
+# Side Effects (if offer accepted): Admin wallet -$105, Customer wallet +$105 (refund)
+POST {{baseUrl}}/api/job/JOB_ID_HERE/cancel
+Authorization: Bearer {{customerToken}}
+Content-Type: application/json
+
+{
+  "reason": "Project requirements changed"
+}
+
+###
+
+###############################################################################
+# ADMIN ENDPOINTS - COMPLETION REQUESTS
+###############################################################################
+
+### 12. Get Completion Requests (Admin)
+# GET /api/admin/completion-requests
+# Authentication: Required (admin role)
+# Query params: page, limit, status (pending/approved/rejected)
+GET {{baseUrl}}/api/admin/completion-requests?status=pending&page=1&limit=20
+Authorization: Bearer {{adminToken}}
+
+###
+
+### 13. Approve Completion Request (Admin)
+# POST /api/admin/completion-requests/:id/approve
+# Authentication: Required (admin role)
+# Note: Replace :id with actual completion request ID
+# Side Effects: Admin wallet -$80, Contractor wallet +$80, Stripe Connect transfer initiated
+POST {{baseUrl}}/api/admin/completion-requests/REQUEST_ID_HERE/approve
+Authorization: Bearer {{adminToken}}
+
+###
+
+### 14. Reject Completion Request (Admin)
+# POST /api/admin/completion-requests/:id/reject
+# Authentication: Required (admin role)
+# Note: Replace :id with actual completion request ID
+POST {{baseUrl}}/api/admin/completion-requests/REQUEST_ID_HERE/reject
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "reason": "Work does not meet quality standards"
+}
+
+###
+
+###############################################################################
+# ADMIN ENDPOINTS - WITHDRAWAL REQUESTS
+###############################################################################
+
+### 15. Get Withdrawal Requests (Admin)
+# GET /api/admin/withdrawal-requests
+# Authentication: Required (admin role)
+# Query params: page, limit, status (pending/approved/rejected)
+GET {{baseUrl}}/api/admin/withdrawal-requests?status=pending&page=1&limit=20
+Authorization: Bearer {{adminToken}}
+
+###
+
+### 16. Approve Withdrawal Request (Admin)
+# POST /api/admin/withdrawal-requests/:id/approve
+# Authentication: Required (admin role)
+# Note: Replace :id with actual withdrawal request ID
+# Side Effects: Contractor wallet -amount, Stripe Connect transfer initiated
+POST {{baseUrl}}/api/admin/withdrawal-requests/REQUEST_ID_HERE/approve
+Authorization: Bearer {{adminToken}}
+
+###
+
+### 17. Reject Withdrawal Request (Admin)
+# POST /api/admin/withdrawal-requests/:id/reject
+# Authentication: Required (admin role)
+# Note: Replace :id with actual withdrawal request ID
+POST {{baseUrl}}/api/admin/withdrawal-requests/REQUEST_ID_HERE/reject
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "reason": "Stripe Connect account not fully verified"
+}
+
+###
+
+###############################################################################
+# WEBHOOK ENDPOINT (No Authentication - Signature Verified)
+###############################################################################
+
+### 18. Stripe Webhook Handler
+# POST /api/webhooks/stripe
+# Authentication: None (signature verified via stripe-signature header)
+# Note: This is called by Stripe, not manually
+# Use Stripe CLI for local testing: stripe listen --forward-to localhost:4000/api/webhooks/stripe
+POST {{baseUrl}}/api/webhooks/stripe
+stripe-signature: STRIPE_SIGNATURE_HERE
+Content-Type: application/json
+
+{
+  "id": "evt_test_webhook",
+  "object": "event",
+  "type": "checkout.session.completed",
+  "data": {
+    "object": {
+      "id": "cs_test_session",
+      "amount_total": 10000,
+      "customer": "cus_test_customer",
+      "metadata": {
+        "userId": "USER_ID_HERE"
+      }
+    }
+  }
+}
+
+###
+
+###############################################################################
+# COMPLETE PAYMENT FLOW TEST SEQUENCE
+###############################################################################
+
+### FLOW 1: Customer Deposit → Send Offer → Contractor Accepts → Job Complete → Admin Approves
+# Step 1: Customer deposits money
+# Step 2: Customer sends offer to contractor
+# Step 3: Contractor accepts offer (wallet transfer: customer → admin)
+# Step 4: Contractor works on job
+# Step 5: Customer marks job complete (creates completion request)
+# Step 6: Admin approves completion (wallet transfer: admin → contractor, Stripe payout initiated)
+
+### FLOW 2: Offer Rejection with Refund
+# Step 1: Customer sends offer
+# Step 2: Contractor accepts offer (wallet transfer: customer → admin)
+# Step 3: Contractor rejects offer (wallet refund: admin → customer)
+
+### FLOW 3: Job Cancellation with Refund
+# Step 1: Customer sends offer
+# Step 2: Contractor accepts offer (wallet transfer: customer → admin)
+# Step 3: Customer or contractor cancels job (wallet refund: admin → customer)
+
+### FLOW 4: Contractor Withdrawal
+# Step 1: Contractor requests withdrawal
+# Step 2: Admin reviews and approves withdrawal
+# Step 3: Stripe Connect transfer initiated to contractor's bank
+
+###############################################################################
+# TESTING NOTES
+###############################################################################
+
+# 1. AUTHENTICATION TOKENS
+#    - Replace {{customerToken}}, {{contractorToken}}, {{adminToken}} with actual JWT tokens
+#    - Get tokens by logging in via /api/auth/login endpoint
+
+# 2. STRIPE CHECKOUT TESTING
+#    - Use test card: 4242 4242 4242 4242
+#    - Any future expiry date and any 3-digit CVC
+#    - Use Stripe test mode keys in .env
+
+# 3. STRIPE WEBHOOK TESTING
+#    - Install Stripe CLI: https://stripe.com/docs/stripe-cli
+#    - Forward webhooks: stripe listen --forward-to localhost:4000/api/webhooks/stripe
+#    - Trigger test events: stripe trigger checkout.session.completed
+
+# 4. STRIPE CONNECT TESTING
+#    - Use Stripe test mode for Connect accounts
+#    - Complete onboarding with test data
+#    - Check account status before requesting withdrawals
+
+# 5. COMMISSION STRUCTURE
+#    - Platform Fee: 5% (charged on offer acceptance)
+#    - Service Fee: 20% (charged on job completion)
+#    - Contractor Payout: 80% of job budget
+#    - Example: $100 job → Customer pays $105 → Contractor gets $80 → Admin keeps $25
+
+# 6. WALLET BALANCE VALIDATION
+#    - Customers must have sufficient balance before sending offers
+#    - Balance checked: wallet.balance >= (job budget + 5%)
+#    - No wallet deduction until offer is accepted
+
+# 7. ADMIN APPROVAL REQUIRED
+#    - All job completions require admin approval
+#    - All contractor withdrawals require admin approval
+#    - This ensures quality control and fraud prevention
+
+# 8. TRANSACTION TYPES
+#    - deposit: Real money via Stripe Checkout
+#    - withdrawal: Real money via Stripe Connect
+#    - wallet_transfer: DB-only (offer acceptance)
+#    - contractor_payout: DB + Stripe transfer (job completion)
+#    - refund: DB-only (cancellations/rejections)
+
+# 9. OFFER EXPIRATION
+#    - Offers expire after 7 days if not accepted
+#    - Hourly cron job processes expired offers
+#    - Automatic refund to customer (DB-only)
+
+# 10. ERROR HANDLING
+#     - All endpoints return consistent error format
+#     - MongoDB transactions ensure atomicity
+#     - Stripe API errors are logged and user-friendly messages returned
+
+###############################################################################
+# QUICK START TESTING SEQUENCE
+###############################################################################
+
+# 1. Login as customer → Get customer token
+# 2. Login as contractor → Get contractor token
+# 3. Login as admin → Get admin token
+# 4. Customer: Create deposit → Open Stripe Checkout URL in browser → Complete payment
+# 5. Customer: Check wallet balance (should show deposited amount)
+# 6. Customer: Send offer to contractor (requires application ID)
+# 7. Contractor: Accept offer (wallet balances updated in DB)
+# 8. Customer: Mark job complete (creates completion request)
+# 9. Admin: Get pending completion requests
+# 10. Admin: Approve completion (Stripe Connect transfer initiated)
+# 11. Contractor: Check wallet balance (should show payout)
+# 12. Contractor: Request withdrawal
+# 13. Admin: Approve withdrawal (Stripe Connect transfer to bank)
+
+###

@@ -2,4 +2,5 @@ onlyBuiltDependencies:
   - '@firebase/util'
   - '@scarf/scarf'
   - esbuild
+  - lefthook
   - protobufjs

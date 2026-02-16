@@ -219,7 +219,38 @@ chmod +x deploy.sh
 ./deploy.sh
 ```
 
-### Step 8: Verify Deployment
+The deployment script will start:
+- JobSphere API (port 4000)
+- Beszel monitoring dashboard (port 8090)
+- Beszel agent (system metrics collector)
+
+### Step 8: Setup Beszel Monitoring (Optional but Recommended)
+
+Beszel provides real-time server monitoring with a web dashboard.
+
+```bash
+# 1. Access Beszel dashboard
+# Open in browser: http://your-vps-ip:8090
+
+# 2. Create admin account (first time only)
+# Follow the on-screen instructions
+
+# 3. Add your server
+# - Name: JobSphere VPS
+# - Host: /beszel_socket/beszel.sock
+# - Generate keys in the UI
+
+# 4. Update .env with generated keys
+nano .env
+# Add BESZEL_TOKEN and BESZEL_KEY from the UI
+
+# 5. Restart agent
+docker compose restart beszel-agent
+```
+
+See [BESZEL-SETUP.md](BESZEL-SETUP.md) for detailed instructions.
+
+### Step 9: Verify Deployment
 ```bash
 # Check if container is running
 docker ps
@@ -233,9 +264,13 @@ curl http://localhost:4000/
 
 # Test from outside
 curl http://your-vps-ip/
+
+# Test Beszel dashboard
+curl http://localhost:8090/
+# Or open in browser: http://your-vps-ip:8090
 ```
 
-### Step 9: Setup SSL (Optional but Recommended)
+### Step 10: Setup SSL (Optional but Recommended)
 ```bash
 # Obtain SSL certificate
 sudo certbot --nginx -d api.yourdomain.com
@@ -320,6 +355,27 @@ The script will:
 ---
 
 ## 🐛 Troubleshooting
+
+### Docker Compose v2 Issues
+
+**Error:** `docker-compose: command not found`
+
+**Cause:** Docker v29+ uses `docker compose` (without dash) instead of `docker-compose`
+
+**Solution:**
+```bash
+# Check Docker version
+docker --version
+
+# If v20+, use new syntax (no dash):
+docker compose up -d
+docker compose down
+docker compose logs -f app
+
+# The deploy.sh script already uses the correct syntax
+```
+
+**Note:** All Docker commands in this project use the new `docker compose` syntax (v2).
 
 ### Container won't start
 ```bash

@@ -69,12 +69,13 @@ cancelled ←──────────────────────�
 
 ### Payment Flow
 
-1. Customer deposits money → Wallet balance
-2. Customer sends offer → Wallet charged (budget + 5% platform fee), moved to escrow
-3. Contractor accepts → Platform fee ($5) to admin, remaining in escrow
+1. Customer deposits via Stripe Checkout (backend returns URL, opens in browser)
+2. Customer sends offer → No wallet change yet (pending acceptance)
+3. Contractor accepts → Wallet balances updated in DB only (customer -$105, admin +$105)
 4. Job in progress → Contractor works on job
-5. Customer marks complete → Service fee ($20) to admin, contractor receives 80%
-6. Alternative: Job cancelled → Full refund to customer
+5. Customer marks complete → Creates request for admin approval
+6. Admin approves → Wallet balances updated (admin -$80, contractor +$80), admin initiates Stripe Connect transfer
+7. Alternative: Job cancelled → DB wallet refund (admin -$105, customer +$105)
 
 ### Offer System
 
@@ -88,10 +89,12 @@ cancelled ←──────────────────────�
 ### Wallet System
 
 - Internal wallet for each user (auto-created on first use)
-- Balance tracking: available balance, escrow balance
-- Transaction types: platform_fee, service_fee, contractor_payout, refund, deposit, withdrawal, escrow_hold, escrow_release
+- Single balance tracking (no separate escrow)
+- Transaction types: deposit, withdrawal, wallet_transfer, contractor_payout, refund
+- Stripe Checkout for deposits (returns URL for browser)
+- Stripe Connect for contractor payouts (admin-approved)
 - Complete transaction history and audit trail
-- Withdrawal feature for contractors only
+- Withdrawal feature for contractors (admin-approved)
 - Wallet can be frozen by admin for security
 
 ### Database Models

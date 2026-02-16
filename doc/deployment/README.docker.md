@@ -26,7 +26,7 @@ See detailed guide: `doc/deployment/MONGODB_ATLAS.md`
 
 ```bash
 # Copy environment template
-cp .env.docker .env
+cp .env.example .env
 
 # Edit with your values
 nano .env
@@ -151,7 +151,7 @@ cd jobsphere
 3. **Configure environment:**
 
 ```bash
-cp .env.docker .env
+cp .env.example .env
 nano .env  # Update with production values
 ```
 

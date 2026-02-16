@@ -127,6 +127,10 @@ git config --unset-all --local core.hooksPath
 lefthook install
 ```
 
+### Docker Build Issues
+
+If you encounter "git: executable file not found" during Docker builds, the Dockerfile is already configured to skip the prepare script using `--ignore-scripts`. Git hooks aren't needed in production containers.
+
 ### Skip hooks temporarily
 
 To skip pre-commit hooks for a single commit:

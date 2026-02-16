@@ -19,8 +19,8 @@ registry.registerPath({
   method: "post",
   path: `${openAPITags.delivery.basepath}/complete-delivery`,
   description:
-    "Customer marks a job as complete after contractor finishes work. This triggers payment release from escrow: 80% to contractor, 20% service fee to admin. Job must be in 'in_progress' status with an accepted offer. Creates transaction records for audit trail and sends notification to contractor. Uses MongoDB transactions for atomicity.",
-  summary: "Mark job as complete and release payment",
+    "Customer marks a job as complete after contractor finishes work. This creates a completion request for admin approval. Admin will then approve the completion, which triggers payment release: 80% to contractor, 20% service fee to admin. Job must be in 'assigned' status with an accepted offer. Uses MongoDB transactions for atomicity.",
+  summary: "Request job completion (requires admin approval)",
   tags: [openAPITags.delivery.name],
   security: [{ bearerAuth: [] }],
   request: {
@@ -35,18 +35,27 @@ registry.registerPath({
   responses: {
     200: {
       description:
-        "Job marked as complete successfully. Payment released to contractor and admin.",
+        "Completion request created successfully. Awaiting admin approval for payment release.",
       content: {
         [mediaTypeFormat.json]: {
           schema: CompleteDeliveryResponseSchema,
           example: {
             status: 200,
-            message: "Job marked as complete successfully",
+            message: "Completion request created successfully",
             data: {
-              job: {
+              completionRequest: {
                 _id: "673d5f8e9a1b2c3d4e5f6789",
+                job: "673d5f8e9a1b2c3d4e5f6788",
+                customer: "673d5f8e9a1b2c3d4e5f6787",
+                contractor: "673d5f8e9a1b2c3d4e5f6786",
+                offer: "673d5f8e9a1b2c3d4e5f6785",
+                status: "pending",
+                requestedAt: "2025-11-28T10:30:00.000Z",
+              },
+              job: {
+                _id: "673d5f8e9a1b2c3d4e5f6788",
                 title: "Fix Plumbing",
-                status: "completed",
+                status: "assigned",
                 completedAt: "2025-11-28T10:30:00.000Z",
               },
               payment: {
@@ -56,18 +65,8 @@ registry.registerPath({
                 platformFee: 5,
                 totalAdminCommission: 25,
               },
-              wallets: {
-                customer: {
-                  balance: 0,
-                  escrowBalance: 0,
-                },
-                contractor: {
-                  balance: 80,
-                  totalEarnings: 80,
-                },
-              },
               message:
-                "Job completed successfully. Contractor received 80 (80% of 100). Service fee of 20 (20%) was deducted.",
+                "Completion request submitted. Admin will review and approve payment release.",
             },
           },
         },
@@ -75,24 +74,23 @@ registry.registerPath({
     },
     400: {
       description:
-        "Bad request - Job not in_progress, no accepted offer, or insufficient escrow balance",
+        "Bad request - Job not assigned, no accepted offer, or completion request already exists",
       content: {
         [mediaTypeFormat.json]: {
           schema: ErrorResponseSchema,
           examples: {
-            notInProgress: {
+            notAssigned: {
               value: {
                 status: 400,
                 message:
-                  "Cannot complete job with status: open. Job must be in_progress.",
+                  "Cannot complete job with status: open. Job must be assigned.",
                 data: null,
               },
             },
-            insufficientEscrow: {
+            alreadyRequested: {
               value: {
                 status: 400,
-                message:
-                  "Insufficient escrow balance. Required: 100, Available: 50",
+                message: "Completion request already exists for this job",
                 data: null,
               },
             },
@@ -115,7 +113,7 @@ registry.registerPath({
     },
     403: {
       description:
-        "Forbidden - Only customer who posted the job can complete it",
+        "Forbidden - Only customer who posted the job can request completion",
       content: {
         [mediaTypeFormat.json]: {
           schema: ErrorResponseSchema,
@@ -128,7 +126,7 @@ registry.registerPath({
       },
     },
     404: {
-      description: "Not found - Job, offer, or wallet not found",
+      description: "Not found - Job or offer not found",
       content: {
         [mediaTypeFormat.json]: {
           schema: ErrorResponseSchema,
@@ -159,7 +157,7 @@ registry.registerPath({
           schema: ErrorResponseSchema,
           example: {
             status: 500,
-            message: "Failed to mark job as complete",
+            message: "Failed to create completion request",
             data: null,
           },
         },

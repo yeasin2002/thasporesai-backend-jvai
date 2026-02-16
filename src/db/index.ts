@@ -1,5 +1,6 @@
 import { Category } from "./models/category.model";
 import { Certification } from "./models/certification.model";
+import { CompletionRequest } from "./models/completion-request.model";
 import { Conversation } from "./models/conversation.model";
 import { Experience } from "./models/experience.model";
 import { FcmToken } from "./models/fcm-token.model";
@@ -13,6 +14,7 @@ import { Review } from "./models/review.model";
 import { Transaction } from "./models/transaction.model";
 import { User } from "./models/user.model";
 import { Wallet } from "./models/wallet.model";
+import { WithdrawalRequest } from "./models/withdrawal-request.model";
 import { WorkSample } from "./models/work-samples.model";
 
 export const db = {
@@ -20,6 +22,8 @@ export const db = {
   offer: Offer,
   wallet: Wallet,
   transaction: Transaction,
+  completionRequest: CompletionRequest,
+  withdrawalRequest: WithdrawalRequest,
   user: User,
   category: Category,
   job: Job,

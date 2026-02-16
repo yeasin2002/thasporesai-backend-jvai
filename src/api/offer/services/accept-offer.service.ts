@@ -2,6 +2,7 @@ import { AdminService } from "@/common/service/admin.service";
 import { NotificationService } from "@/common/service/notification.service";
 import { db } from "@/db";
 import { sendBadRequest, sendInternalError, sendSuccess } from "@/helpers";
+import { logger } from "@/lib";
 import type { RequestHandler } from "express";
 import mongoose from "mongoose";
 
@@ -26,28 +27,84 @@ export const acceptOffer: RequestHandler = async (req, res) => {
 
     const job = offer.job as any;
 
-    // 2-9. Execute all database operations atomically
+    // 2. Validate customer has sufficient balance
+    const customerWallet = await db.wallet.findOne({ user: offer.customer });
+    if (!customerWallet) {
+      return sendBadRequest(res, "Customer wallet not found");
+    }
+
+    if (customerWallet.balance < offer.totalCharge) {
+      return sendBadRequest(
+        res,
+        `Insufficient balance. Required: $${offer.totalCharge}, Available: $${customerWallet.balance}`
+      );
+    }
+
+    if (customerWallet.isFrozen) {
+      return sendBadRequest(
+        res,
+        "Customer wallet is frozen. Please contact support."
+      );
+    }
+
+    // 3. Execute all database operations atomically
     const session = await mongoose.startSession();
     session.startTransaction();
 
     try {
       // Get admin wallet and user ID
-      const adminWallet = await AdminService.getAdminWallet();
       const adminUserId = await AdminService.getAdminUserId();
 
-      // Update offer status
+      // 4. MongoDB transaction: Transfer funds from customer to admin
+      // Deduct from customer wallet
+      const updatedCustomerWallet = await db.wallet.findOneAndUpdate(
+        {
+          user: offer.customer,
+          balance: { $gte: offer.totalCharge }, // Atomic check
+        },
+        {
+          $inc: {
+            balance: -offer.totalCharge,
+            totalSpent: offer.totalCharge,
+          },
+        },
+        { new: true, session }
+      );
+
+      // If wallet update failed, balance was insufficient (race condition)
+      if (!updatedCustomerWallet) {
+        await session.abortTransaction();
+        return sendBadRequest(
+          res,
+          `Insufficient balance. Required: $${offer.totalCharge}, Available: $${customerWallet.balance}`
+        );
+      }
+
+      // Add to admin wallet
+      await db.wallet.findOneAndUpdate(
+        { user: adminUserId },
+        {
+          $inc: {
+            balance: offer.totalCharge,
+            totalEarnings: offer.totalCharge,
+          },
+        },
+        { new: true, session, upsert: true }
+      );
+
+      // 5. Update offer status
       offer.status = "accepted";
       offer.acceptedAt = new Date();
       await offer.save({ session });
 
-      // Update job
+      // 6. Update job status
       job.status = "assigned";
       job.contractorId = contractorId;
       job.offerId = offerId;
       job.assignedAt = new Date();
       await job.save({ session });
 
-      // Update engaged application/invite status (if applicable)
+      // 7. Update engaged application/invite status (if applicable)
       if (offer.engaged) {
         // Mark the engaged application as accepted
         await db.inviteApplication.findByIdAndUpdate(
@@ -78,34 +135,18 @@ export const acceptOffer: RequestHandler = async (req, res) => {
         );
       }
 
-      // Transfer platform fee to admin
-      adminWallet.balance += offer.platformFee;
-      adminWallet.totalEarnings += offer.platformFee;
-      await adminWallet.save({ session });
-
-      // Update customer escrow
-      await db.wallet.findOneAndUpdate(
-        { user: offer.customer },
-        {
-          $inc: {
-            escrowBalance: -offer.platformFee,
-          },
-        },
-        { session }
-      );
-
-      // Create transaction for platform fee
+      // 8. Create transaction record
       await db.transaction.create(
         [
           {
-            type: "platform_fee",
-            amount: offer.platformFee,
+            type: "wallet_transfer",
+            amount: offer.totalCharge,
             from: offer.customer,
             to: adminUserId,
             offer: offerId,
             job: job._id,
             status: "completed",
-            description: `Platform fee (5%) for accepted offer`,
+            description: `Wallet transfer for accepted offer: $${offer.totalCharge} (budget + 5% platform fee)`,
             completedAt: new Date(),
           },
         ],
@@ -115,7 +156,7 @@ export const acceptOffer: RequestHandler = async (req, res) => {
       // Commit transaction
       await session.commitTransaction();
 
-      // 10. Send notifications (outside transaction)
+      // 9. Send notifications (outside transaction)
       await NotificationService.sendToUser({
         userId: offer.customer._id.toString(),
         title: "Offer Accepted",
@@ -155,6 +196,7 @@ export const acceptOffer: RequestHandler = async (req, res) => {
         offer,
         job,
         payment: {
+          totalCharge: offer.totalCharge,
           platformFee: offer.platformFee,
           serviceFee: offer.serviceFee,
           contractorPayout: offer.contractorPayout,
@@ -168,7 +210,7 @@ export const acceptOffer: RequestHandler = async (req, res) => {
       session.endSession();
     }
   } catch (error) {
-    console.error("Error accepting offer:", error);
+    logger.error("Error accepting offer:", error);
     return sendInternalError(res, "Failed to accept offer", error as Error);
   }
 };
