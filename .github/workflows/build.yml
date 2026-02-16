@@ -27,8 +27,6 @@ jobs:
 
       - name: Install Task
         uses: go-task/setup-task@v1.0.0
-        with:
-          version: latest
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
