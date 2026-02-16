@@ -89,27 +89,64 @@ socket.emit('mark_as_read', { conversationId, messageIds: [] });
 socket.on('message_read', ({ messageIds, readBy }) => {});
 ```
 
-## Client Integration
+
+## Environments
+
+| Environment | URL | Notes |
+| :--- | :--- | :--- |
+| **Production** | `http://server.myquickjobs.com` | Use this for the live app |
+| **Local** | `http://localhost:4000` | For local development |
+| **Network** | `http://172.17.144.1:4000` | For testing on devices in same network |
+
+## Integration
+
+To integrate, point your Socket.IO client to the **Production URL** (`http://server.myquickjobs.com`).
 
 ### Flutter
+
+Use the `socket_io_client` package.
 
 ```dart
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 
-final socket = IO.io('http://YOUR_IP:4000', {
-  'auth': {'token': token},
-  'transports': ['websocket']
-});
+class ChatService {
+  late IO.Socket socket;
 
-socket.on('connect', (_) => print('Connected'));
-socket.on('new_message', (data) => handleMessage(data));
+  void connect(String token) {
+    // initialize socket
+    socket = IO.io('http://server.myquickjobs.com', IO.OptionBuilder()
+      .setTransports(['websocket']) // for Flutter or Dart VM
+      .setAuth({'token': token})    // optional: if your server requires auth
+      .disableAutoConnect()         // disable auto-connection
+      .build()
+    );
 
-socket.emit('send_message', {
-  'conversationId': convId,
-  'receiverId': userId,
-  'messageType': 'text',
-  'content': {'text': 'Hello'}
-});
+    socket.connect();
+
+    socket.onConnect((_) {
+      print('Connected to chat server');
+    });
+
+    socket.onDisconnect((_) => print('Disconnected'));
+    
+    socket.on('new_message', (data) {
+      print('New message received: $data');
+      // Handle incoming message
+    });
+  }
+
+  void sendMessage(String conversationId, String message) {
+    socket.emit('send_message', {
+      'conversationId': conversationId,
+      'content': {'text': message},
+      'messageType': 'text',
+    });
+  }
+  
+  void dispose() {
+    socket.dispose();
+  }
+}
 ```
 
 ### Web
@@ -117,28 +154,21 @@ socket.emit('send_message', {
 ```typescript
 import { io } from 'socket.io-client';
 
-const socket = io('http://localhost:4000', {
-  auth: { token }
+const socket = io('http://server.myquickjobs.com', {
+  transports: ['websocket'],
+  auth: { token: 'YOUR_JWT_TOKEN' }
 });
 
-socket.on('new_message', (msg) => addToChat(msg));
-```
-
-## Testing
-
-```bash
-# REST API (use api-client/chat.http)
-curl -H "Authorization: Bearer TOKEN" \
-  http://localhost:4000/api/chat/conversations
-
-# Socket.IO (browser console)
-const socket = io('http://localhost:4000', {
-  auth: { token: 'YOUR_TOKEN' }
+socket.on('connect', () => {
+  console.log('Connected to server');
 });
 ```
 
-## Documentation
+## REST API Reference
 
-- API Docs: http://localhost:4000/api-docs
-- Complete Reference: `CHAT_REFERENCE.md`
+Before connecting to the socket, you might want to fetch conversation history via REST API using the same base URL:
+
+```
+GET http://server.myquickjobs.com/api/chat/conversations
+```
 
