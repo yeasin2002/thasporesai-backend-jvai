@@ -15,35 +15,68 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     environment: production
+    env:
+      DEPLOY_PATH: ~/thasporesai-backend-jvai
 
     steps:
-      - name: Deploy to VPS
+      - name: Pull latest changes
         uses: appleboy/ssh-action@v1.2.2
         with:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USERNAME }}
           key: ${{ secrets.VPS_SSH_KEY }}
           script: |
-            cd ~/thasporesai-backend-jvai
-            
-            echo "📥 Pulling latest changes..."
+            cd ${{ env.DEPLOY_PATH }}
             git pull origin main
-            
-            echo "� Installing Task (if not installed)..."
-            if ! command -v task &> /dev/null; then
+
+      - name: Install Task (if missing)
+        uses: appleboy/ssh-action@v1.2.2
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USERNAME }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          script: |
+            if ! command -v task > /dev/null 2>&1; then
               sh -c "$(curl --location https://taskfile.dev/install.sh)" -- -d -b /usr/local/bin
             fi
-            
-            echo "🔍 Verifying Task installation..."
+
+      - name: Verify Task installation
+        uses: appleboy/ssh-action@v1.2.2
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USERNAME }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          script: |
             task --version
-            
-            echo "🚀 Running deployment..."
+
+      - name: Run deployment
+        uses: appleboy/ssh-action@v1.2.2
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USERNAME }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          script: |
+            cd ${{ env.DEPLOY_PATH }}
             task update
-            
-            echo ""
-            echo "� Deployment Summary:"
+
+      - name: Deployment summary
+        if: success()
+        uses: appleboy/ssh-action@v1.2.2
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USERNAME }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          script: |
+            cd ${{ env.DEPLOY_PATH }}
             task docker:ps
-            
-            echo ""
-            echo "🧪 Running health checks..."
-            task test:all || echo "⚠️ Some health checks failed - check logs with: task docker:logs"
+
+      - name: Run health checks
+        if: success()
+        uses: appleboy/ssh-action@v1.2.2
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USERNAME }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          script: |
+            cd ${{ env.DEPLOY_PATH }}
+            task test:all || echo "Some health checks failed - check logs with: task docker:logs"
