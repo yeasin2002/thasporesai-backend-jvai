@@ -50,7 +50,7 @@ export const refresh: RequestHandler<{}, unknown, RefreshToken> = async (
 
     // Generate new tokens
     const tokenPayload = {
-      userId: user._id as string,
+      userId: String(user._id),
       email: user.email,
       role: user.role as "customer" | "contractor" | "admin",
     };
